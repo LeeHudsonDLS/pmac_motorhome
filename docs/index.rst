@@ -1,13 +1,19 @@
 dls_motorhome
 ===========================
 
-Write some introductory paragraphs here. They should describe:
+This module allows the generation of homing procedures written in pmc
+code to be used by Delta Tau motion controllers.
 
-- What the module does
-- How it does it
-- Why you should use it
+A python script that imports the dls_motorhome module will have access
+to classes and functions that will help to define groups of motion axes
+and how they should be homed.
+The package includes some typical and popular homing routines already
+defined, and allows the user to define their own custom routines, or
+customise existing routines.
 
-If you have a diagram or screenshot, you can include it here.
+The benefits of this package are it is quick to create typical or
+standard homing routines, and custom routine configuration is easier
+to read.
 
 Installation
 ------------
