@@ -25,5 +25,5 @@ def test_plc_number_must_be_within_range():
     plc_number_max = 32
     with pytest.raises(ValueError):
         Group(plc_number=plc_number_max + 1)
-    with pytest.raises(ValueError):
         Group(plc_number=plc_number_min - 1)
+        Group(plc_number=10.0)
