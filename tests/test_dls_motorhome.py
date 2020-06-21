@@ -33,3 +33,8 @@ def test_plc_number_must_be_within_range():
 def test_Group_object_has_Pvar_api_in_string_list():
     g = Group()
     assert P_VARIABLE_API in g.code()
+
+
+def test_code_starts_with_CLOSE():
+    g = Group()
+    assert "CLOSE" in g.code().split("\n")[0]

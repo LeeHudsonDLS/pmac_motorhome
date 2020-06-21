@@ -1,11 +1,11 @@
-from ._snippets import P_VARIABLE_API
+import dls_motorhome._snippets as snippets
 
 
 class Group:
     def __init__(self, *axes, plc_number=9):
         self.axes = axes
         self.plc_number = int(plc_number)
-        self.code_blocks = [P_VARIABLE_API]
+        self.code_blocks = [snippets.CLOSE, snippets.P_VARIABLE_API]
 
         if (
             self.plc_number < 8  # PLCs 1-8 are reserved

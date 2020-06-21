@@ -35,3 +35,5 @@ HomingGroup = 0
 #define HomingBackupGroup P1003
 HomingBackupGroup = 0
 """
+
+CLOSE = """CLOSE"""
