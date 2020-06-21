@@ -4,7 +4,7 @@ class Group:
         self.plc_number = int(plc_number)
 
         if (
-            self.plc_number < 8      # PLCs 1-8 are reserved
+            self.plc_number < 8  # PLCs 1-8 are reserved
             or self.plc_number > 32  # highest PLC number possible
             or not isinstance(self.plc_number, int)
         ):
