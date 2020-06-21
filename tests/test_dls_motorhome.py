@@ -32,4 +32,4 @@ def test_plc_number_must_be_within_range():
 
 def test_Group_object_has_Pvar_api_in_string_list():
     g = Group()
-    assert P_VARIABLE_API in g.code
+    assert P_VARIABLE_API in g.code()
