@@ -42,4 +42,5 @@ def test_code_starts_with_CLOSE():
 
 def test_timer_code_snippet_has_plc_number():
     g = Group(plc_number=12)
-    assert "i(5111+(12&30)*50+12%2)" in g.code()
+    lines = [line for line in g.code().split("\n") if "#define timer" in line]
+    assert "i(5111+(12&30)*50+12%2)" in lines[0]
