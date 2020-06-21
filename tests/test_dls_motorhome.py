@@ -38,3 +38,8 @@ def test_Group_object_has_Pvar_api_in_string_list():
 def test_code_starts_with_CLOSE():
     g = Group()
     assert "CLOSE" in g.code().split("\n")[0]
+
+
+def test_timer_code_snippet_has_plc_number():
+    g = Group(plc_number=12)
+    assert "i(5111+(12&30)*50+12%2)" in g.code()

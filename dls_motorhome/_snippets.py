@@ -36,4 +36,11 @@ HomingGroup = 0
 HomingBackupGroup = 0
 """
 
-CLOSE = """CLOSE"""
+CLOSE = """CLOSE
+"""
+
+TIMER = """; Use a different timer for each PLC
+#define timer             i(5111+({PLC}&30)*50+{PLC}%2)
+; Make timer more readable
+#define MilliSeconds      * 8388608/i10
+"""
