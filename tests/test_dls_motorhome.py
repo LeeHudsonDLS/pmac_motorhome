@@ -44,3 +44,10 @@ def test_timer_code_snippet_has_plc_number():
     g = Group(plc_number=12)
     lines = [line for line in g.code().split("\n") if "#define timer" in line]
     assert "i(5111+(12&30)*50+12%2)" in lines[0]
+
+
+def test_code_has_Milliseconds_defined():
+    g = Group()
+    lines = [line for line in g.code().split("\n") if "#define MilliSeconds" in line]
+    print(lines)
+    assert "* 8388608/i10" in lines[0]
