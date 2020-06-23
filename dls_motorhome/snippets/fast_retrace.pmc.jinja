@@ -1,0 +1,12 @@
+
+    ;---- FastRetrace State ----
+    if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
+        HomingState=StateFastRetrace
+        ; Execute the move commands
+        {# TODO I'm not sure negate_home_flags is a thing - the original code does
+           it, but why ??? #}
+        {{ group.negate_home_flags() }} {{ group.set_large_jog_distance() }}
+        cmd "{{ group.jog_axes_jdist() }}"
+        {% include "wait_for_done.pmc.jinja" %}
+
+    endif

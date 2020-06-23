@@ -19,9 +19,12 @@ class Motor:
         self.jdist = jdist
         self.index = len(self.instances)
         self.instances.append(self)
+        self.post: str = "None"  # TODO need to pass this
+        # this is for terse string formatting code in Group._all_axes()
+        self.dict = {"axis": axis, "index": self.index, "jdist": jdist}
 
     # TODO IMPORTANT - this is used in finding the Home capture flags etc. and is
-    # specific to Geobrick - For full implementation see Motor class in
+    # specific to Geobrick - For a full implementation see Motor class in
     #  ... pmacutil/pmacUtilApp/src/motorhome.py
     # HINT: watch out for python 2 vs python 3 handling of integer arithmetic
     @property
@@ -58,42 +61,63 @@ class Snippet(Enum):
     fast_search = "fast_search"
     debug = "debug_pause"
     store_pos = "store_position_diff"
+    fast_retrace = "fast_retrace"
+    home = "home"
 
 
 class Group:
     # TODO this probably needs to be merged into your Group class that implements
     # the python contexts
-    def __init__(self, axes: List[Motor], group_num: int = 9) -> None:
+    # TODO htype should have a class
+    def __init__(self, axes: List[Motor], group_num: int, htype: str = "RLIM",) -> None:
         self.axes = axes
-        self.comments: str = f"; TODO commments placeholder for group {group_num}"
+        self.htype = htype
+        self.comments: str = self.make_comment()
         self.group_num = group_num
         self.snippets: List[Snippet] = []
+
+    def make_comment(self) -> str:
+        return "\n".join(
+            [
+                f";  Axis {ax.axis}: htype = {self.htype}, "
+                f"jdist = {ax.jdist}, post = {ax.post}"
+                for ax in self.axes
+            ]
+        )
 
     @property
     def count(self) -> int:
         return len(self.snippets)
 
-    def _all_axes(self, template: str, separator: str) -> str:
-        all = [template.format(ax.axis) for ax in self.axes]
+    def _all_axes(self, template: str, separator: str, *arg) -> str:
+        # to the string format: pass any extra arguments first, then the dictionary
+        # of the axis object so its elements can be addressed by name
+        all = [template.format(*arg, **ax.dict) for ax in self.axes]
         return separator.join(all)
 
     def jog_axes(self) -> str:
-        return self._all_axes("#{0}J^*", " ")
+        return self._all_axes("#{axis}J^*", " ")
 
-    def set_large_jog_distance(self) -> str:
-        return self._all_axes("m{0}72=100000000*(-i{0}23/ABS(i{0}23))", " ")
+    def jog_axes_jdist(self) -> str:
+        return self._all_axes("#{axis}J^*^{jdist}", " ")
+
+    def set_large_jog_distance(self, negative: bool = True) -> str:
+        sign = "-" if negative else ""
+        return self._all_axes(
+            "m{axis}72=100000000*({0}i{axis}23/ABS(i{axis}23))", " ", sign
+        )
 
     def in_pos(self) -> str:
-        return self._all_axes("m{0}40", "&")
+        return self._all_axes("m{axis}40", "&")
 
     def following_err(self) -> str:
-        return self._all_axes("m{0}42", "|")
+        return self._all_axes("m{axis}42", "|")
 
     def homed(self) -> str:
-        return self._all_axes("m{0}45", "&")
+        return self._all_axes("m{axis}45", "&")
 
     def clear_home(self) -> str:
-        return self._all_axes("m{0}45=0", " ")
+        return self._all_axes("m{axis}45=0", " ")
 
     def store_position_diff(self):
         return "\n        ".join(
@@ -103,6 +127,15 @@ class Group:
                 for ax in self.axes
             ]
         )
+
+    def negate_home_flags(self):
+        return " ".join([f"i7{ax.nx}2=P{ax.index+1152}" for ax in self.axes])
+
+    def restore_home_flags(self):
+        return " ".join([f"i7{ax.nx}2=P{ax.index+1136}" for ax in self.axes])
+
+    def home(self) -> str:
+        return self._all_axes("#{axis}hm", " ")
 
 
 class Plc:
@@ -134,11 +167,11 @@ class Plc:
     def save_homed(self):
         return " ".join([f"P{ax.index+1136}=i7{ax.nx}2" for ax in self.axes])
 
-    def restore_homed(self):
-        return " ".join([f"i7{ax.nx}2=P{ax.index+1136}" for ax in self.axes])
-
     def save_not_homed(self):
         return " ".join([f"P{ax.index+1152}=P{ax.index+1136}^$C" for ax in self.axes])
+
+    def restore_homed(self):
+        return " ".join([f"i7{ax.nx}2=P{ax.index+1136}" for ax in self.axes])
 
     def save_limit_flags(self):
         return " ".join([f"P{ax.index+1168}=i{ax.axis}24" for ax in self.axes])
@@ -170,9 +203,27 @@ m2 = Motor(axis=2, jdist=0)
 m4 = Motor(axis=4, jdist=0)
 m5 = Motor(axis=5, jdist=0)
 g1 = Group([m1, m2], 2)
-g1.snippets = [Snippet.pre_home, Snippet.debug, Snippet.store_pos]
+g1.snippets = [
+    Snippet.pre_home,
+    Snippet.debug,
+    Snippet.fast_search,
+    Snippet.store_pos,
+    Snippet.debug,
+    Snippet.fast_retrace,
+    Snippet.debug,
+    Snippet.home,
+]
 g2 = Group([m4, m5], 3)
-g2.snippets = [Snippet.pre_home, Snippet.debug]
+g2.snippets = [
+    Snippet.pre_home,
+    Snippet.debug,
+    Snippet.fast_search,
+    Snippet.store_pos,
+    Snippet.debug,
+    Snippet.fast_retrace,
+    Snippet.debug,
+    Snippet.home,
+]
 
 p.add_group(g1)
 p.add_group(g2)
