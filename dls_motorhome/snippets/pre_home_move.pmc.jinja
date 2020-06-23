@@ -1,4 +1,3 @@
-
     ;---- PreHomeMove State ----
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StatePreHomeMove
@@ -6,5 +5,4 @@
         {{ group.set_large_jog_distance() }}
         cmd "{{ group.jog_axes() }}"
         {% include "wait_for_done.pmc.jinja" %}
-
     endif

@@ -40,7 +40,7 @@ class SnippetGenerator:
         self.templateLoader = FileSystemLoader(searchpath=jinja_path)
         self.environment = Environment(
             loader=self.templateLoader,
-            trim_blocks=True,
+            trim_blocks=False,
             lstrip_blocks=True,
             keep_trailing_newline=False,
         )
