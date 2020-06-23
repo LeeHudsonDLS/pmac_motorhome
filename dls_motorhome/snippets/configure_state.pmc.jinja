@@ -1,23 +1,18 @@
-
 ;---- Configuring State ----
 HomingState=StateConfiguring
 ;Save the Homing group to px03
 HomingBackupGroup=HomingGroup
-
-; TODO ALL OF THE FOLLOWING NEEDS PARAMERERIZIING
-
 ;Save high soft limits to P variables px04..x19
-P1104=i113 P1105=i213 P1106=i413 P1107=i513
+{{ plc.save_hi_limits() }}
 ;Save the low soft limits to P variables px20..x35
-P1120=i114 P1121=i214 P1122=i414 P1123=i514
+{{ plc.save_lo_limits() }}
 ;Save the home capture flags to P variables px36..x51
-P1136=i7012 P1137=i7022 P1138=i7042 P1139=i7112
+{{ plc.save_homed() }}
 ;Store 'not flag' to use in moving off a flag in P variables px52..x67
-P1152=P1136^$C P1153=P1137^$C P1154=P1138^$C P1155=P1139^$C
+{{ plc.save_not_homed() }}
 ;Save the limit flags to P variables px68..x83
-P1168=i124 P1169=i224 P1170=i424 P1171=i524
+{{ plc.save_limit_flags() }}
 ;Save the current position to P variables px84..x99
-P1184=M162 P1185=M262 P1186=M462 P1187=M562
+{{ plc.save_position() }}
 ;Clear the soft limits
-i113=0 i213=0 i413=0 i513=0
-i114=0 i214=0 i414=0 i514=0
+{{ plc.clear_limits() }}
