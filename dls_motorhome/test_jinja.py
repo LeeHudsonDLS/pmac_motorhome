@@ -14,7 +14,6 @@ class SnippetGenerator:
     def __init__(self) -> None:
         this_path = Path(__file__).parent
         jinja_path = this_path.parent / "snippets"
-        print(f"jinja path is {jinja_path}")
         self.templateLoader = FileSystemLoader(searchpath=jinja_path)
         self.environment = Environment(
             loader=self.templateLoader, trim_blocks=False, lstrip_blocks=False
@@ -28,32 +27,47 @@ class SnippetGenerator:
 
 
 class Group:
-    def __init__(self, axes: List[int], plc: int = 9) -> None:
+    def __init__(self, axes: List[int], group_num: int = 9) -> None:
         self.axes = axes
-        self.plc = plc
+        self.comments: str = f'; commments placeholder for group {group_num}'
+        self.group_num = group_num
 
     def _all_axes(self, template: str, separator: str) -> str:
         all = [template.format(axis) for axis in self.axes]
         return separator.join(all)
 
-    @property
     def jog_axes(self) -> str:
         return self._all_axes("#{0}J^*", " ")
 
-    @property
     def set_large_jog_distance(self) -> str:
         return self._all_axes("m{0}72=100000000*(-i{0}23/ABS(i{0}23))", " ")
 
-    @property
     def in_pos(self) -> str:
         return self._all_axes("m{0}40", "&")
 
-    @property
     def following_err(self) -> str:
         return self._all_axes("m{0}42", "|")
 
 
-s = SnippetGenerator()
+class Plc:
+    def __init__(self, plc_num: int) -> None:
+        self.plc_num = plc_num
+        self.groups: List[Group] = []
 
-g = Group([1, 2])
-print(s.render("pre_home_move.pmc.jinja", group=g))
+    def add_group(self, group: Group):
+        self.groups.append(group)
+
+    @property
+    def count(self) -> int:
+        return len(self.groups)
+
+
+s = SnippetGenerator()
+p = Plc(11)
+
+g1 = Group([1, 2], 2)
+g2 = Group([3, 4], 3)
+p.add_group(g1)
+p.add_group(g2)
+
+print(s.render("plc.pmc.jinja", plc=p))
