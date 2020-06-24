@@ -10,18 +10,36 @@ jinja_path = this_path.parent / "snippets"
 templateLoader = FileSystemLoader(searchpath=jinja_path)
 environment = Environment(loader=templateLoader)
 
+# offsets into the PLC's PVariables for storing the state of axes
+# these names go into long format strings so keep them short for legibility
+PVARS = {
+    "hi_lim": 4,
+    "lo_lim": 20,
+    "homed": 36,
+    "not_homed": 52,
+    "lim_flags": 68,
+    "pos": 84,
+}
+
 
 class Motor:
     instances: List["Motor"] = []
 
-    def __init__(self, axis: int, jdist: int) -> None:
+    def __init__(self, axis: int, jdist: int, plc_num: int) -> None:
         self.axis = axis
         self.jdist = jdist
         self.index = len(self.instances)
         self.instances.append(self)
         self.post: str = "None"  # TODO need to pass this
-        # this is for terse string formatting code in Group._all_axes()
-        self.dict = {"axis": axis, "index": self.index, "jdist": jdist}
+        # dict is for terse string formatting code in _all_axes() functions
+        self.dict = {
+            "axis": axis,
+            "index": self.index,
+            "jdist": jdist,
+            "homed_flag": f"7{self.nx}2",
+        }
+        for name, start in PVARS.items():
+            self.dict[name] = plc_num * 100 + start + self.index
 
     # TODO IMPORTANT - this is used in finding the Home capture flags etc. and is
     # specific to Geobrick - For a full implementation see Motor class in
@@ -89,10 +107,10 @@ class Group:
     def count(self) -> int:
         return len(self.snippets)
 
-    def _all_axes(self, template: str, separator: str, *arg) -> str:
+    def _all_axes(self, format: str, separator: str, *arg) -> str:
         # to the string format: pass any extra arguments first, then the dictionary
         # of the axis object so its elements can be addressed by name
-        all = [template.format(*arg, **ax.dict) for ax in self.axes]
+        all = [format.format(*arg, **ax.dict) for ax in self.axes]
         return separator.join(all)
 
     def jog_axes(self) -> str:
@@ -120,19 +138,16 @@ class Group:
         return self._all_axes("m{axis}45=0", " ")
 
     def store_position_diff(self):
-        return "\n        ".join(
-            [
-                f"P{ax.index+1184}=(P{ax.index+1184}-M{ax.axis}62)"
-                f"/(I{ax.axis}08*32)+{ax.jdist}-(i{ax.axis}26/16)"
-                for ax in self.axes
-            ]
+        return self._all_axes(
+            "P{pos}=(P{pos}-M{axis}62)/(I{axis}08*32)+{jdist}-(i{axis}26/16)",
+            separator="\n        ",
         )
 
     def negate_home_flags(self):
-        return " ".join([f"i7{ax.nx}2=P{ax.index+1152}" for ax in self.axes])
+        return self._all_axes("i{homed_flag}=P{not_homed}", " ")
 
     def restore_home_flags(self):
-        return " ".join([f"i7{ax.nx}2=P{ax.index+1136}" for ax in self.axes])
+        return self._all_axes("i{homed_flag}=P{homed}", " ")
 
     def home(self) -> str:
         return self._all_axes("#{axis}hm", " ")
@@ -152,56 +167,58 @@ class Plc:
     def count(self) -> int:
         return len(self.groups)
 
+    def _all_axes(self, format: str, separator: str, *arg) -> str:
+        all = [format.format(*arg, **ax.dict) for ax in self.axes]
+        return separator.join(all)
+
     def save_hi_limits(self):
-        return " ".join([f"P{ax.index+1104}=i{ax.axis}13" for ax in self.axes])
+        return self._all_axes("P{hi_lim}=i{axis}13", " ")
 
     def restore_hi_limits(self):
-        return " ".join([f"i{ax.axis}13=P{ax.index+1104}" for ax in self.axes])
+        return self._all_axes("i{axis}13=P{hi_lim}", " ")
 
     def save_lo_limits(self):
-        return " ".join([f"P{ax.index+1120}=i{ax.axis}14" for ax in self.axes])
+        return self._all_axes("P{lo_lim}=i{axis}14", " ")
 
     def restore_lo_limits(self):
-        return " ".join([f"i{ax.axis}14=P{ax.index+1120}" for ax in self.axes])
+        return self._all_axes("i{axis}14=P{lo_lim}", " ")
 
     def save_homed(self):
-        return " ".join([f"P{ax.index+1136}=i7{ax.nx}2" for ax in self.axes])
+        return self._all_axes("P{homed}=i{homed_flag}", " ")
 
     def save_not_homed(self):
-        return " ".join([f"P{ax.index+1152}=P{ax.index+1136}^$C" for ax in self.axes])
+        return self._all_axes("P{not_homed}=P{homed}^$C", " ")
 
     def restore_homed(self):
-        return " ".join([f"i7{ax.nx}2=P{ax.index+1136}" for ax in self.axes])
+        return self._all_axes("i{homed_flag}=P{homed}", " ")
 
     def save_limit_flags(self):
-        return " ".join([f"P{ax.index+1168}=i{ax.axis}24" for ax in self.axes])
+        return self._all_axes("P{lim_flags}=i{axis}24", " ")
 
     def restore_limit_flags(self):
-        return " ".join([f"i{ax.axis}24=P{ax.index+1168}" for ax in self.axes])
+        return self._all_axes("i{axis}24=P{lim_flags}", " ")
 
     def save_position(self):
-        return " ".join([f"P{ax.index+1184}=M{ax.axis}62" for ax in self.axes])
+        return self._all_axes("P{pos}=M{axis}62", " ")
 
     def clear_limits(self):
-        r = " ".join([f"i{ax.axis}13=0" for ax in self.axes])
+        r = self._all_axes("i{axis}13=0", " ")
         r += "\n"
-        r += " ".join([f"i{ax.axis}14=0" for ax in self.axes])
+        r += self._all_axes("i{axis}14=0", " ")
         return r
 
     def stop_motors(self):
-        return "\n".join(
-            [f'if (m{ax.axis}42=0)\n    cmd "#{ax.axis}J/"\nendif' for ax in self.axes]
-        )
+        return self._all_axes('if (m{axis}42=0)\n    cmd "#{axis}J/"\nendif' , "\n")
 
 
 # TODO all this below will magically happen in the 'with Group' statements
 s = SnippetGenerator()
 p = Plc(11)
 
-m1 = Motor(axis=1, jdist=0)
-m2 = Motor(axis=2, jdist=0)
-m4 = Motor(axis=4, jdist=0)
-m5 = Motor(axis=5, jdist=0)
+m1 = Motor(axis=1, jdist=0, plc_num=11)
+m2 = Motor(axis=2, jdist=0, plc_num=11)
+m4 = Motor(axis=4, jdist=0, plc_num=11)
+m5 = Motor(axis=5, jdist=0, plc_num=11)
 g1 = Group([m1, m2], 2)
 g1.snippets = [
     Snippet.pre_home,
