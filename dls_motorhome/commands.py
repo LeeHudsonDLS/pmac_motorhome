@@ -13,19 +13,23 @@ def plc(plc_num: int, controller: Controller, filepath: Path) -> Plc:
     return Plc(plc_num, controller, filepath)
 
 
-def motor(axis: int, jdist: int = 0):
-    Plc.add_motor(axis, jdist)
-
-
 def group(
     group_num: int, axes: List[int], post_home: PostHomeMove = PostHomeMove.none
 ) -> Group:
     return Plc.add_group(group_num, axes, post_home)
 
 
+def motor(axis: int, jdist: int = 0):
+    Plc.add_motor(axis, jdist)
+
+
 ###############################################################################
 # individual PLC action functions
 ###############################################################################
+def set_axes(axes):
+    Group.add_action(Group.the_group.set_axis_filter, axes=axes)
+
+
 def drive_neg_to_limit(**args):
     Group.add_snippet("drive_neg_to_limit", **args)
 
@@ -75,6 +79,7 @@ def post_home(**args):
 # common action sequences to recreate htypes= from the original motorhome.py
 ###############################################################################
 def home_rlim():
+    # set_axes([1, 2])
     drive_neg_to_limit()
     drive_pos_off_home()
     store_position_diff()
@@ -92,3 +97,25 @@ def home_hsw():
     home(with_limits=True)
     check_homed()
     post_home(with_limits=True)
+
+
+###############################################################################
+# common functions make some motor combinations even more terse
+###############################################################################
+
+def home_slits(
+    group_num: int, posx: int, negx: int, posy: int, negy: int, jdist: int = 0
+):
+    motor(axis=posx, jdist=jdist)
+    motor(axis=negx, jdist=jdist)
+    motor(axis=posy, jdist=jdist)
+    motor(axis=negy, jdist=jdist)
+
+    with group(group_num=group_num, axes=[posx, posy, negx, negy]):
+        drive_neg_to_limit()
+
+        with group(group_num=group_num, axes=[posx, negx]):
+            home_rlim()
+
+        with group(group_num=group_num, axes=[posy, negy]):
+            home_rlim()

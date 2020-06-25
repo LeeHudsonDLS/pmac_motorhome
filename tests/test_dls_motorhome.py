@@ -1,3 +1,4 @@
+from dls_motorhome.commands import home_slits
 from filecmp import cmp
 from pathlib import Path
 
@@ -100,7 +101,7 @@ def test_BL07I_STEP_04_plc11():
 # "HSW_HSTOP"
 # also exercise each of the post home move modes
 #
-# NOTE existing examples will require
+# NOTE existing examples will require 'Convert Indentation to Spaces' VSCode cmd
 # NOTE when tests fail you can easily see what has gone wrong with a command like:
 #   code --diff tests/examples/BL18B-MO-STEP-01.plc13 /tmp/BL18B-MO-STEP-01.plc13
 
@@ -137,6 +138,30 @@ def test_BL18B_STEP01_plc13():
         ) as g:
             g.make_comment(htype="HSW", post='i')
             home_hsw()
+
+        this_path = Path(__file__).parent
+
+    example = this_path / "examples" / file
+    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+
+
+def test_BL18B_STEP01_plc13_slits():
+    from dls_motorhome.commands import (
+        motor,
+        group,
+        plc,
+        Controller,
+        PostHomeMove,
+        home_hsw,
+    )
+
+    # generate the similar plc as test_BL18B_STEP01_plc13 but use the shortcut
+    # home_slits() command
+    # this separates the two pairs of slits so that they will not clash
+    file = "BL18B-MO-STEP-01.plc13"
+    tmp_file = Path("/tmp") / (file + "_slits")
+    with plc(plc_num=13, controller=Controller.brick, filepath=tmp_file):
+        home_slits(group_num=2, posx=1, negx=2, posy=3, negy=4)
 
         this_path = Path(__file__).parent
 

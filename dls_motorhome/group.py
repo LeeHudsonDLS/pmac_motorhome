@@ -1,5 +1,6 @@
+from typing import Callable, List, Optional, cast
+
 from dls_motorhome.constants import PostHomeMove
-from typing import List, Optional, cast
 
 from .motor import Motor
 from .template import Template
@@ -12,7 +13,7 @@ class Group:
         group_num: int,
         axes: List[Motor],
         post_home: PostHomeMove,
-        comment: str = None,  # supply a comment header for the group
+        comment: str = None,
     ) -> None:
         self.axes = axes
         self.post_home = post_home
@@ -52,7 +53,17 @@ class Group:
     def add_snippet(cls, template_name: str, **args):
         # funky casting required for type hints since we init the_group to None
         group = cast("Group", cls.the_group)
-        group.templates.append(Template(jinja_file=template_name, args=args))
+        group.templates.append(
+            Template(jinja_file=template_name, args=args, function=None)
+        )
+
+    @classmethod
+    def add_action(cls, func: Optional[Callable], **args):
+        group = cast("Group", cls.the_group)
+        group.templates.append(Template(jinja_file=None, args=args, function=func))
+
+    def set_axis_filter(self, axes: List[int]) -> str:
+        return ''
 
     def _all_axes(self, format: str, separator: str, *arg) -> str:
         # to the string format: pass any extra arguments first, then the dictionary
