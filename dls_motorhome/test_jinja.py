@@ -1,6 +1,7 @@
+from collections import OrderedDict
 from enum import Enum
 from pathlib import Path
-from typing import List
+from typing import List, Optional, cast
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -51,10 +52,12 @@ class Motor:
         return "{:02}".format(nx)
 
 
-class SnippetGenerator:
+class PlcGenerator:
     def __init__(self) -> None:
         this_path = Path(__file__).parent
         jinja_path = this_path.parent / "snippets"
+        # TODO REMOVE
+        jinja_path = Path("/home/giles/dls/dls_motorhome/dls_motorhome/snippets")
         self.templateLoader = FileSystemLoader(searchpath=jinja_path)
         self.environment = Environment(
             loader=self.templateLoader,
@@ -70,29 +73,60 @@ class SnippetGenerator:
         return output
 
 
-class Snippet(Enum):
-    # TODO snippets will probably be more than just an enum
-    # this will be become the connection between objects created in
-    # the script and snippet template files
-    # (and maybe snippet is not the right name for what this will become)
-    pre_home = "pre_home_move"
-    fast_search = "fast_search"
-    debug = "debug_pause"
-    store_pos = "store_position_diff"
-    fast_retrace = "fast_retrace"
-    home = "home"
+class Controller(Enum):
+    brick = 1
+    pmac = 2
+
+
+class PostHomeMove(Enum):
+    none = 0
+    move_and_hmz = 1
+    relative_move = 2
+    initial_position = 3
+    high_limit = 4
+    low_limit = 5
+    hard_hi_limit = 6
+    hard_lo_limit = 7
+
+
+class HomingState(Enum):
+    StateIdle = 0
+    StateConfiguring = 1
+    StateMoveNeg = 2
+    StateMovePos = 3
+    StateHoming = 4
+    StatePostHomeMove = 5
+    StateAligning = 6
+    StateDone = 7
+    StateFastSearch = 8
+    StateFastRetrace = 9
+    StatePreHomeMove = 10
 
 
 class Group:
     # TODO this probably needs to be merged into your Group class that implements
     # the python contexts
     # TODO htype should have a class
-    def __init__(self, axes: List[Motor], group_num: int, htype: str = "RLIM",) -> None:
+    def __init__(self, group_num: int, axes: List[Motor], htype: str = "RLIM",) -> None:
         self.axes = axes
         self.htype = htype
         self.comments: str = self.make_comment()
         self.group_num = group_num
-        self.snippets: List[Snippet] = []
+        self.templates: List[str] = []
+
+    the_group: Optional["Group"] = None
+
+    def __enter__(self):
+        assert not Group.the_group
+        Group.the_group = self
+        return self
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        Group.the_group = None
+
+    @property
+    def count(self) -> int:
+        return len(self.templates)
 
     def make_comment(self) -> str:
         return "\n".join(
@@ -103,9 +137,11 @@ class Group:
             ]
         )
 
-    @property
-    def count(self) -> int:
-        return len(self.snippets)
+    @classmethod
+    def add_snippet(cls, template_name: str):
+        # funky casting required for type hints since we init the_group to None
+        group = cast("Group", cls.the_group)
+        group.templates.append(template_name)
 
     def _all_axes(self, format: str, separator: str, *arg) -> str:
         # to the string format: pass any extra arguments first, then the dictionary
@@ -154,21 +190,50 @@ class Group:
 
 
 class Plc:
-    def __init__(self, plc_num: int) -> None:
+    def __init__(self, plc_num: int, controller: Controller) -> None:
         self.plc_num = plc_num
         self.groups: List[Group] = []
-        self.axes: List[Motor] = []
+        self.motors: OrderedDict[int, Motor] = OrderedDict()
+        self.generator = PlcGenerator()
 
-    def add_group(self, group: Group):
-        self.groups.append(group)
-        self.axes += group.axes
+    the_plc = None
+
+    def __enter__(self):
+        assert not Plc.the_plc
+        Plc.the_plc = self
+        return self
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        # write out PLC
+        print(self.generator.render("plc.pmc.jinja", plc=self))
+        Plc.the_plc = None
+
+    @classmethod
+    def add_group(cls, group_num: int, axes: List[int]) -> Group:
+        plc = cast("Plc", cls.the_plc)
+        assert set(axes).issubset(
+            plc.motors
+        ), f"invalid axis numbers for group {group_num}"
+        motors = [motor for axis_num, motor in plc.motors.items() if axis_num in axes]
+        group = Group(group_num, motors)
+        plc.groups.append(group)
+        return group
+
+    @classmethod
+    def add_motor(cls, axis: int, jdist: int, post_home: PostHomeMove):
+        plc = cast("Plc", cls.the_plc)
+        assert (
+            axis not in plc.motors
+        ), f"motor {axis} already defined in plc {plc.plc_num}"
+        motor = Motor(axis, jdist, plc.plc_num)
+        plc.motors[axis] = motor
 
     @property
     def count(self) -> int:
         return len(self.groups)
 
     def _all_axes(self, format: str, separator: str, *arg) -> str:
-        all = [format.format(*arg, **ax.dict) for ax in self.axes]
+        all = [format.format(*arg, **ax.dict) for ax in self.motors.values()]
         return separator.join(all)
 
     def save_hi_limits(self):
@@ -208,41 +273,63 @@ class Plc:
         return r
 
     def stop_motors(self):
-        return self._all_axes('if (m{axis}42=0)\n    cmd "#{axis}J/"\nendif' , "\n")
+        return self._all_axes('if (m{axis}42=0)\n    cmd "#{axis}J/"\nendif', "\n")
 
 
-# TODO all this below will magically happen in the 'with Group' statements
-s = SnippetGenerator()
-p = Plc(11)
 
-m1 = Motor(axis=1, jdist=0, plc_num=11)
-m2 = Motor(axis=2, jdist=0, plc_num=11)
-m4 = Motor(axis=4, jdist=0, plc_num=11)
-m5 = Motor(axis=5, jdist=0, plc_num=11)
-g1 = Group([m1, m2], 2)
-g1.snippets = [
-    Snippet.pre_home,
-    Snippet.debug,
-    Snippet.fast_search,
-    Snippet.store_pos,
-    Snippet.debug,
-    Snippet.fast_retrace,
-    Snippet.debug,
-    Snippet.home,
-]
-g2 = Group([m4, m5], 3)
-g2.snippets = [
-    Snippet.pre_home,
-    Snippet.debug,
-    Snippet.fast_search,
-    Snippet.store_pos,
-    Snippet.debug,
-    Snippet.fast_retrace,
-    Snippet.debug,
-    Snippet.home,
-]
 
-p.add_group(g1)
-p.add_group(g2)
 
-print(s.render("plc.pmc.jinja", plc=p))
+
+def motor(axis: int, jdist: int = 0, post_home: PostHomeMove = PostHomeMove.none):
+    Plc.add_motor(axis, jdist, post_home)
+
+
+def group(group_num: int, axes: List[int]) -> Group:
+    return Plc.add_group(group_num, axes)
+
+
+# Todo these functions should call a helper so we can make global changes easily
+# e.g. need to add non template code with command()
+def drive_to_limit(state=HomingState.StateFastRetrace):
+    Group.add_snippet("drive_to_limit")
+
+
+def drive_off_limit():
+    Group.add_snippet("drive_off_limit")
+
+
+def drive_to_inverse_home():
+    Group.add_snippet("drive_to_inverse_home")
+
+
+def store_position_diff():
+    Group.add_snippet("store_position_diff")
+
+
+def home():
+    Group.add_snippet("home")
+
+
+def debug_pause():
+    Group.add_snippet("debug_pause")
+
+
+def home_rlim():
+    drive_to_limit()
+    drive_off_limit()
+    store_position_diff()
+    drive_to_inverse_home()
+    home()
+
+
+with Plc(plc_num=11, controller=Controller.brick):
+    motor(axis=1, jdist=0, post_home=PostHomeMove.none)
+    motor(axis=2, jdist=0, post_home=PostHomeMove.none)
+    motor(axis=4, jdist=0, post_home=PostHomeMove.none)
+    motor(axis=5, jdist=0, post_home=PostHomeMove.none)
+
+    with group(group_num=2, axes=[1, 2]):
+        home_rlim()
+
+    with group(group_num=3, axes=[4, 5]):
+        home_rlim()

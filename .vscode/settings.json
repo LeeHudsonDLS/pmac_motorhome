@@ -9,5 +9,10 @@
     "python.formatting.provider": "black",
     "python.jediEnabled": false,
     "restructuredtext.confPath": "${workspaceFolder}/docs",
-    "python.pythonPath": "/home/giles/.local/share/virtualenvs/dls_motorhome-UBFZWqcH/bin/python"
+    "python.pythonPath": "/home/giles/.local/share/virtualenvs/dls_motorhome-UBFZWqcH/bin/python",
+    "python.linting.ignorePatterns": [
+        ".vscode/*.py",
+        "**/site-packages/**/*.py",
+        "**/dls_motorhome/examples/for_info_only/*.py"
+    ]
 }

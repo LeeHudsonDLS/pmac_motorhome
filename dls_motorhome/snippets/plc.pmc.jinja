@@ -84,13 +84,10 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     HomingGroup={{ group.group_num }}
 
     ;Clear home flags
-    {{ group.clear_home() }}
-    {%include 'debug_pause.pmc.jinja' -%}
-
-    {# snippet loop #}
-    {% for snippet in group.snippets %}
+    {{ group.clear_home() -}}
+    {% for template in group.templates %}
         {# insert a snippet #}
-        {%- include snippet.value+'.pmc.jinja' %}
+        {%- include template+'.pmc.jinja' %}
     {% endfor -%}
 
     {# finalize group #}
