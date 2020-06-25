@@ -2,7 +2,7 @@ from collections import OrderedDict
 from pathlib import Path
 from typing import List, cast
 
-from .contants import Controller, PostHomeMove
+from .constants import Controller, PostHomeMove
 from .group import Group
 from .motor import Motor
 from .plcgenerator import PlcGenerator
@@ -37,6 +37,7 @@ class Plc:
         with self.filepath.open("w") as stream:
             stream.write(plc_text)
         Plc.the_plc = None
+        Motor.instances = []
 
     @classmethod
     def add_group(

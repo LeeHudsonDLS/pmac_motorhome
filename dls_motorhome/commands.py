@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List
 
-from .contants import Controller, PostHomeMove
+from .constants import Controller, PostHomeMove
 from .group import Group
 from .plc import Plc
 

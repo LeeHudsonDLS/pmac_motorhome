@@ -1,4 +1,4 @@
-from dls_motorhome.contants import PostHomeMove
+from dls_motorhome.constants import PostHomeMove
 from typing import List, Optional, cast
 
 from .motor import Motor
