@@ -9,7 +9,7 @@ from .plcgenerator import PlcGenerator
 
 
 class Plc:
-    def __init__(self, plc_num: int, controller: Controller, filepath: str) -> None:
+    def __init__(self, plc_num: int, controller: Controller, filepath: Path) -> None:
         self.filepath = Path(filepath)
         self.plc_num = plc_num
         self.groups: List[Group] = []
@@ -39,18 +39,20 @@ class Plc:
         Plc.the_plc = None
 
     @classmethod
-    def add_group(cls, group_num: int, axes: List[int]) -> Group:
+    def add_group(
+        cls, group_num: int, axes: List[int], post_home: PostHomeMove, **args
+    ) -> Group:
         plc = cast("Plc", cls.the_plc)
         assert set(axes).issubset(
             plc.motors
         ), f"invalid axis numbers for group {group_num}"
         motors = [motor for axis_num, motor in plc.motors.items() if axis_num in axes]
-        group = Group(group_num, motors)
+        group = Group(group_num, motors, post_home, **args)
         plc.groups.append(group)
         return group
 
     @classmethod
-    def add_motor(cls, axis: int, jdist: int, post_home: PostHomeMove):
+    def add_motor(cls, axis: int, jdist: int):
         plc = cast("Plc", cls.the_plc)
         assert (
             axis not in plc.motors

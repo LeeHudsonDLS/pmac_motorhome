@@ -1,16 +1,27 @@
+from dls_motorhome.contants import PostHomeMove
 from typing import List, Optional, cast
 
 from .motor import Motor
+from .template import Template
 
 
 class Group:
     # TODO htype should have a class
-    def __init__(self, group_num: int, axes: List[Motor], htype: str = "RLIM",) -> None:
+    def __init__(
+        self,
+        group_num: int,
+        axes: List[Motor],
+        post_home: PostHomeMove,
+        comment: str = None,  # supply a comment header for the group
+    ) -> None:
         self.axes = axes
-        self.htype = htype
-        self.comments: str = self.make_comment()
+        self.post_home = post_home
+        if comment is None:
+            self.make_comment()
+        else:
+            self.comment = comment
         self.group_num = group_num
-        self.templates: List[str] = []
+        self.templates: List[Template] = []
 
     the_group: Optional["Group"] = None
 
@@ -26,20 +37,22 @@ class Group:
     def count(self) -> int:
         return len(self.templates)
 
-    def make_comment(self) -> str:
-        return "\n".join(
+    # this is a bit cheesy and really just for the tests to pass
+    # I would recomment setting the comment in the Group constructor
+    def make_comment(self, htype: str = "RLIM", post: str = "None") -> None:
+        self.comment = "\n".join(
             [
-                f";  Axis {ax.axis}: htype = {self.htype}, "
-                f"jdist = {ax.jdist}, post = {ax.post}"
+                f";  Axis {ax.axis}: htype = {htype}, "
+                f"jdist = {ax.jdist}, post = {post}"
                 for ax in self.axes
             ]
         )
 
     @classmethod
-    def add_snippet(cls, template_name: str):
+    def add_snippet(cls, template_name: str, **args):
         # funky casting required for type hints since we init the_group to None
         group = cast("Group", cls.the_group)
-        group.templates.append(template_name)
+        group.templates.append(Template(jinja_file=template_name, args=args))
 
     def _all_axes(self, format: str, separator: str, *arg) -> str:
         # to the string format: pass any extra arguments first, then the dictionary
@@ -67,6 +80,9 @@ class Group:
     def in_pos(self) -> str:
         return self._all_axes("m{axis}40", "&")
 
+    def limits(self) -> str:
+        return self._all_axes("m{axis}30", "|")
+
     def following_err(self) -> str:
         return self._all_axes("m{axis}42", "|")
 
@@ -82,11 +98,20 @@ class Group:
             separator="\n        ",
         )
 
+    def stored_pos_to_jogdistance(self):
+        return self._all_axes("m{axis}72=P{pos}", " ")
+
+    def jog_distance(self):
+        return self._all_axes("#{axis}J=*", " ")
+
     def negate_home_flags(self):
         return self._all_axes("i{homed_flag}=P{not_homed}", " ")
 
     def restore_home_flags(self):
         return self._all_axes("i{homed_flag}=P{homed}", " ")
+
+    def jog_to_home_jdist(self):
+        return self._all_axes("#{axis}J^*^{jdist}", " ")
 
     def home(self) -> str:
         return self._all_axes("#{axis}hm", " ")

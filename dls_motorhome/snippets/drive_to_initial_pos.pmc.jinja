@@ -1,10 +1,10 @@
     {%- include "debug_pause.pmc.jinja" %}
 
-    ;---- FastRetrace State ----
+    ;---- PostHomeMove State ----
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
-        HomingState=StateFastRetrace
+        HomingState=StatePostHomeMove
         ; Execute the move commands
-        {{ group.negate_home_flags() }} {{ group.set_large_jog_distance() }}
-        cmd "{{ group.jog_axes_jdist() }}"
+        {{ group.stored_pos_to_jogdistance() }}
+        cmd "{{ group.jog_distance() }}"
         {%- include "wait_for_done.pmc.jinja" %}
     endif

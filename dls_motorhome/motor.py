@@ -39,4 +39,3 @@ class Motor:
     def nx(self) -> str:
         nx = int(int((self.axis - 1) / 4) * 10 + int((self.axis - 1) % 4 + 1))
         return "{:02}".format(nx)
-

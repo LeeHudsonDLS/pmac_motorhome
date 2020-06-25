@@ -6,5 +6,5 @@
         ; Execute the move commands
         {{ group.restore_home_flags() }}
         cmd "{{ group.home() }}"
-        {% include "wait_for_done.pmc.jinja" %}
+        {%- include "wait_for_done.pmc.jinja" %}
     endif
