@@ -11,20 +11,21 @@ jinja_path = this_path.parent / "snippets"
 templateLoader = FileSystemLoader(searchpath=jinja_path)
 environment = Environment(loader=templateLoader)
 
-# offsets into the PLC's PVariables for storing the state of axes
-# these names go into long format strings so keep them short for legibility
-PVARS = {
-    "hi_lim": 4,
-    "lo_lim": 20,
-    "homed": 36,
-    "not_homed": 52,
-    "lim_flags": 68,
-    "pos": 84,
-}
-
 
 class Motor:
     instances: List["Motor"] = []
+
+    # offsets into the PLC's PVariables for storing the state of axes
+    # these names go into long format strings so keep them short for legibility
+    PVARS = {
+        "hi_lim": 4,
+        "lo_lim": 20,
+        "homed": 36,
+        "not_homed": 52,
+        "lim_flags": 68,
+        "pos": 84,
+
+    }
 
     def __init__(self, axis: int, jdist: int, plc_num: int) -> None:
         self.axis = axis
@@ -39,7 +40,7 @@ class Motor:
             "jdist": jdist,
             "homed_flag": f"7{self.nx}2",
         }
-        for name, start in PVARS.items():
+        for name, start in self.PVARS.items():
             self.dict[name] = plc_num * 100 + start + self.index
 
     # TODO IMPORTANT - this is used in finding the Home capture flags etc. and is
@@ -276,9 +277,9 @@ class Plc:
         return self._all_axes('if (m{axis}42=0)\n    cmd "#{axis}J/"\nendif', "\n")
 
 
-
-
-
+######################################################################################
+# global stuff
+######################################################################################
 
 def motor(axis: int, jdist: int = 0, post_home: PostHomeMove = PostHomeMove.none):
     Plc.add_motor(axis, jdist, post_home)
@@ -290,16 +291,16 @@ def group(group_num: int, axes: List[int]) -> Group:
 
 # Todo these functions should call a helper so we can make global changes easily
 # e.g. need to add non template code with command()
-def drive_to_limit(state=HomingState.StateFastRetrace):
-    Group.add_snippet("drive_to_limit")
+def drive_neg_to_limit(state=HomingState.StateFastRetrace):
+    Group.add_snippet("drive_neg_to_limit")
 
 
-def drive_off_limit():
-    Group.add_snippet("drive_off_limit")
+def drive_pos_off_home():
+    Group.add_snippet("drive_pos_off_home")
 
 
-def drive_to_inverse_home():
-    Group.add_snippet("drive_to_inverse_home")
+def drive_neg_to_inverse_home():
+    Group.add_snippet("drive_neg_to_inverse_home")
 
 
 def store_position_diff():
@@ -315,10 +316,10 @@ def debug_pause():
 
 
 def home_rlim():
-    drive_to_limit()
-    drive_off_limit()
+    drive_neg_to_limit()
+    drive_pos_off_home()
     store_position_diff()
-    drive_to_inverse_home()
+    drive_neg_to_inverse_home()
     home()
 
 
