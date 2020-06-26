@@ -63,14 +63,15 @@ class Group:
         group.templates.append(Template(jinja_file=None, function=func, args=args))
 
     def set_axis_filter(self, axes: List[int]) -> str:
-        self.axes = [
-            motor for motor in self.all_axes if motor.axis in axes
-        ]
+        self.axes = [motor for motor in self.all_axes if motor.axis in axes]
         assert len(self.axes) == len(axes), "set_axis_filter: invalid axis number"
         # callback functions must return a string since we call them with
         # {{- group.callback(template.function, template.args) -}} from jinja
         # TODO is there a better way to do this ?
         return ""
+
+    def command(self, cmd: str):
+        return cmd
 
     def _all_axes(self, format: str, separator: str, *arg) -> str:
         # to the string format: pass any extra arguments first, then the dictionary

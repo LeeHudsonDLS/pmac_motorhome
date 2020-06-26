@@ -34,6 +34,10 @@ def set_axes(axes):
     Group.add_action(Group.set_axis_filter, axes=axes)
 
 
+def command(cmd):
+    Group.add_action(Group.command, cmd=cmd)
+
+
 def drive_neg_to_limit(**args):
     Group.add_snippet("drive_neg_to_limit", **args)
 

@@ -136,8 +136,7 @@ def test_BL18B_STEP01_plc13():
             comment(htype="HSW", post="i")
             home_hsw()
 
-        this_path = Path(__file__).parent
-
+    this_path = Path(__file__).parent
     example = this_path / "examples" / file
     assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
 
@@ -150,6 +149,7 @@ def test_BL18B_STEP01_plc13_slits():
     # this separates the two pairs of slits so that they will not clash
     # the resulting PLC looks exactly like BL18B-MO-STEP-01.plc13 except that
     # it has an additional drive_neg_to_limit for all axes at the start
+    # and it has only one group instead of two
     file = "BL18B-MO-STEP-01_slits.plc13"
     tmp_file = Path("/tmp") / file
     with plc(plc_num=13, controller=Controller.brick, filepath=tmp_file):
@@ -163,7 +163,24 @@ def test_BL18B_STEP01_plc13_slits():
             post=PostHomeMove.initial_position,
         )
 
-        this_path = Path(__file__).parent
+    this_path = Path(__file__).parent
+    example = this_path / "examples" / file
+    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
 
+
+def test_any_code():
+    from dls_motorhome.commands import plc, Controller, group, command, motor
+
+    # test the 'command' command which inserts arbitrary code
+    file = "any_code.plc"
+    tmp_file = Path("/tmp") / file
+    with plc(plc_num=13, controller=Controller.brick, filepath=tmp_file):
+        motor(axis=1)
+        motor(axis=2)
+        with group(group_num=2, axes=[1, 2]):
+            command('Any old string will do for this test')
+            command('multiple commands get a line each')
+
+    this_path = Path(__file__).parent
     example = this_path / "examples" / file
     assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
