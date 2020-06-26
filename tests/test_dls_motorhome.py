@@ -1,4 +1,3 @@
-from dls_motorhome.commands import home_slits
 from filecmp import cmp
 from pathlib import Path
 
@@ -144,15 +143,25 @@ def test_BL18B_STEP01_plc13():
 
 
 def test_BL18B_STEP01_plc13_slits():
-    from dls_motorhome.commands import plc, Controller
+    from dls_motorhome.commands import plc, Controller, home_slits_hsw, PostHomeMove
 
     # generate a similar plc as test_BL18B_STEP01_plc13 but use the shortcut
     # home_slits() command
     # this separates the two pairs of slits so that they will not clash
-    file = "BL18B-MO-STEP-01.plc13"
-    tmp_file = Path("/tmp") / (file + "_slits")
+    # the resulting PLC looks exactly like BL18B-MO-STEP-01.plc13 except that
+    # it has an additional drive_neg_to_limit for all axes at the start
+    file = "BL18B-MO-STEP-01_slits.plc13"
+    tmp_file = Path("/tmp") / file
     with plc(plc_num=13, controller=Controller.brick, filepath=tmp_file):
-        home_slits(group_num=2, posx=1, negx=2, posy=3, negy=4)
+        home_slits_hsw(
+            group_num=2,
+            posx=1,
+            negx=2,
+            posy=3,
+            negy=4,
+            jdist=-400,
+            post=PostHomeMove.initial_position,
+        )
 
         this_path = Path(__file__).parent
 

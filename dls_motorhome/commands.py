@@ -110,17 +110,24 @@ def home_hsw():
 ###############################################################################
 
 
-def home_slits(
-    group_num: int, posx: int, negx: int, posy: int, negy: int, jdist: int = 0
+def home_slits_hsw(
+    group_num: int,
+    posx: int,
+    negx: int,
+    posy: int,
+    negy: int,
+    jdist: int = 0,
+    post: PostHomeMove = PostHomeMove.none,
 ):
     motor(axis=posx, jdist=jdist)
     motor(axis=negx, jdist=jdist)
     motor(axis=posy, jdist=jdist)
     motor(axis=negy, jdist=jdist)
 
-    with group(group_num=group_num, axes=[posx, posy, negx, negy]):
+    with group(group_num=group_num, axes=[posx, posy, negx, negy], post_home=post):
+        comment("HSW", 'i')
         drive_neg_to_limit()
         set_axes([posx, negx])
-        home_rlim()
+        home_hsw()
         set_axes([posy, negy])
-        home_rlim()
+        home_hsw()

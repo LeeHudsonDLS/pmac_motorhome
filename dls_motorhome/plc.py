@@ -28,7 +28,7 @@ class Plc:
             raise ValueError("plc_number should be integer between 9 and 32")
 
     def __enter__(self):
-        assert not Plc.the_plc
+        assert not Plc.the_plc, "cannot creat a new Plc within a Plc context"
         Plc.the_plc = self
         return self
 
@@ -38,6 +38,8 @@ class Plc:
         with self.filepath.open("w") as stream:
             stream.write(plc_text)
         Plc.the_plc = None
+        # need to do this for the case where 2 PLCs are defined in one file
+        # (including in the unit tests)
         Motor.instances = []
 
     @classmethod
