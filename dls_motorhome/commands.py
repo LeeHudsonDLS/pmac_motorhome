@@ -82,7 +82,7 @@ def post_home(**args):
     if group.post_home == PostHomeMove.initial_position:
         drive_to_initial_pos(**args)
     elif group.post_home == PostHomeMove.low_limit:
-        pass  # TODO
+        pass  # TODO add the rest of the post home move types
     # etc.
 
 

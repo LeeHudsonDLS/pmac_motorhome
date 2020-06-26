@@ -67,7 +67,6 @@ class Group:
         assert len(self.axes) == len(axes), "set_axis_filter: invalid axis number"
         # callback functions must return a string since we call them with
         # {{- group.callback(template.function, template.args) -}} from jinja
-        # TODO is there a better way to do this ?
         return ""
 
     def command(self, cmd: str):

@@ -20,7 +20,7 @@ class Motor:
         self.jdist = jdist
         self.index = len(self.instances)
         self.instances.append(self)
-        self.post: str = "None"  # TODO need to pass this
+
         # dict is for terse string formatting code in _all_axes() functions
         self.dict = {
             "axis": axis,
