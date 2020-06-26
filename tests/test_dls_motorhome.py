@@ -61,6 +61,7 @@ def test_BL07I_STEP_04_plc11():
         motor,
         group,
         plc,
+        comment,
         Controller,
         home_rlim,
     )
@@ -68,16 +69,17 @@ def test_BL07I_STEP_04_plc11():
     file = "BL07I-MO-STEP-04.plc11"
     tmp_file = Path("/tmp") / file
     with plc(plc_num=11, controller=Controller.brick, filepath=tmp_file):
-
         motor(axis=1)
         motor(axis=2)
         motor(axis=4)
         motor(axis=5)
 
         with group(group_num=2, axes=[1, 2]):
+            comment("RLIM", "None")
             home_rlim()
 
         with group(group_num=3, axes=[4, 5]):
+            comment("RLIM", "None")
             home_rlim()
 
         this_path = Path(__file__).parent
@@ -111,6 +113,7 @@ def test_BL18B_STEP01_plc13():
         motor,
         group,
         plc,
+        comment,
         Controller,
         PostHomeMove,
         home_hsw,
@@ -119,24 +122,19 @@ def test_BL18B_STEP01_plc13():
     file = "BL18B-MO-STEP-01.plc13"
     tmp_file = Path("/tmp") / file
     with plc(plc_num=13, controller=Controller.brick, filepath=tmp_file):
-
         motor(axis=1, jdist=-400)
         motor(axis=2, jdist=-400)
         motor(axis=3, jdist=-400)
         motor(axis=4, jdist=-400)
 
-        # NOTE 'as g' and 'g.make_comments' make the test work by making the comment
-        # header exactly like the old motorhome
-        with group(
-            group_num=2, axes=[1, 2], post_home=PostHomeMove.initial_position
-        ) as g:
-            g.make_comment(htype="HSW", post='i')
+        initial = PostHomeMove.initial_position
+
+        with group(group_num=2, axes=[1, 2], post_home=initial):
+            comment(htype="HSW", post="i")
             home_hsw()
 
-        with group(
-            group_num=3, axes=[3, 4], post_home=PostHomeMove.initial_position
-        ) as g:
-            g.make_comment(htype="HSW", post='i')
+        with group(group_num=3, axes=[3, 4], post_home=initial):
+            comment(htype="HSW", post="i")
             home_hsw()
 
         this_path = Path(__file__).parent
@@ -146,16 +144,9 @@ def test_BL18B_STEP01_plc13():
 
 
 def test_BL18B_STEP01_plc13_slits():
-    from dls_motorhome.commands import (
-        motor,
-        group,
-        plc,
-        Controller,
-        PostHomeMove,
-        home_hsw,
-    )
+    from dls_motorhome.commands import plc, Controller
 
-    # generate the similar plc as test_BL18B_STEP01_plc13 but use the shortcut
+    # generate a similar plc as test_BL18B_STEP01_plc13 but use the shortcut
     # home_slits() command
     # this separates the two pairs of slits so that they will not clash
     file = "BL18B-MO-STEP-01.plc13"

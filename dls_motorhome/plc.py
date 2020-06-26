@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from pathlib import Path
-from typing import List, cast
+from typing import List, Optional, cast
 
 from .constants import Controller, PostHomeMove
 from .group import Group
@@ -9,6 +9,9 @@ from .plcgenerator import PlcGenerator
 
 
 class Plc:
+    # this class variable holds the instance in the current context
+    the_plc: Optional["Plc"] = None
+
     def __init__(self, plc_num: int, controller: Controller, filepath: Path) -> None:
         self.filepath = Path(filepath)
         self.plc_num = plc_num
@@ -23,8 +26,6 @@ class Plc:
             or not isinstance(self.plc_num, int)
         ):
             raise ValueError("plc_number should be integer between 9 and 32")
-
-    the_plc = None
 
     def __enter__(self):
         assert not Plc.the_plc
@@ -66,6 +67,8 @@ class Plc:
         return len(self.groups)
 
     def _all_axes(self, format: str, separator: str, *arg) -> str:
+        # to the string format: pass any extra arguments first, then the dictionary
+        # of the axis object so its elements can be addressed by name
         all = [format.format(*arg, **ax.dict) for ax in self.motors.values()]
         return separator.join(all)
 

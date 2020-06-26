@@ -84,13 +84,13 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     HomingGroup={{ group.group_num }}
 
     ;Clear home flags
-    {{ group.clear_home() -}}
-    {% for template in group.templates %}
-        {% if template.function -%}
-        {# function(template.args) #}
-        {% else %}
-        {%- include template.jinja_file+'.pmc.jinja' -%}
-        {% endif %}
+    {{ group.clear_home() }}
+    {%- for template in group.templates %}
+        {%- if template.function %}
+        {{- group.callback(template.function, template.args) -}}
+        {%- else %}
+        {% include template.jinja_file+'.pmc.jinja' %}
+        {%- endif %}
     {% endfor %}
 endif
 {%- endfor %}

@@ -7,7 +7,9 @@ from .template import Template
 
 
 class Group:
-    # TODO htype should have a class
+    # this class variable holds the instance in the current context
+    the_group: Optional["Group"] = None
+
     def __init__(
         self,
         group_num: int,
@@ -17,17 +19,12 @@ class Group:
     ) -> None:
         self.axes = axes
         self.post_home = post_home
-        if comment is None:
-            self.make_comment()
-        else:
-            self.comment = comment
+        self.comment = comment
         self.group_num = group_num
         self.templates: List[Template] = []
 
-    the_group: Optional["Group"] = None
-
     def __enter__(self):
-        assert not Group.the_group
+        assert not Group.the_group, "cannot creat a new Group within a Group context"
         Group.the_group = self
         return self
 
@@ -38,20 +35,22 @@ class Group:
     def count(self) -> int:
         return len(self.templates)
 
-    # this is a bit cheesy and really just for the tests to pass
-    # I would recomment setting the comment in the Group constructor
-    def make_comment(self, htype: str = "RLIM", post: str = "None") -> None:
-        self.comment = "\n".join(
+    @classmethod
+    # add a comment in the style of the original motorhome module but NOTE that
+    # you can use any descriptive text for htype and post
+    def add_comment(cls, htype: str, post: str = "None") -> None:
+        # funky casting required for type hints since we init the_group to None
+        group = cast("Group", cls.the_group)
+        group.comment = "\n".join(
             [
                 f";  Axis {ax.axis}: htype = {htype}, "
                 f"jdist = {ax.jdist}, post = {post}"
-                for ax in self.axes
+                for ax in group.axes
             ]
         )
 
     @classmethod
     def add_snippet(cls, template_name: str, **args):
-        # funky casting required for type hints since we init the_group to None
         group = cast("Group", cls.the_group)
         group.templates.append(
             Template(jinja_file=template_name, args=args, function=None)
@@ -60,9 +59,13 @@ class Group:
     @classmethod
     def add_action(cls, func: Optional[Callable], **args):
         group = cast("Group", cls.the_group)
-        group.templates.append(Template(jinja_file=None, args=args, function=func))
+        group.templates.append(Template(jinja_file=None, function=func, args=args))
 
-    def set_axis_filter(self, axes: List[int]) -> str:
+    def set_axis_filter(self, axes: List[int] = None) -> str:
+
+        # callback functions must return a string since we call them with
+        # {{- group.callback(template.function, template.args) -}} from jinja
+        # TODO is there a better way to do this ?
         return ''
 
     def _all_axes(self, format: str, separator: str, *arg) -> str:
@@ -75,6 +78,9 @@ class Group:
     # the following functions are callled from Jinja templates to generate
     # snippets of PLC code that act on all motors in a group
     ############################################################################
+
+    def callback(self, function, args):
+        return function(self, **args)
 
     def jog_axes(self) -> str:
         return self._all_axes("#{axis}J^*", " ")
