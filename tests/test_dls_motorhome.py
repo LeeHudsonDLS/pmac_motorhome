@@ -1,6 +1,21 @@
 from filecmp import cmp
 from pathlib import Path
 
+from dls_motorhome.commands import (
+    Controller,
+    PostHomeMove,
+    command,
+    comment,
+    group,
+    home_hsw,
+    home_slits_hsw,
+    motor,
+    plc,
+)
+
+# TODO Arvinders original tests could be reinstated but the new Group object
+# must be created with some parameters
+
 # import pytest
 
 # from dls_motorhome._snippets import P_VARIABLE_API
@@ -108,18 +123,9 @@ def test_BL07I_STEP_04_plc11():
 
 
 def test_BL18B_STEP01_plc13():
-    from dls_motorhome.commands import (
-        motor,
-        group,
-        plc,
-        comment,
-        Controller,
-        PostHomeMove,
-        home_hsw,
-    )
+    file_name = "BL18B-MO-STEP-01.plc13"
+    tmp_file = Path("/tmp") / file_name
 
-    file = "BL18B-MO-STEP-01.plc13"
-    tmp_file = Path("/tmp") / file
     with plc(plc_num=13, controller=Controller.brick, filepath=tmp_file):
         motor(axis=1, jdist=-400)
         motor(axis=2, jdist=-400)
@@ -137,21 +143,19 @@ def test_BL18B_STEP01_plc13():
             home_hsw()
 
     this_path = Path(__file__).parent
-    example = this_path / "examples" / file
+    example = this_path / "examples" / file_name
     assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
 
 
 def test_BL18B_STEP01_plc13_slits():
-    from dls_motorhome.commands import plc, Controller, home_slits_hsw, PostHomeMove
-
     # generate a similar plc as test_BL18B_STEP01_plc13 but use the shortcut
     # home_slits() command
     # this separates the two pairs of slits so that they will not clash
     # the resulting PLC looks exactly like BL18B-MO-STEP-01.plc13 except that
     # it has an additional drive_neg_to_limit for all axes at the start
     # and it has only one group instead of two
-    file = "BL18B-MO-STEP-01_slits.plc13"
-    tmp_file = Path("/tmp") / file
+    file_name = "BL18B-MO-STEP-01_slits.plc13"
+    tmp_file = Path("/tmp") / file_name
     with plc(plc_num=13, controller=Controller.brick, filepath=tmp_file):
         home_slits_hsw(
             group_num=2,
@@ -164,23 +168,47 @@ def test_BL18B_STEP01_plc13_slits():
         )
 
     this_path = Path(__file__).parent
-    example = this_path / "examples" / file
+    example = this_path / "examples" / file_name
     assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
 
 
 def test_any_code():
-    from dls_motorhome.commands import plc, Controller, group, command, motor
-
     # test the 'command' command which inserts arbitrary code
-    file = "any_code.plc"
-    tmp_file = Path("/tmp") / file
+    file_name = "any_code.plc"
+    tmp_file = Path("/tmp") / file_name
     with plc(plc_num=13, controller=Controller.brick, filepath=tmp_file):
         motor(axis=1)
         motor(axis=2)
         with group(group_num=2, axes=[1, 2]):
-            command('Any old string will do for this test')
-            command('multiple commands get a line each')
+            command("Any old string will do for this test")
+            command("multiple commands get a line each")
 
     this_path = Path(__file__).parent
-    example = this_path / "examples" / file
+    example = this_path / "examples" / file_name
     assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+
+
+def test_two_plcs():
+    # verfiy that you can create two plcs in a single definition file
+    file_name1 = "two_plcs1.pmc"
+    tmp_file1 = Path("/tmp") / file_name1
+    file_name2 = "two_plcs2.pmc"
+    tmp_file2 = Path("/tmp") / file_name2
+
+    with plc(plc_num=11, controller=Controller.brick, filepath=tmp_file1):
+        motor(axis=1)
+
+        with group(group_num=2, axes=[1]):
+            home_hsw()
+
+    with plc(plc_num=12, controller=Controller.brick, filepath=tmp_file2):
+        motor(axis=2)
+
+        with group(group_num=3, axes=[2]):
+            home_hsw()
+
+    this_path = Path(__file__).parent
+    example1 = this_path / "examples" / file_name1
+    example2 = this_path / "examples" / file_name2
+    assert cmp(tmp_file1, example1), f"files {tmp_file1} and {example1} do not match"
+    assert cmp(tmp_file2, example2), f"files {tmp_file2} and {example2} do not match"
