@@ -20,6 +20,21 @@
         if (timer<0 or timer=0) ; If we timed out
             HomingStatus = StatusTimeout
         endif
+{%- elif template.args.no_following_err %}
+        ; Wait for the move to complete
+        timer = 20 MilliSeconds ; Small delay to start moving
+        while (timer > 0)
+        endw
+        timer = 600000 MilliSeconds ; Now start checking the conditions
+        while ({{ group.in_pos() }}=0) ; At least one motor should not be In Position
+        and ({{ group.following_err() }} = 0) ; Following error check
+        and (timer > 0) ; Check for timeout
+        and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
+        endw
+        ; Check why we left the while loop
+        if (timer<0 or timer=0) ; If we timed out
+            HomingStatus = StatusTimeout
+        endif
 {%- else %}
         ; Wait for the move to complete
         timer = 20 MilliSeconds ; Small delay to start moving
