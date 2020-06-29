@@ -58,6 +58,10 @@ def drive_neg_to_home(**args):
     Group.add_snippet("drive_neg_to_home", **args)
 
 
+def drive_pos_to_home(**args):
+    Group.add_snippet("drive_pos_to_home", **args)
+
+
 def home(**args):
     Group.add_snippet("home", **args)
 
@@ -109,6 +113,15 @@ def home_hsw():
     post_home(with_limits=True)
 
 
+def home_hsw_hstop():
+    drive_neg_to_home(no_following_err=True)
+    drive_pos_to_home(with_limits=True)
+    store_position_diff()
+    drive_neg_to_inverse_home(with_limits=True)
+    home(with_limits=True)
+    check_homed()
+
+
 ###############################################################################
 # functions for some common motor combinations
 ###############################################################################
@@ -129,7 +142,7 @@ def home_slits_hsw(
     motor(axis=negy, jdist=jdist)
 
     with group(group_num=group_num, axes=[posx, posy, negx, negy], post_home=post):
-        comment("HSW", 'i')
+        comment("HSW", "i")
         drive_neg_to_limit()
         set_axes([posx, negx])
         home_hsw()

@@ -122,6 +122,41 @@ def test_BL07I_STEP_04_plc11():
 #   code --diff tests/examples/BL18B-MO-STEP-01.plc13 /tmp/BL18B-MO-STEP-01.plc13
 
 
+def test_BL02I_STEP_13_plc11():
+    from dls_motorhome.commands import (
+        motor,
+        group,
+        plc,
+        comment,
+        Controller,
+        home_hsw_hstop,
+    )
+
+    file = "BL02I-MO-STEP-13.plc11"
+    tmp_file = Path("/tmp") / file
+    with plc(plc_num=11, controller=Controller.brick, filepath=tmp_file):
+        motor(axis=1, jdist=-10000)
+        motor(axis=2, jdist=-10000)
+        motor(axis=3, jdist=10000)
+
+        with group(group_num=2, axes=[1]):
+            comment("HSW_HSTOP", "None")
+            home_hsw_hstop()
+
+        with group(group_num=3, axes=[2]):
+            comment("HSW_HSTOP", "None")
+            home_hsw_hstop()
+
+        with group(group_num=4, axes=[3]):
+            comment("HSW_HSTOP", "None")
+            home_hsw_hstop()
+
+        this_path = Path(__file__).parent
+
+    example = this_path / "examples" / file
+    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+
+
 def test_BL18B_STEP01_plc13():
     file_name = "BL18B-MO-STEP-01.plc13"
     tmp_file = Path("/tmp") / file_name
