@@ -307,6 +307,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     endif
 
 
+
     ; Wait for user to tell us to continue if in debug
     if (HomingStatus = StatusDebugHoming)
         HomingStatus = StatusPaused
@@ -494,6 +495,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
             HomingStatus = StatusTimeout
         endif
     endif
+
 
 endif
 

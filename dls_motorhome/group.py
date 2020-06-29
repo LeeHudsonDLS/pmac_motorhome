@@ -63,10 +63,14 @@ class Group:
         group.templates.append(Template(jinja_file=None, function=func, args=args))
 
     def set_axis_filter(self, axes: List[int]) -> str:
-        self.axes = [motor for motor in self.all_axes if motor.axis in axes]
-        assert len(self.axes) == len(axes), "set_axis_filter: invalid axis number"
-        # callback functions must return a string since we call them with
-        # {{- group.callback(template.function, template.args) -}} from jinja
+        if axes == []:
+            # reset the axis filter
+            self.axes = self.all_axes
+        else:
+            self.axes = [motor for motor in self.all_axes if motor.axis in axes]
+            assert len(self.axes) == len(axes), "set_axis_filter: invalid axis number"
+            # callback functions must return a string since we call them with
+            # {{- group.callback(template.function, template.args) -}} from jinja
         return ""
 
     def command(self, cmd: str):

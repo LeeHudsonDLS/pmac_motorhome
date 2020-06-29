@@ -11,7 +11,7 @@
     "python.formatting.provider": "black",
     "python.jediEnabled": false,
     "restructuredtext.confPath": "${workspaceFolder}/docs",
-    "python.pythonPath": "/scratch/xfz39520/pipenv/dls_motorhome-O0_C6Mlv/bin/python",
+    "python.pythonPath": "/home/giles/.local/share/virtualenvs/dls_motorhome-UBFZWqcH/bin/python",
     "python.linting.ignorePatterns": [
         ".vscode/*.py",
         "**/site-packages/**/*.py",

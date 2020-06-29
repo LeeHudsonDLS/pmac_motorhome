@@ -1,9 +1,34 @@
 from pathlib import Path
-from typing import List
+from typing import List, cast
+
+from dls_motorhome.onlyaxes import OnlyAxes
 
 from .constants import Controller, PostHomeMove
 from .group import Group
 from .plc import Plc
+
+
+"""
+The commands module  contains all of the methods that can be called directly
+from the homing PLC definition file.
+
+The intention of using global methods is so that the PLC definition can be
+relatively terse and the author does not need to worry about classes and
+objects.
+
+e.g.
+
+from commands import plc, group, motor, only_axes, home_rlim
+
+with plc(plc_num=11, controller=Controller.brick, filepath=tmp_file):
+    motor(axis=1)
+    motor(axis=2)
+
+    with group(group_num=2, axes=[1, 2]):
+        home_rlim()
+        with only_axes(axes=[1]):
+            drive_neg_to_limit()
+"""
 
 
 ###############################################################################
@@ -27,12 +52,14 @@ def motor(axis: int, jdist: int = 0):
     Plc.add_motor(axis, jdist)
 
 
+def only_axes(axes: List[int]) -> OnlyAxes:
+    group = cast("Group", Group.the_group)
+    return OnlyAxes(group, axes)
+
+
 ###############################################################################
 # individual PLC action functions
 ###############################################################################
-def set_axes(axes):
-    Group.add_action(Group.set_axis_filter, axes=axes)
-
 
 def command(cmd):
     Group.add_action(Group.command, cmd=cmd)
@@ -144,7 +171,7 @@ def home_slits_hsw(
     with group(group_num=group_num, axes=[posx, posy, negx, negy], post_home=post):
         comment("HSW", "i")
         drive_neg_to_limit()
-        set_axes([posx, negx])
-        home_hsw()
-        set_axes([posy, negy])
-        home_hsw()
+        with only_axes([posx, negx]):
+            home_hsw()
+        with only_axes([posy, negy]):
+            home_hsw()
