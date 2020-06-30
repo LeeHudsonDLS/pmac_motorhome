@@ -7,11 +7,7 @@ class OnlyAxes:
     # this class variable holds the current axis filter for a group
     the_only_axes: Optional["OnlyAxes"] = None
 
-    def __init__(
-        self,
-        group: Group,
-        axes: List[int]
-    ) -> None:
+    def __init__(self, group: Group, axes: List[int]) -> None:
         self.axes = axes
         self.group = group
 

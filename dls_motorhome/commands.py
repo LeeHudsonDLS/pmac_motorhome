@@ -61,6 +61,7 @@ def only_axes(axes: List[int]) -> OnlyAxes:
 # individual PLC action functions
 ###############################################################################
 
+
 def command(cmd):
     Group.add_action(Group.command, cmd=cmd)
 
