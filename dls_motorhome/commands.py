@@ -27,7 +27,7 @@ with plc(plc_num=11, controller=Controller.brick, filepath=tmp_file):
     with group(group_num=2, axes=[1, 2]):
         home_rlim()
         with only_axes(axes=[1]):
-            drive_neg_to_limit()
+            drive__to_limit(negative=True)
 """
 
 
@@ -65,44 +65,42 @@ def command(cmd):
     Group.add_action(Group.command, cmd=cmd)
 
 
-def drive_neg_to_limit(**args):
-    Group.add_snippet("drive_neg_to_limit", **args)
+def drive_to_limit(negative=True):
+    Group.add_snippet("drive_to_limit", **locals())
 
 
-def drive_pos_off_home(**args):
-    Group.add_snippet("drive_pos_off_home", **args)
+def drive_to_trigger(with_limits=True):
+    Group.add_snippet("drive_to_trigger", **locals())
 
 
-def drive_neg_to_inverse_home(**args):
-    Group.add_snippet("drive_neg_to_inverse_home", **args)
+def drive_to_inverse_home(with_limits=True, negative=True):
+    Group.add_snippet("drive_to_inverse_home", **locals())
 
 
 def store_position_diff(**args):
     Group.add_snippet("store_position_diff", **args)
 
 
-def drive_neg_to_home(**args):
-    Group.add_snippet("drive_neg_to_home", **args)
+def drive_to_home(
+    with_limits=False, negative=True, no_following_err=False, state="PreHomeMove"
+):
+    Group.add_snippet("drive_to_home", **locals())
 
 
-def drive_pos_to_home(**args):
-    Group.add_snippet("drive_pos_to_home", **args)
-
-
-def home(**args):
-    Group.add_snippet("home", **args)
+def home(with_limits=True):
+    Group.add_snippet("home", **locals())
 
 
 def debug_pause():
     Group.add_snippet("debug_pause")
 
 
-def drive_to_initial_pos(**args):
-    Group.add_snippet("drive_to_initial_pos", **args)
+def drive_to_initial_pos(with_limits=True):
+    Group.add_snippet("drive_to_initial_pos", **locals())
 
 
-def check_homed(**args):
-    Group.add_snippet("check_homed", **args)
+def check_homed():
+    Group.add_snippet("check_homed")
 
 
 ###############################################################################
@@ -121,30 +119,33 @@ def post_home(**args):
 # common action sequences to recreate htypes= from the original motorhome.py
 ###############################################################################
 def home_rlim():
-    drive_neg_to_limit()
-    drive_pos_off_home()
+    """
+    RLIM the axis must be configured to trigger home flag on release of limit
+    """
+    drive_to_limit()
+    drive_to_trigger(with_limits=False)  # drive away from limit until it releases
     store_position_diff()
-    drive_neg_to_inverse_home()
-    home()
+    drive_to_inverse_home(with_limits=False)  # drive back onto limit switch
+    home(with_limits=False)
     check_homed()
     post_home()
 
 
 def home_hsw():
-    drive_neg_to_home()
-    drive_pos_off_home(with_limits=True)
+    drive_to_home()
+    drive_to_trigger()
     store_position_diff()
-    drive_neg_to_inverse_home(with_limits=True)
-    home(with_limits=True)
+    drive_to_inverse_home()
+    home()
     check_homed()
-    post_home(with_limits=True)
+    post_home()
 
 
 def home_hsw_hstop():
-    drive_neg_to_home(no_following_err=True)
-    drive_pos_to_home(with_limits=True)
+    drive_to_home(no_following_err=True, negative=True)
+    drive_to_home(with_limits=True, negative=False, state="FastSearch")
     store_position_diff()
-    drive_neg_to_inverse_home(with_limits=True)
+    drive_to_inverse_home(negative=True)
     home(with_limits=True)
     check_homed()
 
@@ -170,7 +171,7 @@ def home_slits_hsw(
 
     with group(group_num=group_num, axes=[posx, posy, negx, negy], post_home=post):
         comment("HSW", "i")
-        drive_neg_to_limit()
+        drive_to_limit()
         with only_axes([posx, negx]):
             home_hsw()
         with only_axes([posy, negy]):

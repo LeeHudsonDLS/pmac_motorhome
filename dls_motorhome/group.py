@@ -93,7 +93,7 @@ class Group:
     def jog_axes(self) -> str:
         return self._all_axes("#{axis}J^*", " ")
 
-    def jog_axes_jdist(self) -> str:
+    def jog_to_trigger_jdist(self) -> str:
         return self._all_axes("#{axis}J^*^{jdist}", " ")
 
     def set_large_jog_distance(self, negative: bool = True) -> str:

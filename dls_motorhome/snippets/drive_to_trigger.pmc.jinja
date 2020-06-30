@@ -5,6 +5,6 @@
         HomingState=StateFastSearch
         ; Execute the move commands
         {{ group.set_large_jog_distance(negative=False) }}
-        cmd "{{ group.jog_axes_jdist() }}"
+        cmd "{{ group.jog_to_trigger_jdist() }}"
         {% include "wait_for_done.pmc.jinja" %}
     endif

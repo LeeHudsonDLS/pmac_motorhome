@@ -187,7 +187,7 @@ def test_BL18B_STEP01_plc13_slits():
     # home_slits() command
     # this separates the two pairs of slits so that they will not clash
     # the resulting PLC looks exactly like BL18B-MO-STEP-01.plc13 except that
-    # it has an additional drive_neg_to_limit for all axes at the start
+    # it has an additional drive_to_limit for all axes at the start
     # and it has only one group instead of two
     file_name = "BL18B-MO-STEP-01_slits.plc13"
     tmp_file = Path("/tmp") / file_name

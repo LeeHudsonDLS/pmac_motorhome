@@ -33,14 +33,15 @@ class Plc:
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
-        # write out PLC
-        plc_text = self.generator.render("plc.pmc.jinja", plc=self)
-        with self.filepath.open("w") as stream:
-            stream.write(plc_text)
         Plc.the_plc = None
         # need to do this for the case where 2 PLCs are defined in one file
         # (including in the unit tests)
         Motor.instances = []
+
+        # write out PLC
+        plc_text = self.generator.render("plc.pmc.jinja", plc=self)
+        with self.filepath.open("w") as stream:
+            stream.write(plc_text)
 
     @classmethod
     def add_group(
