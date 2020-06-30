@@ -39,7 +39,9 @@ def plc(plc_num: int, controller: Controller, filepath: Path) -> Plc:
 
 
 def group(
-    group_num: int, axes: List[int], post_home: PostHomeMove = PostHomeMove.none
+    group_num: int,
+    axes: List[int],
+    post_home: PostHomeMove = PostHomeMove.none,
 ) -> Group:
     return Plc.add_group(group_num, axes, post_home)
 

@@ -15,12 +15,14 @@ class Group:
         group_num: int,
         axes: List[Motor],
         post_home: PostHomeMove,
+        plc_num: int,
         comment: str = None,
     ) -> None:
         self.axes = axes
         self.all_axes = axes
         self.post_home = post_home
         self.comment = comment
+        self.plc_num = plc_num
         self.group_num = group_num
         self.templates: List[Template] = []
 
@@ -85,6 +87,8 @@ class Group:
     ############################################################################
     # the following functions are callled from Jinja templates to generate
     # snippets of PLC code that act on all motors in a group
+    #
+    # We call these Group Axis Snippet functions
     ############################################################################
 
     def callback(self, function, args):

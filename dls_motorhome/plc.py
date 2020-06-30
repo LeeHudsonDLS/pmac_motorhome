@@ -52,7 +52,7 @@ class Plc:
             plc.motors
         ), f"invalid axis numbers for group {group_num}"
         motors = [motor for axis_num, motor in plc.motors.items() if axis_num in axes]
-        group = Group(group_num, motors, post_home, **args)
+        group = Group(group_num, motors, post_home, plc.plc_num, **args)
         plc.groups.append(group)
         return group
 
@@ -78,6 +78,8 @@ class Plc:
     ############################################################################
     # the following functions are callled from Jinja templates to generate
     # snippets of PLC code that act on all motors in a plc
+    #
+    # We call these Plc Axis Snippet functions
     ############################################################################
 
     def save_hi_limits(self):
