@@ -114,7 +114,7 @@ def test_BL07I_STEP_04_plc11():
 # "HSW_DIR",
 # "RLIM",           done
 # "NOTHING",
-# "HSW_HSTOP"
+# "HSW_HSTOP"       done
 # also exercise each of the post home move modes
 #
 # NOTE existing examples will require 'Convert Indentation to Spaces' VSCode cmd
