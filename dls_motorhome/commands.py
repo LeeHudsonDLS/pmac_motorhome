@@ -70,12 +70,8 @@ def drive_to_limit(negative=True):
     Group.add_snippet("drive_to_limit", **locals())
 
 
-def drive_to_trigger(with_limits=True):
-    Group.add_snippet("drive_to_trigger", **locals())
-
-
-def drive_to_inverse_home(with_limits=True, negative=True):
-    Group.add_snippet("drive_to_inverse_home", **locals())
+def drive_off_home(with_limits=True, negative=True):
+    Group.add_snippet("drive_off_home", **locals())
 
 
 def store_position_diff(**args):
@@ -121,32 +117,45 @@ def post_home(**args):
 ###############################################################################
 def home_rlim():
     """
-    RLIM the axis must be configured to trigger home flag on release of limit
+    RLIM the axis must be configured to trigger on release of limit
     """
-    drive_to_limit()
-    drive_to_trigger(with_limits=False)  # drive away from limit until it releases
+    # drive in opposite to homing direction until limit hit
+    drive_to_limit(negative=True)
+    drive_to_home(
+        with_limits=False, negative=False, state="FastSearch"
+    )  # drive away from limit until it releases
     store_position_diff()
-    drive_to_inverse_home(with_limits=False)  # drive back onto limit switch
+    drive_off_home(with_limits=False)  # drive back onto limit switch
     home(with_limits=False)
     check_homed()
     post_home()
 
 
 def home_hsw():
-    drive_to_home()
-    drive_to_trigger()
+    """
+    HSW the axis must be configured to trigger on home index or home flag
+    """
+    # drive in opposite to homing direction until home flag or limit hit
+    drive_to_home(negative=True)
+    drive_to_home(with_limits=True, negative=False, state="FastSearch")
     store_position_diff()
-    drive_to_inverse_home()
+    drive_off_home()
     home()
     check_homed()
     post_home()
 
 
 def home_hsw_hstop():
+    """
+    HSW_STOP the axis must be configured to trigger on home index or home flag
+    this is used when there are hard stops instead of limit switches
+    e.g. piezo walker
+    """
+    # drive in opposite to homing direction until home flag or following error
     drive_to_home(no_following_err=True, negative=True)
     drive_to_home(with_limits=True, negative=False, state="FastSearch")
     store_position_diff()
-    drive_to_inverse_home(negative=True)
+    drive_off_home(negative=True)
     home(with_limits=True)
     check_homed()
 

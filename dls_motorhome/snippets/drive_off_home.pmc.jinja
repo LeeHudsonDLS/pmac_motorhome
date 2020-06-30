@@ -1,5 +1,10 @@
     {% include "debug_pause.pmc.jinja" %}
 
+    {# Invert the homing flags and the jog until the inverse of the home flag
+       triggers.
+
+       e.g. for an axis that is home on release of limit this would drive
+       onto the limit  #}
     ;---- FastRetrace State ----
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StateFastRetrace
