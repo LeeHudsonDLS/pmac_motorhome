@@ -16,9 +16,9 @@ class PlcGenerator:
         self.templateLoader = FileSystemLoader(searchpath=jinja_path)
         self.environment = Environment(
             loader=self.templateLoader,
-            trim_blocks=False,
+            trim_blocks=True,
             lstrip_blocks=True,
-            keep_trailing_newline=False,
+            keep_trailing_newline=True,
         )
 
     def render(self, template_name: str, **args) -> str:

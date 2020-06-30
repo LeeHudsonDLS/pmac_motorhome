@@ -57,6 +57,7 @@ and (HomingStatus != StatusDebugHoming)
     HomingStatus = StatusHoming
 endif
 
+{# save axis state #}
 ;---- Configuring State ----
 HomingState=StateConfiguring
 ;Save the Homing group to px03
@@ -74,27 +75,28 @@ HomingBackupGroup=HomingGroup
 ;Save the current position to P variables px84..x99
 {{ plc.save_position() }}
 ;Clear the soft limits
-{{ plc.clear_limits() -}}
+{{ plc.clear_limits() }}
 
-{# group loop #}
-{%- for group in plc.groups %}
-
+{# Loop through the Groups in the Plc #}
+{% for group in plc.groups %}
 if (HomingBackupGroup = 1 or HomingBackupGroup = {{ group.group_num }})
 and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     HomingGroup={{ group.group_num }}
 
     ;Clear home flags
     {{ group.clear_home() }}
+    {# Loop through snippet templates in the Group #}
     {% for template in group.templates %}
-        {%- if template.function %}
-        {{- group.callback(template.function, template.args) }}
-        {%- else %}
+        {% if template.function -%}
+        {{ group.callback(template.function, template.args) -}}
+        {% else %}
         {% include template.jinja_file+'.pmc.jinja' %}
-        {%- endif %}
+
+        {% endif %}
     {% endfor %}
 endif
-{%- endfor %}
 
+{% endfor %}
 ;---- Done ----
 if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     ;If we've got this far without failing, set status and state done
@@ -104,6 +106,7 @@ if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     HomingGroup=HomingBackupGroup
 endif
 
+{# restore axis state #}
 ;---- Tidy Up ----
 ;Stop all motors if they don't have a following error
 {{ plc.stop_motors() }}
@@ -118,4 +121,3 @@ endif
 
 DISABLE PLC{{ plc.plc_num }}
 CLOSE
-

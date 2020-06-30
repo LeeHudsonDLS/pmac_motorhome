@@ -1,4 +1,4 @@
-{%- if template.args.with_limits %}
+{% if template.args.with_limits %}
         ; Wait for the move to complete
         timer = 20 MilliSeconds ; Small delay to start moving
         while (timer > 0)
@@ -20,7 +20,7 @@
         if (timer<0 or timer=0) ; If we timed out
             HomingStatus = StatusTimeout
         endif
-{%- elif template.args.no_following_err %}
+{% elif template.args.no_following_err %}
         ; Wait for the move to complete
         timer = 20 MilliSeconds ; Small delay to start moving
         while (timer > 0)
@@ -35,7 +35,7 @@
         if (timer<0 or timer=0) ; If we timed out
             HomingStatus = StatusTimeout
         endif
-{%- else %}
+{% else %}
         ; Wait for the move to complete
         timer = 20 MilliSeconds ; Small delay to start moving
         while (timer > 0)
@@ -53,4 +53,4 @@
         if (timer<0 or timer=0) ; If we timed out
             HomingStatus = StatusTimeout
         endif
-{%- endif %}
+{% endif %}

@@ -6,5 +6,5 @@
         ; Execute the move commands
         {{ group.negate_home_flags() }} {{ group.set_large_jog_distance() }}
         cmd "{{ group.jog_axes_jdist() }}"
-        {%- include "wait_for_done.pmc.jinja" %}
+        {% include "wait_for_done.pmc.jinja" %}
     endif

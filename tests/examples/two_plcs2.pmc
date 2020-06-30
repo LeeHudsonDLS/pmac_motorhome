@@ -81,7 +81,6 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
 
     ;Clear home flags
     m245=0
-
     ; Wait for user to tell us to continue if in debug
     if (HomingStatus = StatusDebugHoming)
         HomingStatus = StatusPaused

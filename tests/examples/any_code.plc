@@ -81,9 +81,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
 
     ;Clear home flags
     m145=0 m245=0
-Any old string will do for this test
-multiple commands get a line each
-
+Any old string will do for this test - multiple commands can be on the same line
 endif
 
 ;---- Done ----

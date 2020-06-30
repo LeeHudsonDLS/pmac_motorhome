@@ -216,7 +216,7 @@ def test_any_code():
         motor(axis=2)
         with group(group_num=2, axes=[1, 2]):
             command("Any old string will do for this test")
-            command("multiple commands get a line each")
+            command(" - multiple commands can be on the same line\n")
 
     this_path = Path(__file__).parent
     example = this_path / "examples" / file_name
