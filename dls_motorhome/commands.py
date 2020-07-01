@@ -39,9 +39,7 @@ def plc(plc_num: int, controller: Controller, filepath: Path) -> Plc:
 
 
 def group(
-    group_num: int,
-    axes: List[int],
-    post_home: PostHomeMove = PostHomeMove.none,
+    group_num: int, axes: List[int], post_home: PostHomeMove = PostHomeMove.none,
 ) -> Group:
     return Plc.add_group(group_num, axes, post_home)
 
@@ -100,6 +98,10 @@ def drive_to_initial_pos(with_limits=True):
 
 def check_homed():
     Group.add_snippet("check_homed")
+
+
+def drive_off_limit(negative=True):
+    Group.add_snippet("drive_to_home_if_on_limit")
 
 
 ###############################################################################
