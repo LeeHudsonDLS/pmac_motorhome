@@ -8,6 +8,7 @@ from dls_motorhome.commands import (
     comment,
     group,
     home_hsw,
+    home_limit,
     home_slits_hsw,
     motor,
     plc,
@@ -108,7 +109,7 @@ def test_BL07I_STEP_04_plc11():
 #
 # Pick examples which exercise modes
 # "HOME",
-# "LIMIT",
+# "LIMIT",          done
 # "HSW",            done
 # "HSW_HLIM",
 # "HSW_DIR",
@@ -176,6 +177,42 @@ def test_BL18B_STEP01_plc13():
         with group(group_num=3, axes=[3, 4], post_home=initial):
             comment(htype="HSW", post="i")
             home_hsw()
+
+    this_path = Path(__file__).parent
+    example = this_path / "examples" / file_name
+    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+
+
+def test_BL20I_STEP02_plc11():
+    file_name = "BL20I-MO-STEP-02.plc11"
+    tmp_file = Path("/tmp") / file_name
+
+    with plc(plc_num=11, controller=Controller.brick, filepath=tmp_file):
+        motor(axis=3)
+        motor(axis=4)
+        motor(axis=5)
+        motor(axis=6)
+        motor(axis=1)
+        motor(axis=2)
+        motor(axis=7)
+
+        initial = PostHomeMove.initial_position
+
+        with group(group_num=2, axes=[3, 4], post_home=initial):
+            comment(htype="LIMIT", post="i")
+            home_limit()
+
+        with group(group_num=3, axes=[5, 6], post_home=initial):
+            comment(htype="LIMIT", post="i")
+            home_limit()
+
+        with group(group_num=4, axes=[1, 2], post_home=initial):
+            comment(htype="LIMIT", post="i")
+            home_limit()
+
+        with group(group_num=5, axes=[7], post_home=initial):
+            comment(htype="LIMIT", post="i")
+            home_limit()
 
     this_path = Path(__file__).parent
     example = this_path / "examples" / file_name

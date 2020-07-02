@@ -104,6 +104,14 @@ def drive_off_limit(negative=True):
     Group.add_snippet("drive_to_home_if_on_limit")
 
 
+def disable_limits():
+    Group.add_snippet("disable_limits")
+
+
+def restore_limits():
+    Group.add_snippet("restore_limits")
+
+
 ###############################################################################
 # post_home actions to recreate post= from the original motorhome.py
 ###############################################################################
@@ -162,6 +170,20 @@ def home_hsw_hstop():
     drive_off_home(negative=True)
     home(with_limits=True)
     check_homed()
+
+
+def home_limit():
+    """
+    LIMIT
+    """
+    drive_to_home(negative=False, state="FastSearch")
+    store_position_diff()
+    drive_off_home(with_limits=False)
+    disable_limits()
+    home()
+    restore_limits()
+    check_homed()
+    post_home()
 
 
 ###############################################################################
