@@ -27,6 +27,7 @@ class Motor:
             "index": self.index,
             "jdist": jdist,
             "homed_flag": f"7{self.nx}2",
+            "inverse_flag": f"7{self.nx}3",
         }
         for name, start in self.PVARS.items():
             self.dict[name] = plc_num * 100 + start + self.index
@@ -39,3 +40,11 @@ class Motor:
     def nx(self) -> str:
         nx = int(int((self.axis - 1) / 4) * 10 + int((self.axis - 1) % 4 + 1))
         return "{:02}".format(nx)
+
+    @property
+    def homed(self):
+        return self.dict["homed"]
+
+    @property
+    def not_homed(self):
+        return self.dict["not_homed"]

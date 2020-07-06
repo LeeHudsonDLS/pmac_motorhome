@@ -144,3 +144,9 @@ class Group:
 
     def home(self) -> str:
         return self._all_axes("#{axis}hm", " ")
+
+    def restore_limit_flags(self):
+        return self._all_axes("i{axis}24=P{lim_flags}", " ")
+
+    def overwrite_inverse_flags(self):
+        return self._all_axes("P{not_homed}=i{inverse_flag}", " ")
