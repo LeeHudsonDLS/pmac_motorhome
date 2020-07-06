@@ -100,7 +100,7 @@ def check_homed():
     Group.add_snippet("check_homed")
 
 
-def drive_off_limit(negative=True):
+def drive_to_home_if_on_limit(negative=True):
     Group.add_snippet("drive_to_home_if_on_limit")
 
 
