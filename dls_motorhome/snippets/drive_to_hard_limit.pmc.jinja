@@ -1,0 +1,9 @@
+    {% include "debug_pause.pmc.jinja" %}
+
+    ;---- {{template.args.state}} State ----
+    if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
+        HomingState=State{{template.args.state}}
+        ; Execute the move commands
+        cmd "{{ group.jog() }}"
+        {% include "wait_for_done.pmc.jinja" %}
+    endif
