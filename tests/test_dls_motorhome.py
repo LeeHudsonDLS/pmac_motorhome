@@ -109,7 +109,7 @@ def test_BL07I_STEP_04_plc11():
 #
 #
 # Pick examples which exercise modes
-# "HOME",
+# "HOME",           done
 # "LIMIT",          done
 # "HSW",            done
 # "HSW_HLIM",
