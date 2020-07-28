@@ -9,6 +9,7 @@ from dls_motorhome.commands import (
     group,
     home_home,
     home_hsw,
+    home_hsw_dir,
     home_limit,
     home_slits_hsw,
     motor,
@@ -214,6 +215,24 @@ def test_BL20I_STEP02_plc11():
         with group(group_num=5, axes=[7], post_home=initial):
             comment(htype="LIMIT", post="i")
             home_limit()
+
+    this_path = Path(__file__).parent
+    example = this_path / "examples" / file_name
+    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+
+
+def test_BL06I_STEP21_plc12():
+    file_name = "BL06I-MO-STEP-21.plc12"
+    tmp_file = Path("/tmp") / file_name
+
+    with plc(plc_num=12, controller=Controller.brick, filepath=tmp_file):
+        motor(axis=2)
+
+        initial = PostHomeMove.initial_position
+
+        with group(group_num=1, axes=[2], post_home=initial):
+            comment(htype="HSW_DIR", post="i")
+            home_hsw_dir()
 
     this_path = Path(__file__).parent
     example = this_path / "examples" / file_name
