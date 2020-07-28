@@ -79,7 +79,11 @@ HomingBackupGroup=HomingGroup
 
 {# Loop through the Groups in the Plc #}
 {% for group in plc.groups %}
+{% if group.group_num == 1 %}
+if (HomingBackupGroup = 1)
+{% else %}
 if (HomingBackupGroup = 1 or HomingBackupGroup = {{ group.group_num }})
+{% endif %}
 and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     HomingGroup={{ group.group_num }}
 
