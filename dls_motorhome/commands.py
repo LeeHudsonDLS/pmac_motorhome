@@ -70,7 +70,7 @@ def drive_to_limit(negative=True):
     Group.add_snippet("drive_to_limit", **locals())
 
 
-def drive_off_home(with_limits=True, negative=True):
+def drive_off_home(with_limits=True, negative=True, state="FastRetrace"):
     Group.add_snippet("drive_off_home", **locals())
 
 
@@ -79,7 +79,11 @@ def store_position_diff(**args):
 
 
 def drive_to_home(
-    with_limits=False, negative=True, no_following_err=False, state="PreHomeMove"
+    with_limits=False,
+    negative=True,
+    no_following_err=False,
+    state="PreHomeMove",
+    restore_homed_flags=False,
 ):
     Group.add_snippet("drive_to_home", **locals())
 
@@ -192,6 +196,21 @@ def home_hsw_hstop():
     drive_off_home(negative=True)
     home(with_limits=True)
     check_homed()
+
+
+def home_hsw_dir():
+    """
+    HSW_DIR home on a directional home switch
+    """
+    drive_off_home(state="PreHomeMove")
+    drive_to_home(
+        negative=False, with_limits=True, state="FastSearch", restore_homed_flags=True
+    )
+    store_position_diff()
+    drive_off_home(negative=True, state="FastRetrace")
+    home()
+    check_homed()
+    post_home()
 
 
 def home_limit():
