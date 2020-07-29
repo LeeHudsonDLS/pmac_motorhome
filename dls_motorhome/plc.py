@@ -15,6 +15,7 @@ class Plc:
     def __init__(self, plc_num: int, controller: Controller, filepath: Path) -> None:
         self.filepath = Path(filepath)
         self.plc_num = plc_num
+        self.controller: Controller = controller
         self.groups: List[Group] = []
         self.motors: OrderedDict[int, Motor] = OrderedDict()
         self.generator = PlcGenerator()
@@ -68,6 +69,13 @@ class Plc:
     @property
     def count(self) -> int:
         return len(self.groups)
+
+    @property
+    def ctype(self) -> str:
+        if self.controller is Controller.pmac:
+            return "PMAC"
+        else:
+            return "GeoBrick"
 
     def _all_axes(self, format: str, separator: str, *arg) -> str:
         # to the string format: pass any extra arguments first, then the dictionary
