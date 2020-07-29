@@ -114,7 +114,7 @@ def test_BL07I_STEP_04_plc11():
 # "LIMIT",          done
 # "HSW",            done
 # "HSW_HLIM",
-# "HSW_DIR",
+# "HSW_DIR",        done
 # "RLIM",           done
 # "NOTHING",
 # "HSW_HSTOP"       done
