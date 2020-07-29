@@ -106,6 +106,10 @@ class Group:
             "m{axis}72=100000000*({0}i{axis}23/ABS(i{axis}23))", " ", sign
         )
 
+    def jog(self, negative: bool = True) -> str:
+        sign = "-" if negative else ""
+        return self._all_axes("#{axis}J{0}", " ", sign)
+
     def in_pos(self) -> str:
         return self._all_axes("m{axis}40", "&")
 

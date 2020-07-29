@@ -70,7 +70,7 @@ def drive_to_limit(negative=True):
     Group.add_snippet("drive_to_limit", **locals())
 
 
-def drive_off_home(with_limits=True, negative=True):
+def drive_off_home(with_limits=True, negative=True, state="FastRetrace"):
     Group.add_snippet("drive_off_home", **locals())
 
 
@@ -79,7 +79,11 @@ def store_position_diff(**args):
 
 
 def drive_to_home(
-    with_limits=False, negative=True, no_following_err=False, state="PreHomeMove"
+    with_limits=False,
+    negative=True,
+    no_following_err=False,
+    state="PreHomeMove",
+    restore_homed_flags=False,
 ):
     Group.add_snippet("drive_to_home", **locals())
 
@@ -112,6 +116,10 @@ def restore_limits():
     Group.add_snippet("restore_limits")
 
 
+def drive_to_hard_limit(**args):
+    Group.add_snippet("drive_to_hard_limit", **args)
+
+
 ###############################################################################
 # post_home actions to recreate post= from the original motorhome.py
 ###############################################################################
@@ -119,8 +127,26 @@ def post_home(**args):
     group = Group.the_group
     if group.post_home == PostHomeMove.initial_position:
         drive_to_initial_pos(**args)
+    elif group.post_home == PostHomeMove.high_limit:
+        # go to high soft limit
+        pass
     elif group.post_home == PostHomeMove.low_limit:
-        pass  # TODO add the rest of the post home move types
+        # go to low soft limit
+        pass
+    elif group.post_home == PostHomeMove.hard_hi_limit:
+        # go to high hard limit, don't check for limits
+        pass
+    elif group.post_home == PostHomeMove.hard_lo_limit:
+        drive_to_hard_limit(state="PostHomeMove", negative=True)
+    elif type(group.post_home) == str and group.post_home.starswith("r"):
+        # jog relative by post[1:]
+        pass
+    elif type(group.post_home) == str and group.post_home.starswith("z"):
+        # go to post[1:]
+        pass
+    elif group.post_home not in (None, 0, "0"):
+        # go to post
+        pass
     # etc.
 
 
@@ -172,6 +198,21 @@ def home_hsw_hstop():
     check_homed()
 
 
+def home_hsw_dir():
+    """
+    HSW_DIR home on a directional home switch
+    """
+    drive_off_home(state="PreHomeMove")
+    drive_to_home(
+        negative=False, with_limits=True, state="FastSearch", restore_homed_flags=True
+    )
+    store_position_diff()
+    drive_off_home(negative=True, state="FastRetrace")
+    home()
+    check_homed()
+    post_home()
+
+
 def home_limit():
     """
     LIMIT
@@ -182,6 +223,15 @@ def home_limit():
     disable_limits()
     home()
     restore_limits()
+    check_homed()
+    post_home()
+
+
+def home_home():
+    """
+    HOME
+    """
+    home()
     check_homed()
     post_home()
 
