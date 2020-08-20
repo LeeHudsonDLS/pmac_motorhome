@@ -37,7 +37,7 @@ class Motor:
             "jdist": jdist,
             "homed_flag": f"7{self.nx}2",
             "inverse_flag": f"7{self.nx}3",
-            "macro_station": self.macro_station
+            "macro_station": self.macro_station,
         }
         for name, start in self.PVARS.items():
             self.dict[name] = plc_num * 100 + start + self.index
