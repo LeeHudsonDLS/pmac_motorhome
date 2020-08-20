@@ -1,5 +1,7 @@
 from typing import List
 
+from dls_motorhome.constants import PostHomeMove
+
 
 class Motor:
     instances: List["Motor"] = []
@@ -15,11 +17,18 @@ class Motor:
         "pos": 84,
     }
 
-    def __init__(self, axis: int, jdist: int, plc_num: int) -> None:
+    def __init__(
+        self,
+        axis: int,
+        jdist: int,
+        plc_num: int,
+        post_home: PostHomeMove = PostHomeMove.none,
+    ) -> None:
         self.axis = axis
         self.jdist = jdist
         self.index = len(self.instances)
         self.instances.append(self)
+        self.post_home = 0
 
         # dict is for terse string formatting code in _all_axes() functions
         self.dict = {
@@ -28,6 +37,7 @@ class Motor:
             "jdist": jdist,
             "homed_flag": f"7{self.nx}2",
             "inverse_flag": f"7{self.nx}3",
+            "macro_station": self.macro_station
         }
         for name, start in self.PVARS.items():
             self.dict[name] = plc_num * 100 + start + self.index
@@ -48,3 +58,8 @@ class Motor:
     @property
     def not_homed(self):
         return self.dict["not_homed"]
+
+    @property
+    def macro_station(self) -> str:
+        msr = int(4 * int(int(self.axis - 1) / 2) + int(self.axis - 1) % 2)
+        return "{}".format(msr)

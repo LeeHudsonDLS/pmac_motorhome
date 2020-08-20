@@ -53,7 +53,7 @@ class Plc:
             plc.motors
         ), f"invalid axis numbers for group {group_num}"
         motors = [motor for axis_num, motor in plc.motors.items() if axis_num in axes]
-        group = Group(group_num, motors, post_home, plc.plc_num, **args)
+        group = Group(group_num, motors, post_home, plc.plc_num, plc.controller, **args)
         plc.groups.append(group)
         return group
 
@@ -103,13 +103,19 @@ class Plc:
         return self._all_axes("i{axis}14=P{lo_lim}", " ")
 
     def save_homed(self):
-        return self._all_axes("P{homed}=i{homed_flag}", " ")
+        if self.controller is Controller.pmac:
+            return self._all_axes("MSR{macro_station},i912,P{homed}", " ")
+        else:
+            return self._all_axes("P{homed}=i{homed_flag}", " ")
 
     def save_not_homed(self):
         return self._all_axes("P{not_homed}=P{homed}^$C", " ")
 
     def restore_homed(self):
-        return self._all_axes("i{homed_flag}=P{homed}", " ")
+        if self.controller is Controller.pmac:
+            return self._all_axes("MSW{macro_station},i912,P{homed}", " ")
+        else:
+            return self._all_axes("i{homed_flag}=P{homed}", " ")
 
     def save_limit_flags(self):
         return self._all_axes("P{lim_flags}=i{axis}24", " ")
@@ -128,3 +134,6 @@ class Plc:
 
     def stop_motors(self):
         return self._all_axes('if (m{axis}42=0)\n    cmd "#{axis}J/"\nendif', "\n")
+
+    def are_homed_flags_zero(self):
+        return self._all_axes("P{homed}=0", " or ")

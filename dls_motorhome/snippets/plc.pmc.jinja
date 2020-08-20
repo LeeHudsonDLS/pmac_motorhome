@@ -68,6 +68,12 @@ HomingBackupGroup=HomingGroup
 {{ plc.save_lo_limits() }}
 ;Save the home capture flags to P variables px36..x51
 {{ plc.save_homed() }}
+{% if plc.ctype == "PMAC" %}
+;If any are zero then there is probably a macro error
+if ({{plc.are_homed_flags_zero()}})
+    HomingStatus=StatusInvalid
+endif
+{% endif %}
 ;Store 'not flag' to use in moving off a flag in P variables px52..x67
 {{ plc.save_not_homed() }}
 ;Save the limit flags to P variables px68..x83

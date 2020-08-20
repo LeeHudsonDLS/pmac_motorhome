@@ -10,6 +10,7 @@ from dls_motorhome.commands import (
     home_home,
     home_hsw,
     home_hsw_dir,
+    home_hsw_hlim,
     home_limit,
     home_slits_hsw,
     motor,
@@ -233,6 +234,37 @@ def test_BL06I_STEP21_plc12():
         with group(group_num=1, axes=[2], post_home=initial):
             comment(htype="HSW_DIR", post="i")
             home_hsw_dir()
+
+    this_path = Path(__file__).parent
+    example = this_path / "examples" / file_name
+    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+
+
+def test_BL02I_PMAC01_plc17():
+    file_name = "BL02I-MO-PMAC-01.plc17"
+    tmp_file = Path("/tmp") / file_name
+
+    with plc(plc_num=17, controller=Controller.pmac, filepath=tmp_file):
+        motor(axis=1, jdist=-500)
+        motor(axis=2, jdist=-500)
+        motor(axis=3, jdist=-500)
+        motor(axis=4, jdist=-500)
+
+        with group(group_num=2, axes=[1]):
+            comment(htype="HSW_HLIM", post="None")
+            home_hsw_hlim()
+
+        with group(group_num=3, axes=[2]):
+            comment(htype="HSW_HLIM", post="None")
+            home_hsw_hlim()
+
+        with group(group_num=4, axes=[3]):
+            comment(htype="HSW_HLIM", post="None")
+            home_hsw_hlim()
+
+        with group(group_num=5, axes=[4]):
+            comment(htype="HSW_HLIM", post="None")
+            home_hsw_hlim()
 
     this_path = Path(__file__).parent
     example = this_path / "examples" / file_name

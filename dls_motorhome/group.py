@@ -1,6 +1,6 @@
 from typing import Callable, List, Optional, cast
 
-from dls_motorhome.constants import PostHomeMove
+from dls_motorhome.constants import Controller, PostHomeMove
 
 from .motor import Motor
 from .template import Template
@@ -16,6 +16,7 @@ class Group:
         axes: List[Motor],
         post_home: PostHomeMove,
         plc_num: int,
+        controller: Controller,
         comment: str = None,
     ) -> None:
         self.axes = axes
@@ -25,6 +26,8 @@ class Group:
         self.plc_num = plc_num
         self.group_num = group_num
         self.templates: List[Template] = []
+        self.htype: str = "unknown"
+        self.controller = controller
 
     def __enter__(self):
         assert not Group.the_group, "cannot create a new Group within a Group context"
@@ -138,10 +141,16 @@ class Group:
         return self._all_axes("#{axis}J=*", " ")
 
     def negate_home_flags(self):
-        return self._all_axes("i{homed_flag}=P{not_homed}", " ")
+        if self.controller == Controller.pmac:
+            return self._all_axes("MSW{macro_station},i912,P{not_homed}", " ")
+        else:
+            return self._all_axes("i{homed_flag}=P{not_homed}", " ")
 
     def restore_home_flags(self):
-        return self._all_axes("i{homed_flag}=P{homed}", " ")
+        if self.controller == Controller.pmac:
+            return self._all_axes("MSW{macro_station},i912,P{homed}", " ")
+        else:
+            return self._all_axes("i{homed_flag}=P{homed}", " ")
 
     def jog_to_home_jdist(self):
         return self._all_axes("#{axis}J^*^{jdist}", " ")

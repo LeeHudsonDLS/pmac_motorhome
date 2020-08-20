@@ -120,6 +120,10 @@ def drive_to_hard_limit(**args):
     Group.add_snippet("drive_to_hard_limit", **args)
 
 
+def jog_if_on_limit(negative=True):
+    Group.add_snippet("jog_if_on_limit", **locals())
+
+
 ###############################################################################
 # post_home actions to recreate post= from the original motorhome.py
 ###############################################################################
@@ -223,6 +227,20 @@ def home_limit():
     disable_limits()
     home()
     restore_limits()
+    check_homed()
+    post_home()
+
+
+def home_hsw_hlim():
+    """
+    HSW_HLIM
+    """
+    drive_to_home(negative=False)
+    jog_if_on_limit()
+    drive_to_home(negative=False, state="FastSearch", with_limits=True)
+    store_position_diff()
+    drive_off_home(negative=True, state="FastRetrace")
+    home()
     check_homed()
     post_home()
 
