@@ -27,7 +27,7 @@ class Group:
         self.templates: List[Template] = []
 
     def __enter__(self):
-        assert not Group.the_group, "cannot creat a new Group within a Group context"
+        assert not Group.the_group, "cannot create a new Group within a Group context"
         Group.the_group = self
         return self
 

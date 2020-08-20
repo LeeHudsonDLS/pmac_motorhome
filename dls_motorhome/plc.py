@@ -29,7 +29,7 @@ class Plc:
             raise ValueError("plc_number should be integer between 9 and 32")
 
     def __enter__(self):
-        assert not Plc.the_plc, "cannot creat a new Plc within a Plc context"
+        assert not Plc.the_plc, "cannot create a new Plc within a Plc context"
         Plc.the_plc = self
         return self
 
