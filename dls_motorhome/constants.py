@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class ControllerType(Enum):
-    brick = "Geobrick"
+    brick = "GeoBrick"
     pmac = "PMAC"
 
 

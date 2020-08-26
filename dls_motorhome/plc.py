@@ -72,13 +72,6 @@ class Plc:
     def count(self) -> int:
         return len(self.groups)
 
-    @property
-    def ctype(self) -> str:
-        if self.controller is ControllerType.pmac:
-            return "PMAC"
-        else:
-            return "GeoBrick"
-
     def _all_axes(self, format: str, separator: str, *arg) -> str:
         # to the string format: pass any extra arguments first, then the dictionary
         # of the axis object so its elements can be addressed by name
