@@ -2,7 +2,7 @@ from collections import OrderedDict
 from pathlib import Path
 from typing import List, Optional, cast
 
-from .constants import Controller, PostHomeMove
+from .constants import ControllerType, PostHomeMove
 from .group import Group
 from .motor import Motor
 from .plcgenerator import PlcGenerator
@@ -12,9 +12,12 @@ class Plc:
     # this class variable holds the instance in the current context
     the_plc: Optional["Plc"] = None
 
-    def __init__(self, plc_num: int, controller: Controller, filepath: Path) -> None:
+    def __init__(
+        self, plc_num: int, controller: ControllerType, filepath: Path
+    ) -> None:
         self.filepath = Path(filepath)
         self.plc_num = plc_num
+        self.controller: ControllerType = controller
         self.groups: List[Group] = []
         self.motors: OrderedDict[int, Motor] = OrderedDict()
         self.generator = PlcGenerator()
@@ -28,7 +31,7 @@ class Plc:
             raise ValueError("plc_number should be integer between 9 and 32")
 
     def __enter__(self):
-        assert not Plc.the_plc, "cannot creat a new Plc within a Plc context"
+        assert not Plc.the_plc, "cannot create a new Plc within a Plc context"
         Plc.the_plc = self
         return self
 
@@ -52,7 +55,7 @@ class Plc:
             plc.motors
         ), f"invalid axis numbers for group {group_num}"
         motors = [motor for axis_num, motor in plc.motors.items() if axis_num in axes]
-        group = Group(group_num, motors, post_home, plc.plc_num, **args)
+        group = Group(group_num, motors, post_home, plc.plc_num, plc.controller, **args)
         plc.groups.append(group)
         return group
 
@@ -95,13 +98,19 @@ class Plc:
         return self._all_axes("i{axis}14=P{lo_lim}", " ")
 
     def save_homed(self):
-        return self._all_axes("P{homed}=i{homed_flag}", " ")
+        if self.controller is ControllerType.pmac:
+            return self._all_axes("MSR{macro_station},i912,P{homed}", " ")
+        else:
+            return self._all_axes("P{homed}=i{homed_flag}", " ")
 
     def save_not_homed(self):
         return self._all_axes("P{not_homed}=P{homed}^$C", " ")
 
     def restore_homed(self):
-        return self._all_axes("i{homed_flag}=P{homed}", " ")
+        if self.controller is ControllerType.pmac:
+            return self._all_axes("MSW{macro_station},i912,P{homed}", " ")
+        else:
+            return self._all_axes("i{homed_flag}=P{homed}", " ")
 
     def save_limit_flags(self):
         return self._all_axes("P{lim_flags}=i{axis}24", " ")
@@ -120,3 +129,6 @@ class Plc:
 
     def stop_motors(self):
         return self._all_axes('if (m{axis}42=0)\n    cmd "#{axis}J/"\nendif', "\n")
+
+    def are_homed_flags_zero(self):
+        return self._all_axes("P{homed}=0", " or ")

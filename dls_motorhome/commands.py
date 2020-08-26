@@ -3,7 +3,7 @@ from typing import List, cast
 
 from dls_motorhome.onlyaxes import OnlyAxes
 
-from .constants import Controller, PostHomeMove
+from .constants import ControllerType, PostHomeMove
 from .group import Group
 from .plc import Plc
 
@@ -20,7 +20,7 @@ e.g.
 
 from commands import plc, group, motor, only_axes, home_rlim
 
-with plc(plc_num=11, controller=Controller.brick, filepath=tmp_file):
+with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file):
     motor(axis=1)
     motor(axis=2)
 
@@ -34,7 +34,7 @@ with plc(plc_num=11, controller=Controller.brick, filepath=tmp_file):
 ###############################################################################
 # functions to declare motors, groups, plcs
 ###############################################################################
-def plc(plc_num: int, controller: Controller, filepath: Path) -> Plc:
+def plc(plc_num: int, controller: ControllerType, filepath: Path) -> Plc:
     return Plc(plc_num, controller, filepath)
 
 
@@ -118,6 +118,10 @@ def restore_limits():
 
 def drive_to_hard_limit(**args):
     Group.add_snippet("drive_to_hard_limit", **args)
+
+
+def jog_if_on_limit(negative=True):
+    Group.add_snippet("jog_if_on_limit", **locals())
 
 
 ###############################################################################
@@ -223,6 +227,20 @@ def home_limit():
     disable_limits()
     home()
     restore_limits()
+    check_homed()
+    post_home()
+
+
+def home_hsw_hlim():
+    """
+    HSW_HLIM
+    """
+    drive_to_home(negative=False)
+    jog_if_on_limit()
+    drive_to_home(negative=False, state="FastSearch", with_limits=True)
+    store_position_diff()
+    drive_off_home(negative=True, state="FastRetrace")
+    home()
     check_homed()
     post_home()
 
