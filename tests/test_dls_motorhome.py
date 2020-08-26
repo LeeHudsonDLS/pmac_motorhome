@@ -2,7 +2,7 @@ from filecmp import cmp
 from pathlib import Path
 
 from dls_motorhome.commands import (
-    Controller,
+    ControllerType,
     PostHomeMove,
     command,
     comment,
@@ -80,13 +80,13 @@ def test_BL07I_STEP_04_plc11():
         group,
         plc,
         comment,
-        Controller,
+        ControllerType,
         home_rlim,
     )
 
     file = "BL07I-MO-STEP-04.plc11"
     tmp_file = Path("/tmp") / file
-    with plc(plc_num=11, controller=Controller.brick, filepath=tmp_file):
+    with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file):
         motor(axis=1)
         motor(axis=2)
         motor(axis=4)
@@ -132,13 +132,13 @@ def test_BL02I_STEP_13_plc11():
         group,
         plc,
         comment,
-        Controller,
+        ControllerType,
         home_hsw_hstop,
     )
 
     file = "BL02I-MO-STEP-13.plc11"
     tmp_file = Path("/tmp") / file
-    with plc(plc_num=11, controller=Controller.brick, filepath=tmp_file):
+    with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file):
         motor(axis=1, jdist=-10000)
         motor(axis=2, jdist=-10000)
         motor(axis=3, jdist=10000)
@@ -165,7 +165,7 @@ def test_BL18B_STEP01_plc13():
     file_name = "BL18B-MO-STEP-01.plc13"
     tmp_file = Path("/tmp") / file_name
 
-    with plc(plc_num=13, controller=Controller.brick, filepath=tmp_file):
+    with plc(plc_num=13, controller=ControllerType.brick, filepath=tmp_file):
         motor(axis=1, jdist=-400)
         motor(axis=2, jdist=-400)
         motor(axis=3, jdist=-400)
@@ -190,7 +190,7 @@ def test_BL20I_STEP02_plc11():
     file_name = "BL20I-MO-STEP-02.plc11"
     tmp_file = Path("/tmp") / file_name
 
-    with plc(plc_num=11, controller=Controller.brick, filepath=tmp_file):
+    with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file):
         motor(axis=3)
         motor(axis=4)
         motor(axis=5)
@@ -226,7 +226,7 @@ def test_BL06I_STEP21_plc12():
     file_name = "BL06I-MO-STEP-21.plc12"
     tmp_file = Path("/tmp") / file_name
 
-    with plc(plc_num=12, controller=Controller.brick, filepath=tmp_file):
+    with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file):
         motor(axis=2)
 
         initial = PostHomeMove.initial_position
@@ -244,7 +244,7 @@ def test_BL02I_PMAC01_plc17():
     file_name = "BL02I-MO-PMAC-01.plc17"
     tmp_file = Path("/tmp") / file_name
 
-    with plc(plc_num=17, controller=Controller.pmac, filepath=tmp_file):
+    with plc(plc_num=17, controller=ControllerType.pmac, filepath=tmp_file):
         motor(axis=1, jdist=-500)
         motor(axis=2, jdist=-500)
         motor(axis=3, jdist=-500)
@@ -274,7 +274,7 @@ def test_BL02I_PMAC01_plc17():
 def test_HOME_two_axes_post_L():
     file_name = "HOME_two_axes_post_L.pmc"
     tmp_file = Path("/tmp") / file_name
-    with plc(plc_num=12, controller=Controller.brick, filepath=tmp_file):
+    with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file):
         motor(axis=3, jdist=-500)
         motor(axis=4, jdist=-500)
 
@@ -298,7 +298,7 @@ def test_BL18B_STEP01_plc13_slits():
     # and it has only one group instead of two
     file_name = "BL18B-MO-STEP-01_slits.plc13"
     tmp_file = Path("/tmp") / file_name
-    with plc(plc_num=13, controller=Controller.brick, filepath=tmp_file):
+    with plc(plc_num=13, controller=ControllerType.brick, filepath=tmp_file):
         home_slits_hsw(
             group_num=2,
             posx=1,
@@ -318,7 +318,7 @@ def test_any_code():
     # test the 'command' command which inserts arbitrary code
     file_name = "any_code.plc"
     tmp_file = Path("/tmp") / file_name
-    with plc(plc_num=13, controller=Controller.brick, filepath=tmp_file):
+    with plc(plc_num=13, controller=ControllerType.brick, filepath=tmp_file):
         motor(axis=1)
         motor(axis=2)
         with group(group_num=2, axes=[1, 2]):
@@ -337,13 +337,13 @@ def test_two_plcs():
     file_name2 = "two_plcs2.pmc"
     tmp_file2 = Path("/tmp") / file_name2
 
-    with plc(plc_num=11, controller=Controller.brick, filepath=tmp_file1):
+    with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file1):
         motor(axis=1)
 
         with group(group_num=2, axes=[1]):
             home_hsw()
 
-    with plc(plc_num=12, controller=Controller.brick, filepath=tmp_file2):
+    with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file2):
         motor(axis=2)
 
         with group(group_num=3, axes=[2]):

@@ -1,9 +1,9 @@
 from enum import Enum
 
 
-class Controller(Enum):
-    brick = 1
-    pmac = 2
+class ControllerType(Enum):
+    brick = "Geobrick"
+    pmac = "PMAC"
 
 
 class PostHomeMove(Enum):

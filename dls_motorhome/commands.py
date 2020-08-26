@@ -3,7 +3,7 @@ from typing import List, cast
 
 from dls_motorhome.onlyaxes import OnlyAxes
 
-from .constants import Controller, PostHomeMove
+from .constants import ControllerType, PostHomeMove
 from .group import Group
 from .plc import Plc
 
@@ -20,7 +20,7 @@ e.g.
 
 from commands import plc, group, motor, only_axes, home_rlim
 
-with plc(plc_num=11, controller=Controller.brick, filepath=tmp_file):
+with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file):
     motor(axis=1)
     motor(axis=2)
 
@@ -34,7 +34,7 @@ with plc(plc_num=11, controller=Controller.brick, filepath=tmp_file):
 ###############################################################################
 # functions to declare motors, groups, plcs
 ###############################################################################
-def plc(plc_num: int, controller: Controller, filepath: Path) -> Plc:
+def plc(plc_num: int, controller: ControllerType, filepath: Path) -> Plc:
     return Plc(plc_num, controller, filepath)
 
 

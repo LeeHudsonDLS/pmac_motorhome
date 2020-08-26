@@ -2,7 +2,7 @@ from collections import OrderedDict
 from pathlib import Path
 from typing import List, Optional, cast
 
-from .constants import Controller, PostHomeMove
+from .constants import ControllerType, PostHomeMove
 from .group import Group
 from .motor import Motor
 from .plcgenerator import PlcGenerator
@@ -12,10 +12,12 @@ class Plc:
     # this class variable holds the instance in the current context
     the_plc: Optional["Plc"] = None
 
-    def __init__(self, plc_num: int, controller: Controller, filepath: Path) -> None:
+    def __init__(
+        self, plc_num: int, controller: ControllerType, filepath: Path
+    ) -> None:
         self.filepath = Path(filepath)
         self.plc_num = plc_num
-        self.controller: Controller = controller
+        self.controller: ControllerType = controller
         self.groups: List[Group] = []
         self.motors: OrderedDict[int, Motor] = OrderedDict()
         self.generator = PlcGenerator()
@@ -72,7 +74,7 @@ class Plc:
 
     @property
     def ctype(self) -> str:
-        if self.controller is Controller.pmac:
+        if self.controller is ControllerType.pmac:
             return "PMAC"
         else:
             return "GeoBrick"
@@ -103,7 +105,7 @@ class Plc:
         return self._all_axes("i{axis}14=P{lo_lim}", " ")
 
     def save_homed(self):
-        if self.controller is Controller.pmac:
+        if self.controller is ControllerType.pmac:
             return self._all_axes("MSR{macro_station},i912,P{homed}", " ")
         else:
             return self._all_axes("P{homed}=i{homed_flag}", " ")
@@ -112,7 +114,7 @@ class Plc:
         return self._all_axes("P{not_homed}=P{homed}^$C", " ")
 
     def restore_homed(self):
-        if self.controller is Controller.pmac:
+        if self.controller is ControllerType.pmac:
             return self._all_axes("MSW{macro_station},i912,P{homed}", " ")
         else:
             return self._all_axes("i{homed_flag}=P{homed}", " ")

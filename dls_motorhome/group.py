@@ -1,6 +1,6 @@
 from typing import Callable, List, Optional, cast
 
-from dls_motorhome.constants import Controller, PostHomeMove
+from dls_motorhome.constants import ControllerType, PostHomeMove
 
 from .motor import Motor
 from .template import Template
@@ -16,7 +16,7 @@ class Group:
         axes: List[Motor],
         post_home: PostHomeMove,
         plc_num: int,
-        controller: Controller,
+        controller: ControllerType,
         comment: str = None,
     ) -> None:
         self.axes = axes
@@ -141,13 +141,13 @@ class Group:
         return self._all_axes("#{axis}J=*", " ")
 
     def negate_home_flags(self):
-        if self.controller == Controller.pmac:
+        if self.controller == ControllerType.pmac:
             return self._all_axes("MSW{macro_station},i912,P{not_homed}", " ")
         else:
             return self._all_axes("i{homed_flag}=P{not_homed}", " ")
 
     def restore_home_flags(self):
-        if self.controller == Controller.pmac:
+        if self.controller == ControllerType.pmac:
             return self._all_axes("MSW{macro_station},i912,P{homed}", " ")
         else:
             return self._all_axes("i{homed_flag}=P{homed}", " ")
