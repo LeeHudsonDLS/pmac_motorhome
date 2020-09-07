@@ -12,6 +12,7 @@ from dls_motorhome.commands import (
     home_hsw_dir,
     home_hsw_hlim,
     home_limit,
+    home_nothing,
     home_slits_hsw,
     motor,
     plc,
@@ -114,10 +115,10 @@ def test_BL07I_STEP_04_plc11():
 # "HOME",           done
 # "LIMIT",          done
 # "HSW",            done
-# "HSW_HLIM",
+# "HSW_HLIM",       done
 # "HSW_DIR",        done
 # "RLIM",           done
-# "NOTHING",
+# "NOTHING",        done
 # "HSW_HSTOP"       done
 # also exercise each of the post home move modes
 #
@@ -265,6 +266,28 @@ def test_BL02I_PMAC01_plc17():
         with group(group_num=5, axes=[4]):
             comment(htype="HSW_HLIM", post="None")
             home_hsw_hlim()
+
+    this_path = Path(__file__).parent
+    example = this_path / "examples" / file_name
+    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+
+
+def test_NOTHING_plc12():
+    file_name = "NOTHING.plc12"
+    tmp_file = Path("/tmp") / file_name
+
+    with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file):
+        motor(axis=2, jdist=1000)
+
+        hard_hi_limit = PostHomeMove.hard_hi_limit
+
+        with group(group_num=2, axes=[2], post_home=hard_hi_limit):
+            comment(htype="NOTHING", post="H")
+            home_nothing()
+
+        with group(group_num=3, axes=[2], post_home=hard_hi_limit):
+            comment(htype="HSW", post="H")
+            home_hsw()
 
     this_path = Path(__file__).parent
     example = this_path / "examples" / file_name

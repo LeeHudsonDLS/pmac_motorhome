@@ -138,8 +138,7 @@ def post_home(**args):
         # go to low soft limit
         pass
     elif group.post_home == PostHomeMove.hard_hi_limit:
-        # go to high hard limit, don't check for limits
-        pass
+        drive_to_hard_limit(state="PostHomeMove", negative=False)
     elif group.post_home == PostHomeMove.hard_lo_limit:
         drive_to_hard_limit(state="PostHomeMove", negative=True)
     elif type(group.post_home) == str and group.post_home.starswith("r"):
@@ -251,6 +250,16 @@ def home_home():
     """
     home()
     check_homed()
+    post_home()
+
+
+def home_nothing():
+    """
+    NOTHING
+    In original code, this required a homing type other than NOTHING used
+    in the same group otherwise compilation would fail.
+    """
+    Group.the_group.htype = "NOTHING"
     post_home()
 
 
