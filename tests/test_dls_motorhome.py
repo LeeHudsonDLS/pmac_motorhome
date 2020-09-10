@@ -321,16 +321,18 @@ def test_BL18B_STEP01_plc13_slits():
     # and it has only one group instead of two
     file_name = "BL18B-MO-STEP-01_slits.plc13"
     tmp_file = Path("/tmp") / file_name
+
     with plc(plc_num=13, controller=ControllerType.brick, filepath=tmp_file):
-        home_slits_hsw(
-            group_num=2,
-            posx=1,
-            negx=2,
-            posy=3,
-            negy=4,
-            jdist=-400,
-            post=PostHomeMove.initial_position,
-        )
+        motor(axis=1, jdist=-400)
+        motor(axis=2, jdist=-400)
+        motor(axis=3, jdist=-400)
+        motor(axis=4, jdist=-400)
+
+        initial = PostHomeMove.initial_position
+
+        with group(group_num=2, axes=[1, 2, 3, 4], post_home=initial):
+            comment(htype="HSW", post="i")
+            home_slits_hsw(posx=1, negx=2, posy=3, negy=4)
 
     this_path = Path(__file__).parent
     example = this_path / "examples" / file_name
