@@ -138,8 +138,7 @@ def post_home(**args):
         # go to low soft limit
         pass
     elif group.post_home == PostHomeMove.hard_hi_limit:
-        # go to high hard limit, don't check for limits
-        pass
+        drive_to_hard_limit(state="PostHomeMove", negative=False)
     elif group.post_home == PostHomeMove.hard_lo_limit:
         drive_to_hard_limit(state="PostHomeMove", negative=True)
     elif type(group.post_home) == str and group.post_home.starswith("r"):
@@ -254,29 +253,26 @@ def home_home():
     post_home()
 
 
+def home_nothing():
+    """
+    NOTHING
+    In original code, this required a homing type other than NOTHING used
+    in the same group otherwise compilation would fail.
+    Simply goes through to post home move without homing or changing home status.
+    """
+    Group.the_group.htype = "NOTHING"
+    post_home()
+
+
 ###############################################################################
 # functions for some common motor combinations
 ###############################################################################
 
 
-def home_slits_hsw(
-    group_num: int,
-    posx: int,
-    negx: int,
-    posy: int,
-    negy: int,
-    jdist: int = 0,
-    post: PostHomeMove = PostHomeMove.none,
-):
-    motor(axis=posx, jdist=jdist)
-    motor(axis=negx, jdist=jdist)
-    motor(axis=posy, jdist=jdist)
-    motor(axis=negy, jdist=jdist)
+def home_slits_hsw(posx: int, negx: int, posy: int, negy: int):
+    drive_to_limit(negative=True)
 
-    with group(group_num=group_num, axes=[posx, posy, negx, negy], post_home=post):
-        comment("HSW", "i")
-        drive_to_limit()
-        with only_axes([posx, negx]):
-            home_hsw()
-        with only_axes([posy, negy]):
-            home_hsw()
+    with only_axes([posx, negx]):
+        home_hsw()
+    with only_axes([posy, negy]):
+        home_hsw()

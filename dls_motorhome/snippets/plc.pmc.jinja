@@ -94,7 +94,9 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     HomingGroup={{ group.group_num }}
 
     ;Clear home flags
+    {% if group.htype != "NOTHING" %}
     {{ group.clear_home() }}
+    {% endif %}
     {# Loop through snippet templates in the Group #}
     {% for template in group.templates %}
         {% if template.function -%}

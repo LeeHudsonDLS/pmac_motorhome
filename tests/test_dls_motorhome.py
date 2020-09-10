@@ -12,6 +12,7 @@ from dls_motorhome.commands import (
     home_hsw_dir,
     home_hsw_hlim,
     home_limit,
+    home_nothing,
     home_slits_hsw,
     motor,
     plc,
@@ -114,10 +115,10 @@ def test_BL07I_STEP_04_plc11():
 # "HOME",           done
 # "LIMIT",          done
 # "HSW",            done
-# "HSW_HLIM",
+# "HSW_HLIM",       done
 # "HSW_DIR",        done
 # "RLIM",           done
-# "NOTHING",
+# "NOTHING",        done
 # "HSW_HSTOP"       done
 # also exercise each of the post home move modes
 #
@@ -271,6 +272,28 @@ def test_BL02I_PMAC01_plc17():
     assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
 
 
+def test_NOTHING_plc12():
+    file_name = "NOTHING.plc12"
+    tmp_file = Path("/tmp") / file_name
+
+    with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file):
+        motor(axis=2, jdist=1000)
+
+        hard_hi_limit = PostHomeMove.hard_hi_limit
+
+        with group(group_num=2, axes=[2], post_home=hard_hi_limit):
+            comment(htype="NOTHING", post="H")
+            home_nothing()
+
+        with group(group_num=3, axes=[2], post_home=hard_hi_limit):
+            comment(htype="HSW", post="H")
+            home_hsw()
+
+    this_path = Path(__file__).parent
+    example = this_path / "examples" / file_name
+    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+
+
 def test_HOME_two_axes_post_L():
     file_name = "HOME_two_axes_post_L.pmc"
     tmp_file = Path("/tmp") / file_name
@@ -298,16 +321,18 @@ def test_BL18B_STEP01_plc13_slits():
     # and it has only one group instead of two
     file_name = "BL18B-MO-STEP-01_slits.plc13"
     tmp_file = Path("/tmp") / file_name
+
     with plc(plc_num=13, controller=ControllerType.brick, filepath=tmp_file):
-        home_slits_hsw(
-            group_num=2,
-            posx=1,
-            negx=2,
-            posy=3,
-            negy=4,
-            jdist=-400,
-            post=PostHomeMove.initial_position,
-        )
+        motor(axis=1, jdist=-400)
+        motor(axis=2, jdist=-400)
+        motor(axis=3, jdist=-400)
+        motor(axis=4, jdist=-400)
+
+        initial = PostHomeMove.initial_position
+
+        with group(group_num=2, axes=[1, 2, 3, 4], post_home=initial):
+            comment(htype="HSW", post="i")
+            home_slits_hsw(posx=1, negx=2, posy=3, negy=4)
 
     this_path = Path(__file__).parent
     example = this_path / "examples" / file_name

@@ -110,7 +110,7 @@ class Group:
         )
 
     def jog(self, negative: bool = True) -> str:
-        sign = "-" if negative else ""
+        sign = "-" if negative else "+"
         return self._all_axes("#{axis}J{0}", " ", sign)
 
     def in_pos(self) -> str:
