@@ -137,6 +137,12 @@ class Group:
     def stored_pos_to_jogdistance(self):
         return self._all_axes("m{axis}72=P{pos}", " ")
 
+    def stored_limit_to_jogdistance(self, positive=True):
+        if positive:
+            return self._all_axes("m{axis}72=P{hi_lim}", " ")
+        else:
+            return self._all_axes("m{axis}72=P{lo_lim}", " ")
+
     def jog_distance(self):
         return self._all_axes("#{axis}J=*", " ")
 

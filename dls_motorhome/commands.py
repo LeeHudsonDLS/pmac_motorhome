@@ -66,7 +66,7 @@ def command(cmd):
     Group.add_action(Group.command, cmd=cmd)
 
 
-def drive_to_limit(negative=True):
+def drive_to_limit(negative=True, with_limits=False, state="PreHomeMove"):
     Group.add_snippet("drive_to_limit", **locals())
 
 
@@ -98,6 +98,10 @@ def debug_pause():
 
 def drive_to_initial_pos(with_limits=True):
     Group.add_snippet("drive_to_initial_pos", **locals())
+
+
+def drive_to_soft_limit(positive=True, with_limits=True):
+    Group.add_snippet("drive_to_soft_limit", **locals())
 
 
 def check_homed():
@@ -132,8 +136,8 @@ def post_home(**args):
     if group.post_home == PostHomeMove.initial_position:
         drive_to_initial_pos(**args)
     elif group.post_home == PostHomeMove.high_limit:
-        # go to high soft limit
-        pass
+        # drive_to_limit(with_limits=True, state="PostHomeMove")
+        drive_to_soft_limit(**args)
     elif group.post_home == PostHomeMove.low_limit:
         # go to low soft limit
         pass
