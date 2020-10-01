@@ -137,7 +137,9 @@ def jog_if_on_limit(negative=True):
 ###############################################################################
 def post_home(**args):
     group = Group.the_group
-    if group.post_home == PostHomeMove.initial_position:
+    if group.post_home == PostHomeMove.none:
+        pass
+    elif group.post_home == PostHomeMove.initial_position:
         drive_to_initial_pos(**args)
     elif group.post_home == PostHomeMove.high_limit:
         drive_to_soft_limit(negative=False)
@@ -155,6 +157,8 @@ def post_home(**args):
         drive_relative(distance=distance, set_home=True)
     elif group.post_home not in (None, 0, "0"):
         drive_relative(distance=group.post_home)
+    else:
+        pass
 
 
 ###############################################################################
