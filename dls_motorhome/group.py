@@ -164,6 +164,9 @@ class Group:
     def home(self) -> str:
         return self._all_axes("#{axis}hm", " ")
 
+    def set_home(self) -> str:
+        return self._all_axes("#{axis}hmz", " ")
+
     def restore_limit_flags(self):
         return self._all_axes("i{axis}24=P{lim_flags}", " ")
 

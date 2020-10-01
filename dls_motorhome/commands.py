@@ -104,7 +104,7 @@ def drive_to_soft_limit(negative=False, with_limits=True):
     Group.add_snippet("drive_to_soft_limit", **locals())
 
 
-def drive_relative(with_limits=True, distance="123456"):
+def drive_relative(with_limits=True, distance="123456", set_home=False):
     Group.add_snippet("drive_relative", **locals())
 
 
@@ -151,8 +151,8 @@ def post_home(**args):
         distance = group.post_home.strip("r")
         drive_relative(distance=distance)
     elif type(group.post_home) == str and group.post_home.startswith("z"):
-        # go to post[1:]
-        pass
+        distance = group.post_home.strip("z")
+        drive_relative(distance=distance, set_home=True)
     elif group.post_home not in (None, 0, "0"):
         # go to post
         pass
