@@ -154,9 +154,7 @@ def post_home(**args):
         distance = group.post_home.strip("z")
         drive_relative(distance=distance, set_home=True)
     elif group.post_home not in (None, 0, "0"):
-        # go to post
-        pass
-    # etc.
+        drive_relative(distance=group.post_home)
 
 
 ###############################################################################
