@@ -100,7 +100,7 @@ def drive_to_initial_pos(with_limits=True):
     Group.add_snippet("drive_to_initial_pos", **locals())
 
 
-def drive_to_soft_limit(positive=True, with_limits=True):
+def drive_to_soft_limit(negative=False, with_limits=True):
     Group.add_snippet("drive_to_soft_limit", **locals())
 
 
@@ -136,11 +136,9 @@ def post_home(**args):
     if group.post_home == PostHomeMove.initial_position:
         drive_to_initial_pos(**args)
     elif group.post_home == PostHomeMove.high_limit:
-        # drive_to_limit(with_limits=True, state="PostHomeMove")
-        drive_to_soft_limit(**args)
+        drive_to_soft_limit(negative=False)
     elif group.post_home == PostHomeMove.low_limit:
-        # go to low soft limit
-        pass
+        drive_to_soft_limit(negative=True)
     elif group.post_home == PostHomeMove.hard_hi_limit:
         drive_to_hard_limit(state="PostHomeMove", negative=False)
     elif group.post_home == PostHomeMove.hard_lo_limit:
