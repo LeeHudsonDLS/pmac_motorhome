@@ -104,6 +104,10 @@ def drive_to_soft_limit(negative=False, with_limits=True):
     Group.add_snippet("drive_to_soft_limit", **locals())
 
 
+def drive_relative(with_limits=True, distance="123456"):
+    Group.add_snippet("drive_relative", **locals())
+
+
 def check_homed():
     Group.add_snippet("check_homed")
 
@@ -143,10 +147,10 @@ def post_home(**args):
         drive_to_hard_limit(state="PostHomeMove", negative=False)
     elif group.post_home == PostHomeMove.hard_lo_limit:
         drive_to_hard_limit(state="PostHomeMove", negative=True)
-    elif type(group.post_home) == str and group.post_home.starswith("r"):
-        # jog relative by post[1:]
-        pass
-    elif type(group.post_home) == str and group.post_home.starswith("z"):
+    elif type(group.post_home) == str and group.post_home.startswith("r"):
+        distance = group.post_home.strip("r")
+        drive_relative(distance=distance)
+    elif type(group.post_home) == str and group.post_home.startswith("z"):
         # go to post[1:]
         pass
     elif group.post_home not in (None, 0, "0"):

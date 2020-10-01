@@ -294,6 +294,58 @@ def test_NOTHING_plc12():
     assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
 
 
+def test_post_high_limit():
+    file_name = "post_high_limit.plc12"
+    tmp_file = Path("/tmp") / file_name
+
+    with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file):
+        motor(axis=1, jdist=1000)
+
+        hi_limit = PostHomeMove.high_limit
+
+        with group(group_num=2, axes=[1], post_home=hi_limit):
+            comment(htype="HSW", post="h")
+            home_hsw()
+
+    this_path = Path(__file__).parent
+    example = this_path / "examples" / file_name
+    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+
+
+def test_post_low_limit():
+    file_name = "post_low_limit.plc12"
+    tmp_file = Path("/tmp") / file_name
+
+    with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file):
+        motor(axis=2, jdist=1000)
+
+        low_limit = PostHomeMove.low_limit
+
+        with group(group_num=3, axes=[2], post_home=low_limit):
+            comment(htype="HSW", post="l")
+            home_hsw()
+
+    this_path = Path(__file__).parent
+    example = this_path / "examples" / file_name
+    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+
+
+def test_post_jog_relative():
+    file_name = "post_jog_relative.plc12"
+    tmp_file = Path("/tmp") / file_name
+
+    with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file):
+        motor(axis=3, jdist=1000)
+
+        with group(group_num=4, axes=[3], post_home="r1000"):
+            comment(htype="HSW", post="r1000")
+            home_hsw()
+
+    this_path = Path(__file__).parent
+    example = this_path / "examples" / file_name
+    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+
+
 def test_HOME_two_axes_post_L():
     file_name = "HOME_two_axes_post_L.pmc"
     tmp_file = Path("/tmp") / file_name

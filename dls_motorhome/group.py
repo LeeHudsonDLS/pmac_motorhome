@@ -143,8 +143,8 @@ class Group:
         else:
             return self._all_axes("m{axis}72=P{hi_lim}", " ")
 
-    def jog_distance(self):
-        return self._all_axes("#{axis}J=*", " ")
+    def jog_distance(self, distance="*"):
+        return self._all_axes("#{axis}J=%s" % (distance), " ")
 
     def negate_home_flags(self):
         if self.controller == ControllerType.pmac:
