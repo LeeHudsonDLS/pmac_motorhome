@@ -66,7 +66,7 @@ def command(cmd):
     Group.add_action(Group.command, cmd=cmd)
 
 
-def drive_to_limit(negative=True):
+def drive_to_limit(negative=True, with_limits=False, state="PreHomeMove"):
     Group.add_snippet("drive_to_limit", **locals())
 
 
@@ -100,6 +100,14 @@ def drive_to_initial_pos(with_limits=True):
     Group.add_snippet("drive_to_initial_pos", **locals())
 
 
+def drive_to_soft_limit(negative=False, with_limits=True):
+    Group.add_snippet("drive_to_soft_limit", **locals())
+
+
+def drive_relative(with_limits=True, distance="123456", set_home=False):
+    Group.add_snippet("drive_relative", **locals())
+
+
 def check_homed():
     Group.add_snippet("check_homed")
 
@@ -129,28 +137,28 @@ def jog_if_on_limit(negative=True):
 ###############################################################################
 def post_home(**args):
     group = Group.the_group
-    if group.post_home == PostHomeMove.initial_position:
+    if group.post_home == PostHomeMove.none:
+        pass
+    elif group.post_home == PostHomeMove.initial_position:
         drive_to_initial_pos(**args)
     elif group.post_home == PostHomeMove.high_limit:
-        # go to high soft limit
-        pass
+        drive_to_soft_limit(negative=False)
     elif group.post_home == PostHomeMove.low_limit:
-        # go to low soft limit
-        pass
+        drive_to_soft_limit(negative=True)
     elif group.post_home == PostHomeMove.hard_hi_limit:
         drive_to_hard_limit(state="PostHomeMove", negative=False)
     elif group.post_home == PostHomeMove.hard_lo_limit:
         drive_to_hard_limit(state="PostHomeMove", negative=True)
-    elif type(group.post_home) == str and group.post_home.starswith("r"):
-        # jog relative by post[1:]
-        pass
-    elif type(group.post_home) == str and group.post_home.starswith("z"):
-        # go to post[1:]
-        pass
+    elif type(group.post_home) == str and group.post_home.startswith("r"):
+        distance = group.post_home.strip("r")
+        drive_relative(distance=distance)
+    elif type(group.post_home) == str and group.post_home.startswith("z"):
+        distance = group.post_home.strip("z")
+        drive_relative(distance=distance, set_home=True)
     elif group.post_home not in (None, 0, "0"):
-        # go to post
+        drive_relative(distance=group.post_home)
+    else:
         pass
-    # etc.
 
 
 ###############################################################################
