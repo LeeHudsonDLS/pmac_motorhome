@@ -3,10 +3,10 @@ from pathlib import Path
 
 from dls_motorhome.commands import (
     ControllerType,
-    PostHomeMove,
+    PostHomeMove, check_homed,
     command,
-    comment,
-    group,
+    comment, drive_to_home, drive_to_limit,
+    group, home,
     home_home,
     home_hsw,
     home_hsw_dir,
@@ -14,9 +14,8 @@ from dls_motorhome.commands import (
     home_limit,
     home_nothing,
     home_slits_hsw,
-    home_rlim,
     motor,
-    plc,
+    plc, post_home,
 )
 
 # TODO Arvinders original tests could be reinstated but the new Group object
@@ -426,13 +425,17 @@ def test_BL18B_STEP01_plc13_slits():
 
 def test_BL09I_STEP03_plc12_custom():
     # test the 'command' command which inserts arbitrary code
-    file_name = "BL09I-MO-STEP03.plc12"
+    file_name = "BL09I-MO-STEP-03.plc12"
     tmp_file = Path("/tmp") / file_name
-    with plc(plc_num=12, controller=ControllerType.pmac, filepath=tmp_file):
+    with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file):
         motor(axis=1)
         motor(axis=2)
         with group(group_num=2, axes=[1, 2]):
-            home_rlim()
+            drive_to_limit(negative=True)
+            # drive_to_home(with_limits=False)
+            home(with_limits=False)
+            check_homed()
+            post_home()
 
     this_path = Path(__file__).parent
     example = this_path / "examples" / file_name
