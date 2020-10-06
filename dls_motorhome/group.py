@@ -113,8 +113,8 @@ class Group:
         sign = "-" if negative else "+"
         return self._all_axes("#{axis}J{0}", " ", sign)
 
-    def in_pos(self) -> str:
-        return self._all_axes("m{axis}40", "&")
+    def in_pos(self, operator='&') -> str:
+        return self._all_axes("m{axis}40", operator)
 
     def limits(self) -> str:
         return self._all_axes("m{axis}30", "|")

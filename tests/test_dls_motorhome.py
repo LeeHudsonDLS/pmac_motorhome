@@ -433,7 +433,7 @@ def test_BL09I_STEP03_plc12_custom():
         with group(group_num=2, axes=[1, 2]):
             drive_to_limit(negative=True)
             # drive_to_home(with_limits=False)
-            home(with_limits=False)
+            home(with_limits=False, wait_for_one_motor=True)
             check_homed()
             post_home()
 

@@ -66,12 +66,17 @@ def command(cmd):
     Group.add_action(Group.command, cmd=cmd)
 
 
-def drive_to_limit(negative=True, with_limits=False, state="PreHomeMove"):
-    Group.add_snippet("drive_to_limit", **locals())
+def drive_to_limit(negative=True, with_limits=False, state="PreHomeMove", **args):
+    # all functions that add a snippet that also embeds a further snippet
+    # such as wait_for_done.pmc.jinja should combine their arguments
+    # with **args to make it easy to pass any arguments to the embedded snippet
+    args.update(locals())
+    Group.add_snippet("drive_to_limit", **args)
 
 
-def drive_off_home(with_limits=True, negative=True, state="FastRetrace"):
-    Group.add_snippet("drive_off_home", **locals())
+def drive_off_home(with_limits=True, negative=True, state="FastRetrace", **args):
+    args.update(locals())
+    Group.add_snippet("drive_off_home", **args)
 
 
 def store_position_diff(**args):
@@ -84,28 +89,34 @@ def drive_to_home(
     no_following_err=False,
     state="PreHomeMove",
     restore_homed_flags=False,
+    **args
 ):
-    Group.add_snippet("drive_to_home", **locals())
+    args.update(locals())
+    Group.add_snippet("drive_to_home", **args)
 
 
-def home(with_limits=True):
-    Group.add_snippet("home", **locals())
+def home(with_limits=True, **args):
+    args.update(locals())
+    Group.add_snippet("home", **args)
 
 
 def debug_pause():
     Group.add_snippet("debug_pause")
 
 
-def drive_to_initial_pos(with_limits=True):
-    Group.add_snippet("drive_to_initial_pos", **locals())
+def drive_to_initial_pos(with_limits=True, **args):
+    args.update(locals())
+    Group.add_snippet("drive_to_initial_pos", **args)
 
 
-def drive_to_soft_limit(negative=False, with_limits=True):
-    Group.add_snippet("drive_to_soft_limit", **locals())
+def drive_to_soft_limit(with_limits=True, **args):
+    args.update(locals())
+    Group.add_snippet("drive_to_soft_limit", **args)
 
 
-def drive_relative(with_limits=True, distance="123456", set_home=False):
-    Group.add_snippet("drive_relative", **locals())
+def drive_relative(with_limits=True, distance="123456", **args):
+    args.update(locals())
+    Group.add_snippet("drive_relative", **args)
 
 
 def check_homed():
@@ -128,8 +139,9 @@ def drive_to_hard_limit(**args):
     Group.add_snippet("drive_to_hard_limit", **args)
 
 
-def jog_if_on_limit(negative=True):
-    Group.add_snippet("jog_if_on_limit", **locals())
+def jog_if_on_limit(negative=True, **args):
+    args.update(locals())
+    Group.add_snippet("jog_if_on_limit", **args)
 
 
 ###############################################################################
