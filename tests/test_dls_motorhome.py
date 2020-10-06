@@ -14,6 +14,7 @@ from dls_motorhome.commands import (
     home_limit,
     home_nothing,
     home_slits_hsw,
+    home_rlim,
     motor,
     plc,
 )
@@ -417,6 +418,21 @@ def test_BL18B_STEP01_plc13_slits():
         with group(group_num=2, axes=[1, 2, 3, 4], post_home=initial):
             comment(htype="HSW", post="i")
             home_slits_hsw(posx=1, negx=2, posy=3, negy=4)
+
+    this_path = Path(__file__).parent
+    example = this_path / "examples" / file_name
+    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+
+
+def test_BL09I_STEP03_plc12_custom():
+    # test the 'command' command which inserts arbitrary code
+    file_name = "BL09I-MO-STEP03.plc12"
+    tmp_file = Path("/tmp") / file_name
+    with plc(plc_num=12, controller=ControllerType.pmac, filepath=tmp_file):
+        motor(axis=1)
+        motor(axis=2)
+        with group(group_num=2, axes=[1, 2]):
+            home_rlim()
 
     this_path = Path(__file__).parent
     example = this_path / "examples" / file_name
