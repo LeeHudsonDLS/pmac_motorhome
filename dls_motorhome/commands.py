@@ -1,6 +1,6 @@
 import inspect
 from pathlib import Path
-from typing import Callable, List
+from typing import Any, Callable, Dict, List
 
 from dls_motorhome.onlyaxes import OnlyAxes
 
@@ -71,35 +71,39 @@ def command(cmd):
 # using a jinja template with function name as priefix (func_name.pmc.jinja)
 
 
-# those jinja snippets that include wait_for_done.pmc.jinja also may pass
-# these arguments with their defaults supplied here
+# jinja snippets that include wait_for_done.pmc.jinja also may pass
+# these arguments - the dictionary values are the defaults
 wait_for_done_args = {
     "no_following_err": False,
-    # "with_limits": False,
+    "with_limits": False,
     "wait_for_one_motor": False,
 }
 
 
-def snippet_function(*args) -> Callable:
+# TODO big explanation required!
+def snippet_function(*arglists: Dict[str, Any]) -> Callable:
     def wrap(wrapped):
-
         sig = inspect.signature(wrapped)
 
-        def wrapper(**kwargs) -> None:
-            # create a dictionary of the wrapped functions kwargs with defaults
-            merged_args = {k: v.default for k, v in sig.parameters.items()}
-            # merge in any included jinja tempates args such as wait_for_done_args
-            for included_args in args:
-                merged_args.update(included_args)
-            # extract legal arguments from passed kwargs
-            allowed_kwargs = {x: kwargs[x] for x in kwargs if x in merged_args}
-            # overwite defaults with any passed kwarg values
-            merged_args.update(allowed_kwargs)
-            # add a jinja snippet and its processed arguments to the current group
-            Group.add_snippet(wrapped.__name__, **merged_args)
+        merged_args = {}
+        # merge in any included jinja tempates arguments with defaults
+        for included_args in arglists:
+            merged_args.update(included_args)
+        # add in the snippet function's arguments, possibly overriding above defaults
+        merged_args.update({k: v.default for k, v in sig.parameters.items()})
 
-        # type warning on __signature__ https://github.com/python/mypy/issues/5958
-        wrapper.__signature__ = sig
+        def wrapper(**kwargs) -> None:
+            bad_keys = kwargs.keys() - merged_args.keys()
+            assert (
+                len(bad_keys) == 0
+            ), f"illegal arguments: {wrapped.__name__} does not take {bad_keys}"
+
+            all_merged = merged_args.copy()
+            all_merged.update(kwargs)
+
+            # add a jinja snippet and its processed arguments to the current group
+            Group.add_snippet(wrapped.__name__, **all_merged)
+
         return wrapper
 
     return wrap
@@ -110,74 +114,74 @@ def drive_to_limit(state="PreHomeMove", negative=True):
     ...
 
 
-def drive_off_home(with_limits=True, negative=True, state="FastRetrace", **args):
-    args.update(locals())
-    Group.add_snippet("drive_off_home", **args)
-
-
-def store_position_diff(**args):
-    Group.add_snippet("store_position_diff", **args)
-
-
-def drive_to_home(
-    with_limits=False,
-    negative=True,
-    no_following_err=False,
-    state="PreHomeMove",
-    restore_homed_flags=False,
-    **args
-):
-    args.update(locals())
-    Group.add_snippet("drive_to_home", **args)
+@snippet_function(wait_for_done_args)
+def drive_off_home(state="FastRetrace", negative=True, with_limits=True):
+    ...
 
 
 @snippet_function()
+def store_position_diff(**args):
+    ...
+
+
+@snippet_function(wait_for_done_args)
+def drive_to_home(state="PreHomeMove", negative=True, restore_homed_flags=False):
+    ...
+
+
+@snippet_function(wait_for_done_args)
 def home(with_limits=True):
     ...
 
 
+@snippet_function()
 def debug_pause():
-    Group.add_snippet("debug_pause")
+    ...
 
 
-def drive_to_initial_pos(with_limits=True, **args):
-    args.update(locals())
-    Group.add_snippet("drive_to_initial_pos", **args)
+@snippet_function(wait_for_done_args)
+def drive_to_initial_pos(with_limits=True):
+    ...
 
 
-def drive_to_soft_limit(with_limits=True, **args):
-    args.update(locals())
-    Group.add_snippet("drive_to_soft_limit", **args)
+@snippet_function(wait_for_done_args)
+def drive_to_soft_limit(negative=True, with_limits=True):
+    ...
 
 
-def drive_relative(with_limits=True, distance="123456", **args):
-    args.update(locals())
-    Group.add_snippet("drive_relative", **args)
+@snippet_function(wait_for_done_args)
+def drive_relative(distance="123456", set_home=False, with_limits=True):
+    ...
 
 
+@snippet_function()
 def check_homed():
-    Group.add_snippet("check_homed")
+    ...
 
 
+@snippet_function(wait_for_done_args)
 def drive_to_home_if_on_limit(negative=True):
-    Group.add_snippet("drive_to_home_if_on_limit")
+    ...
 
 
+@snippet_function()
 def disable_limits():
-    Group.add_snippet("disable_limits")
+    ...
 
 
+@snippet_function()
 def restore_limits():
-    Group.add_snippet("restore_limits")
+    ...
 
 
-def drive_to_hard_limit(**args):
-    Group.add_snippet("drive_to_hard_limit", **args)
+@snippet_function(wait_for_done_args)
+def drive_to_hard_limit(state="PostHomeMove", negative=True):
+    ...
 
 
-def jog_if_on_limit(negative=True, **args):
-    args.update(locals())
-    Group.add_snippet("jog_if_on_limit", **args)
+@snippet_function(wait_for_done_args)
+def jog_if_on_limit(negative=True):
+    ...
 
 
 ###############################################################################
@@ -194,9 +198,9 @@ def post_home(**args):
     elif group.post_home == PostHomeMove.low_limit:
         drive_to_soft_limit(negative=True)
     elif group.post_home == PostHomeMove.hard_hi_limit:
-        drive_to_hard_limit(state="PostHomeMove", negative=False)
+        drive_to_hard_limit(negative=False)
     elif group.post_home == PostHomeMove.hard_lo_limit:
-        drive_to_hard_limit(state="PostHomeMove", negative=True)
+        drive_to_hard_limit(negative=True)
     elif type(group.post_home) == str and group.post_home.startswith("r"):
         distance = group.post_home.strip("r")
         drive_relative(distance=distance)
