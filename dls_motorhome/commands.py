@@ -1,5 +1,6 @@
+import inspect
 from pathlib import Path
-from typing import List, cast
+from typing import Callable, List
 
 from dls_motorhome.onlyaxes import OnlyAxes
 
@@ -61,17 +62,52 @@ def only_axes(axes: List[int]) -> OnlyAxes:
 # individual PLC action functions
 ###############################################################################
 
-
+# the command action simply inserts the text in 'cmd' into the PLC output
 def command(cmd):
     Group.add_action(Group.command, cmd=cmd)
 
 
-def drive_to_limit(negative=True, with_limits=False, state="PreHomeMove", **args):
-    # all functions that add a snippet that also embeds a further snippet
-    # such as wait_for_done.pmc.jinja should combine their arguments
-    # with **args to make it easy to pass any arguments to the embedded snippet
-    args.update(locals())
-    Group.add_snippet("drive_to_limit", **args)
+# All remaining functions in this section will insert a snippet of PLC code
+# using a jinja template with function name as priefix (func_name.pmc.jinja)
+
+
+# those jinja snippets that include wait_for_done.pmc.jinja also may pass
+# these arguments with their defaults supplied here
+wait_for_done_args = {
+    "no_following_err": False,
+    # "with_limits": False,
+    "wait_for_one_motor": False,
+}
+
+
+def snippet_function(*args) -> Callable:
+    def wrap(wrapped):
+
+        sig = inspect.signature(wrapped)
+
+        def wrapper(**kwargs) -> None:
+            # create a dictionary of the wrapped functions kwargs with defaults
+            merged_args = {k: v.default for k, v in sig.parameters.items()}
+            # merge in any included jinja tempates args such as wait_for_done_args
+            for included_args in args:
+                merged_args.update(included_args)
+            # extract legal arguments from passed kwargs
+            allowed_kwargs = {x: kwargs[x] for x in kwargs if x in merged_args}
+            # overwite defaults with any passed kwarg values
+            merged_args.update(allowed_kwargs)
+            # add a jinja snippet and its processed arguments to the current group
+            Group.add_snippet(wrapped.__name__, **merged_args)
+
+        # type warning on __signature__ https://github.com/python/mypy/issues/5958
+        wrapper.__signature__ = sig
+        return wrapper
+
+    return wrap
+
+
+@snippet_function(wait_for_done_args)
+def drive_to_limit(state="PreHomeMove", negative=True):
+    ...
 
 
 def drive_off_home(with_limits=True, negative=True, state="FastRetrace", **args):
@@ -95,9 +131,9 @@ def drive_to_home(
     Group.add_snippet("drive_to_home", **args)
 
 
-def home(with_limits=True, **args):
-    args.update(locals())
-    Group.add_snippet("home", **args)
+@snippet_function()
+def home(with_limits=True):
+    ...
 
 
 def debug_pause():
