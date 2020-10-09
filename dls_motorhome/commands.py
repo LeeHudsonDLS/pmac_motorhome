@@ -125,7 +125,9 @@ def store_position_diff(**args):
 
 
 @snippet_function(wait_for_done_args)
-def drive_to_home(state="PreHomeMove", homing_direction=False, restore_homed_flags=False):
+def drive_to_home(
+    state="PreHomeMove", homing_direction=False, restore_homed_flags=False
+):
     ...
 
 
@@ -267,7 +269,10 @@ def home_hsw_dir():
     """
     drive_off_home(state="PreHomeMove")
     drive_to_home(
-        homing_direction=True, with_limits=True, state="FastSearch", restore_homed_flags=True
+        homing_direction=True,
+        with_limits=True,
+        state="FastSearch",
+        restore_homed_flags=True,
     )
     store_position_diff()
     drive_off_home(homing_direction=False, state="FastRetrace")
