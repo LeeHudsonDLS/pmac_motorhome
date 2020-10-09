@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from pathlib import Path
-from typing import List, Optional, cast
+from typing import List, Optional
 
 from .constants import ControllerType, PostHomeMove
 from .group import Group
@@ -47,10 +47,15 @@ class Plc:
             stream.write(plc_text)
 
     @classmethod
+    def instance(cls) -> "Plc":
+        assert cls.the_plc, "There is no group context currently defined"
+        return cls.the_plc
+
+    @classmethod
     def add_group(
         cls, group_num: int, axes: List[int], post_home: PostHomeMove, **args
     ) -> Group:
-        plc = cast("Plc", cls.the_plc)
+        plc = Plc.instance()
         assert set(axes).issubset(
             plc.motors
         ), f"invalid axis numbers for group {group_num}"
@@ -61,7 +66,7 @@ class Plc:
 
     @classmethod
     def add_motor(cls, axis: int, jdist: int):
-        plc = cast("Plc", cls.the_plc)
+        plc = Plc.instance()
         assert (
             axis not in plc.motors
         ), f"motor {axis} already defined in plc {plc.plc_num}"

@@ -1,4 +1,4 @@
-from typing import Callable, List, Optional, cast
+from typing import Callable, List, Optional
 
 from dls_motorhome.constants import ControllerType, PostHomeMove
 
@@ -42,11 +42,15 @@ class Group:
         return len(self.templates)
 
     @classmethod
+    def instance(cls) -> "Group":
+        assert cls.the_group, "There is no group context currently defined"
+        return cls.the_group
+
+    @classmethod
     # add a comment in the style of the original motorhome module but NOTE that
     # you can use any descriptive text for htype and post
     def add_comment(cls, htype: str, post: str = "None") -> None:
-        # funky casting required for type hints since we init the_group to None
-        group = cast("Group", cls.the_group)
+        group = Group.instance()
         group.comment = "\n".join(
             [
                 f";  Axis {ax.axis}: htype = {htype}, "
@@ -57,14 +61,14 @@ class Group:
 
     @classmethod
     def add_snippet(cls, template_name: str, **args):
-        group = cast("Group", cls.the_group)
+        group = Group.instance()
         group.templates.append(
             Template(jinja_file=template_name, args=args, function=None)
         )
 
     @classmethod
     def add_action(cls, func: Optional[Callable], **args):
-        group = cast("Group", cls.the_group)
+        group = Group.instance()
         group.templates.append(Template(jinja_file=None, function=func, args=args))
 
     def set_axis_filter(self, axes: List[int]) -> str:
@@ -113,7 +117,7 @@ class Group:
         sign = "-" if negative else "+"
         return self._all_axes("#{axis}J{0}", " ", sign)
 
-    def in_pos(self, operator='&') -> str:
+    def in_pos(self, operator="&") -> str:
         return self._all_axes("m{axis}40", operator)
 
     def limits(self) -> str:

@@ -53,7 +53,7 @@ def motor(axis: int, jdist: int = 0):
 
 
 def only_axes(axes: List[int]) -> OnlyAxes:
-    group = cast("Group", Group.the_group)
+    group = Group.instance()
     return OnlyAxes(group, axes)
 
 
