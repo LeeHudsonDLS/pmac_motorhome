@@ -107,14 +107,14 @@ class Group:
     def jog_to_trigger_jdist(self) -> str:
         return self._all_axes("#{axis}J^*^{jdist}", " ")
 
-    def set_large_jog_distance(self, negative: bool = True) -> str:
-        sign = "-" if negative else ""
+    def set_large_jog_distance(self, homing_direction: bool = True) -> str:
+        sign = "" if homing_direction else "-"
         return self._all_axes(
             "m{axis}72=100000000*({0}i{axis}23/ABS(i{axis}23))", " ", sign
         )
 
-    def jog(self, negative: bool = True) -> str:
-        sign = "-" if negative else "+"
+    def jog(self, homing_direction: bool = True) -> str:
+        sign = "+" if homing_direction else "-"
         return self._all_axes("#{axis}J{0}", " ", sign)
 
     def in_pos(self, operator="&") -> str:
@@ -141,11 +141,11 @@ class Group:
     def stored_pos_to_jogdistance(self):
         return self._all_axes("m{axis}72=P{pos}", " ")
 
-    def stored_limit_to_jogdistance(self, negative=False):
-        if negative:
-            return self._all_axes("m{axis}72=P{lo_lim}", " ")
-        else:
+    def stored_limit_to_jogdistance(self, homing_direction=True):
+        if homing_direction:
             return self._all_axes("m{axis}72=P{hi_lim}", " ")
+        else:
+            return self._all_axes("m{axis}72=P{lo_lim}", " ")
 
     def jog_distance(self, distance="*"):
         return self._all_axes("#{axis}J=%s" % (distance), " ")

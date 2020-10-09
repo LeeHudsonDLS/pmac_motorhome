@@ -28,7 +28,7 @@ with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file):
     with group(group_num=2, axes=[1, 2]):
         home_rlim()
         with only_axes(axes=[1]):
-            drive__to_limit(negative=True)
+            drive__to_limit(homing_direction=False)
 """
 
 
@@ -110,12 +110,12 @@ def snippet_function(*arglists: Dict[str, Any]) -> Callable:
 
 
 @snippet_function(wait_for_done_args)
-def drive_to_limit(state="PreHomeMove", negative=True):
+def drive_to_limit(state="PreHomeMove", homing_direction=False):
     ...
 
 
 @snippet_function(wait_for_done_args)
-def drive_off_home(state="FastRetrace", negative=True, with_limits=True):
+def drive_off_home(state="FastRetrace", homing_direction=False, with_limits=True):
     ...
 
 
@@ -125,7 +125,7 @@ def store_position_diff(**args):
 
 
 @snippet_function(wait_for_done_args)
-def drive_to_home(state="PreHomeMove", negative=True, restore_homed_flags=False):
+def drive_to_home(state="PreHomeMove", homing_direction=False, restore_homed_flags=False):
     ...
 
 
@@ -145,7 +145,7 @@ def drive_to_initial_pos(with_limits=True):
 
 
 @snippet_function(wait_for_done_args)
-def drive_to_soft_limit(negative=True, with_limits=True):
+def drive_to_soft_limit(homing_direction=False, with_limits=True):
     ...
 
 
@@ -160,7 +160,7 @@ def check_homed():
 
 
 @snippet_function(wait_for_done_args)
-def drive_to_home_if_on_limit(negative=True):
+def drive_to_home_if_on_limit(homing_direction=False):
     ...
 
 
@@ -175,12 +175,12 @@ def restore_limits():
 
 
 @snippet_function(wait_for_done_args)
-def drive_to_hard_limit(state="PostHomeMove", negative=True):
+def drive_to_hard_limit(state="PostHomeMove", homing_direction=False):
     ...
 
 
 @snippet_function(wait_for_done_args)
-def jog_if_on_limit(negative=True):
+def jog_if_on_limit(homing_direction=False):
     ...
 
 
@@ -194,13 +194,13 @@ def post_home(**args):
     elif group.post_home == PostHomeMove.initial_position:
         drive_to_initial_pos(**args)
     elif group.post_home == PostHomeMove.high_limit:
-        drive_to_soft_limit(negative=False)
+        drive_to_soft_limit(homing_direction=True)
     elif group.post_home == PostHomeMove.low_limit:
-        drive_to_soft_limit(negative=True)
+        drive_to_soft_limit(homing_direction=False)
     elif group.post_home == PostHomeMove.hard_hi_limit:
-        drive_to_hard_limit(negative=False)
+        drive_to_hard_limit(homing_direction=True)
     elif group.post_home == PostHomeMove.hard_lo_limit:
-        drive_to_hard_limit(negative=True)
+        drive_to_hard_limit(homing_direction=False)
     elif type(group.post_home) == str and group.post_home.startswith("r"):
         distance = group.post_home.strip("r")
         drive_relative(distance=distance)
@@ -221,9 +221,9 @@ def home_rlim():
     RLIM the axis must be configured to trigger on release of limit
     """
     # drive in opposite to homing direction until limit hit
-    drive_to_limit(negative=True)
+    drive_to_limit(homing_direction=False)
     drive_to_home(
-        with_limits=False, negative=False, state="FastSearch"
+        with_limits=False, homing_direction=True, state="FastSearch"
     )  # drive away from limit until it releases
     store_position_diff()
     drive_off_home(with_limits=False)  # drive back onto limit switch
@@ -237,8 +237,8 @@ def home_hsw():
     HSW the axis must be configured to trigger on home index or home flag
     """
     # drive in opposite to homing direction until home flag or limit hit
-    drive_to_home(negative=True)
-    drive_to_home(with_limits=True, negative=False, state="FastSearch")
+    drive_to_home(homing_direction=False)
+    drive_to_home(with_limits=True, homing_direction=True, state="FastSearch")
     store_position_diff()
     drive_off_home()
     home()
@@ -253,10 +253,10 @@ def home_hsw_hstop():
     e.g. piezo walker
     """
     # drive in opposite to homing direction until home flag or following error
-    drive_to_home(no_following_err=True, negative=True)
-    drive_to_home(with_limits=True, negative=False, state="FastSearch")
+    drive_to_home(no_following_err=True, homing_direction=False)
+    drive_to_home(with_limits=True, homing_direction=True, state="FastSearch")
     store_position_diff()
-    drive_off_home(negative=True)
+    drive_off_home(homing_direction=False)
     home(with_limits=True)
     check_homed()
 
@@ -267,10 +267,10 @@ def home_hsw_dir():
     """
     drive_off_home(state="PreHomeMove")
     drive_to_home(
-        negative=False, with_limits=True, state="FastSearch", restore_homed_flags=True
+        homing_direction=True, with_limits=True, state="FastSearch", restore_homed_flags=True
     )
     store_position_diff()
-    drive_off_home(negative=True, state="FastRetrace")
+    drive_off_home(homing_direction=False, state="FastRetrace")
     home()
     check_homed()
     post_home()
@@ -280,7 +280,7 @@ def home_limit():
     """
     LIMIT
     """
-    drive_to_home(negative=False, state="FastSearch")
+    drive_to_home(homing_direction=True, state="FastSearch")
     store_position_diff()
     drive_off_home(with_limits=False)
     disable_limits()
@@ -294,11 +294,11 @@ def home_hsw_hlim():
     """
     HSW_HLIM
     """
-    drive_to_home(negative=False)
+    drive_to_home(homing_direction=True)
     jog_if_on_limit()
-    drive_to_home(negative=False, state="FastSearch", with_limits=True)
+    drive_to_home(homing_direction=True, state="FastSearch", with_limits=True)
     store_position_diff()
-    drive_off_home(negative=True, state="FastRetrace")
+    drive_off_home(homing_direction=False, state="FastRetrace")
     home()
     check_homed()
     post_home()
@@ -330,7 +330,7 @@ def home_nothing():
 
 
 def home_slits_hsw(posx: int, negx: int, posy: int, negy: int):
-    drive_to_limit(negative=True)
+    drive_to_limit(homing_direction=False)
 
     with only_axes([posx, negx]):
         home_hsw()
