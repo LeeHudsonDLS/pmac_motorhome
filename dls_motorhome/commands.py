@@ -1,4 +1,5 @@
 import inspect
+from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, Dict, List
 
@@ -92,6 +93,7 @@ def snippet_function(*arglists: Dict[str, Any]) -> Callable:
         # add in the snippet function's arguments, possibly overriding above defaults
         merged_args.update({k: v.default for k, v in sig.parameters.items()})
 
+        @wraps(wrapped)
         def wrapper(**kwargs) -> None:
             bad_keys = kwargs.keys() - merged_args.keys()
             assert (
@@ -111,7 +113,21 @@ def snippet_function(*arglists: Dict[str, Any]) -> Callable:
 
 @snippet_function(wait_for_done_args)
 def drive_to_limit(state="PreHomeMove", homing_direction=False):
-    ...
+    """
+    Call this function in the context of a Plc object e.g.
+        with plc(group_num=2, axes=[1, 2]):
+            drive_to_limit()
+
+    This will cause the jinja template "drive_to_limit" to be expanded and inserted
+    into the PLC code. The template is as follows:
+
+    .. include:: ../dls_motorhome/snippets/drive_to_limit.pmc.jinja
+        :literal:
+
+    Args:
+        state (str, optional): [description]. Defaults to "PreHomeMove".
+        homing_direction (bool, optional): [description]. Defaults to False.
+    """
 
 
 @snippet_function(wait_for_done_args)
@@ -120,7 +136,7 @@ def drive_off_home(state="FastRetrace", homing_direction=False, with_limits=True
 
 
 @snippet_function()
-def store_position_diff(**args):
+def store_position_diff():
     ...
 
 
