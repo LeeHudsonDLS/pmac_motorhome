@@ -1,7 +1,7 @@
 import inspect
-from functools import wraps
+from functools import singledispatch, wraps
 from pathlib import Path
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, TypeVar, cast, overload
 
 from dls_motorhome.onlyaxes import OnlyAxes
 
@@ -80,10 +80,23 @@ wait_for_done_args = {
     "wait_for_one_motor": False,
 }
 
+F = TypeVar("F", bound=Callable)
+
+
+@overload
+def snippet_function(*argslist: Dict[str, Any]) -> Callable[[F], F]:
+    ...
+
+
+@overload
+def snippet_function(F) -> F:
+    ...
+
 
 # TODO big explanation required!
-def snippet_function(*arglists: Dict[str, Any]) -> Callable:
-    def wrap(wrapped):
+@singledispatch
+def snippet_function(*arglists: Dict[str, Any]) -> Callable[[F], F]:
+    def wrap(wrapped: F) -> F:
         sig = inspect.signature(wrapped)
 
         merged_args = {}
@@ -106,22 +119,32 @@ def snippet_function(*arglists: Dict[str, Any]) -> Callable:
             # add a jinja snippet and its processed arguments to the current group
             Group.add_snippet(wrapped.__name__, **all_merged)
 
-        return wrapper
+        doc = wrapped.__doc__ or ""
+        wrapper.__doc__ = doc + "hello"
+        return cast(F, wrapper)
 
     return wrap
+
+
+# this registration along with @singledispatch and @overload(s) above allows us to
+# use the snippet_function decorator with or without () when it requires no parameters
+@snippet_function.register
+def snippet_function_no_brackets(func: Callable[[F], F]):
+    return snippet_function()
 
 
 @snippet_function(wait_for_done_args)
 def drive_to_limit(state="PreHomeMove", homing_direction=False):
     """
-    Call this function in the context of a Plc object e.g.
+    Call this function in the context of a Plc object e.g.::
+
         with plc(group_num=2, axes=[1, 2]):
             drive_to_limit()
 
     This will cause the jinja template "drive_to_limit" to be expanded and inserted
     into the PLC code. The template is as follows:
 
-    .. include:: ../dls_motorhome/snippets/drive_to_limit.pmc.jinja
+    .. include: ../dls_motorhome/snippets/drive_to_limit.pmc.jinja
         :literal:
 
     Args:
@@ -135,7 +158,7 @@ def drive_off_home(state="FastRetrace", homing_direction=False, with_limits=True
     ...
 
 
-@snippet_function()
+@snippet_function
 def store_position_diff():
     ...
 
@@ -199,6 +222,11 @@ def drive_to_hard_limit(state="PostHomeMove", homing_direction=False):
 
 @snippet_function(wait_for_done_args)
 def jog_if_on_limit(homing_direction=False):
+    ...
+
+
+@snippet_function(wait_for_done_args)
+def continue_home_maintain_axes_offset():
     ...
 
 
