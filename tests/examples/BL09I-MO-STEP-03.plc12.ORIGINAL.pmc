@@ -138,22 +138,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         and (timer > 0) ; Check for timeout
         and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
         endw
-        ; Check why we left the while loop
-        if (m142|m242 != 0) ; Following error check failed
-            HomingStatus = StatusFFErr
-        endif
-        if (timer<0 or timer=0) ; If we timed out
-            HomingStatus = StatusTimeout
-        endif
-    endif
-
-    ;--- Homing State 2 ----
-    if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
-        HomingState=StateHoming
-        ; This block to be used after a home block with wait_for_one_motor=True
-        ; it allows motors to continue to home but restarts those that have already
-        ; reached home. For use with axes that are sensitve to tilt but do not have
-        ; aligned home marks
+        ; if no FE
         if (m142|m242 = 0)
             ; if one motor stopped on home mark then start it moving in home direction again
             if (m140=1 and m240=0)
@@ -175,6 +160,15 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
             and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
             endw
         endif
+        ; Check why we left the while loop
+        if (m142|m242 != 0) ; Following error check failed
+            HomingStatus = StatusFFErr
+        endif
+        if (timer<0 or timer=0) ; If we timed out
+            HomingStatus = StatusTimeout
+        endif
+        ; stop motors
+        cmd "#1j/ #2j/"
     endif
 
     ;---- Check if all motors have homed ----

@@ -10,6 +10,7 @@ Contents
     :caption: Reference
 
     reference/api
+    reference/snippets
     reference/contributing
 
 * :ref:`genindex`

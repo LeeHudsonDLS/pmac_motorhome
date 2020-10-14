@@ -1,6 +1,6 @@
 .. _API:
 
-dls_motorhome API
+Overview
 ===============================
 
 This is the internal API reference for dls_motorhome
@@ -12,5 +12,9 @@ same P-variables to be used.
 For the standard homing sequences supported by the original motorhome.py
 this module will create exactly the same PLC code.
 
+TODO - Over view of the approach, what is a snippet function and what is
+a sequence function (or whatever we call rlim, hsw etc ...)
+
 .. automodule:: dls_motorhome
     :members:
+

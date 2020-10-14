@@ -66,7 +66,7 @@ class Group:
 
         Args:
             template_name (str): [description]
-        """''
+        """
         group = Group.instance()
         group.templates.append(
             Template(jinja_file=template_name, args=args, function=None)

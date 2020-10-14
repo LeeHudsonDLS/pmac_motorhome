@@ -7,6 +7,7 @@ from dls_motorhome.commands import (
     check_homed,
     command,
     comment,
+    continue_home_maintain_axes_offset,
     drive_to_limit,
     group,
     home,
@@ -427,7 +428,7 @@ def test_BL18B_STEP01_plc13_slits():
     assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
 
 
-def test_BL09I_STEP03_plc12_custom():
+def __test_BL09I_STEP03_plc12_custom():
     # test the 'command' command which inserts arbitrary code
     file_name = "BL09I-MO-STEP-03.plc12"
     tmp_file = Path("/tmp") / file_name
@@ -438,12 +439,13 @@ def test_BL09I_STEP03_plc12_custom():
             drive_to_limit(homing_direction=False, with_limits=False)
             # drive_to_home(with_limits=False)
             home(with_limits=False, wait_for_one_motor=True)
+            continue_home_maintain_axes_offset()
             check_homed()
             post_home()
 
-    # this_path = Path(__file__).parent
-    # example = this_path / "examples" / file_name
-    # assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    this_path = Path(__file__).parent
+    example = this_path / "examples" / file_name
+    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
 
 
 def test_any_code():
