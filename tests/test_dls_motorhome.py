@@ -4,13 +4,8 @@ from pathlib import Path
 from dls_motorhome.commands import (
     ControllerType,
     PostHomeMove,
-    check_homed,
-    command,
     comment,
-    continue_home_maintain_axes_offset,
-    drive_to_limit,
     group,
-    home,
     home_home,
     home_hsw,
     home_hsw_dir,
@@ -21,6 +16,13 @@ from dls_motorhome.commands import (
     motor,
     plc,
     post_home,
+)
+from dls_motorhome.snippets import (
+    check_homed,
+    command,
+    continue_home_maintain_axes_offset,
+    drive_to_limit,
+    home,
 )
 
 # TODO Arvinders original tests could be reinstated but the new Group object
