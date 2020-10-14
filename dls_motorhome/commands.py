@@ -1,23 +1,32 @@
 """
-The commands module  contains all of the methods that can be called directly
+The commands module contains functions that can be called directly
 from the homing PLC definition file.
 
-The intention of using global methods is so that the PLC definition can be
-relatively terse and the author does not need to worry about classes and
-objects.
+These functions are used to define PLCs, axes and axis groupings.
 
-e.g.
+The other two modules that define functions to be called from the homing
+PLC definition are:
 
-from commands import plc, group, motor, only_axes, home_rlim
+    - predefined: a set of commonly used predefined homing sequences
+    - snippets: a set of blocks of PLC code combined by predfined above
 
-with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file):
-    motor(axis=1)
-    motor(axis=2)
+The intention of using global functions in these 3 modules is so that the PLC
+definition can be relatively terse and the author does not need to worry about
+classes and objects.
 
-    with group(group_num=2, axes=[1, 2]):
-        home_rlim()
-        with only_axes(axes=[1]):
-            drive__to_limit(homing_direction=False)
+For example the following code will output a PLC 11 that defines a group of
+axes including axis 1 and axis 2. It will provide a standard home switch
+(or home mark) homing sequence::
+
+    from commands import plc, group, motor, only_axes
+    from predfined import home_hsw
+
+    with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file):
+        motor(axis=1)
+        motor(axis=2)
+
+        with group(group_num=2, axes=[1, 2]):
+            home_hsw()
 """
 
 from pathlib import Path
@@ -29,19 +38,10 @@ from .constants import ControllerType, PostHomeMove
 from .group import Group
 from .plc import Plc
 from .snippets import (
-    check_homed,
-    disable_limits,
-    drive_off_home,
     drive_relative,
     drive_to_hard_limit,
-    drive_to_home,
     drive_to_initial_pos,
-    drive_to_limit,
     drive_to_soft_limit,
-    home,
-    jog_if_on_limit,
-    restore_limits,
-    store_position_diff,
 )
 
 # continue_home_maintain_axes_offset,
@@ -53,12 +53,51 @@ from .snippets import (
 # functions to declare motors, groups, plcs
 ###############################################################################
 def plc(plc_num: int, controller: ControllerType, filepath: Path) -> Plc:
+    """
+    Define a new PLC. Use this to create a new Plc context using the 'with' keyword
+    like this::
+
+        with plc(plc_num=13, controller=ControllerType.brick, filepath=tmp_file):
+            motor(axis=1)
+            with group(group_num=2, axes=[1]):
+                command("; this PLC only contains this comment")
+
+    Args:
+        plc_num (int): Number of the generated homing PLC
+        controller (ControllerType): Determines the class of controller Pmac or
+            Geobrick
+        filepath (pathlib.Path): The output file where the PLC will be written
+
+    Returns:
+        Plc: [description]
+    """
     return Plc(plc_num, controller, filepath)
 
 
 def group(
     group_num: int, axes: List[int], post_home: PostHomeMove = PostHomeMove.none,
 ) -> Group:
+    """
+    Define a new group of axes within a PLC that should be homed simultaneously.
+    Use this to create a new context using the 'with' keyword from within a Plc
+    context like this::
+
+        with plc(plc_num=13, controller=ControllerType.brick, filepath=tmp_file):
+            motor(axis=1)
+            motor(axis=2)
+            with group(group_num=2, axes=[1,2]):
+                command("; this PLC only contains this comment")
+
+    Args:
+        group_num (int): an identifying number note that group 1 is reserved for
+            homing all groups
+        axes (List[int]): a list of axis numbers to include in the group
+        post_home (PostHomeMove): action to perform on all axes after the
+            home sequence completes
+
+    Returns:
+        Group:
+    """
     return Plc.add_group(group_num, axes, post_home)
 
 
@@ -67,10 +106,39 @@ def comment(htype: str, post: str = "None") -> None:
 
 
 def motor(axis: int, jdist: int = 0):
+    """
+    Declare a motor for use in subsequently defined groups
+
+    Args:
+        axis (int): axis number
+        jdist (int): number of counts to jog after reaching a home mark
+    """
     Plc.add_motor(axis, jdist)
 
 
 def only_axes(axes: List[int]) -> OnlyAxes:
+    """
+    Creates a context in which actions are performed on a subset of the groups axes
+
+    e.g the following  function ensures that the horizontal and vertical blades
+    of a set of slits do not clash by moving them all to their limits and then
+    homing each pair individually (to be called in a group context with
+    4 axes defined)::
+
+        def home_slits_hsw(posx: int, negx: int, posy: int, negy: int):
+            drive_to_limit(homing_direction=False)
+
+            with only_axes([posx, negx]):
+                home_hsw()
+            with only_axes([posy, negy]):
+                home_hsw()
+
+    Args:
+        axes (List[int]): List of axis numbers
+
+    Returns:
+        OnlyAxes:
+    """
     group = Group.instance()
     return OnlyAxes(group, axes)
 
@@ -102,131 +170,3 @@ def post_home(**args):
         drive_relative(distance=group.post_home)
     else:
         pass
-
-
-###############################################################################
-# common action sequences to recreate htypes= from the original motorhome.py
-###############################################################################
-def home_rlim():
-    """
-    RLIM the axis must be configured to trigger on release of limit
-    """
-    # drive in opposite to homing direction until limit hit
-    drive_to_limit(homing_direction=False)
-    drive_to_home(
-        with_limits=False, homing_direction=True, state="FastSearch"
-    )  # drive away from limit until it releases
-    store_position_diff()
-    drive_off_home(with_limits=False)  # drive back onto limit switch
-    home(with_limits=False)
-    check_homed()
-    post_home()
-
-
-def home_hsw():
-    """
-    HSW the axis must be configured to trigger on home index or home flag
-    """
-    # drive in opposite to homing direction until home flag or limit hit
-    drive_to_home(homing_direction=False)
-    drive_to_home(with_limits=True, homing_direction=True, state="FastSearch")
-    store_position_diff()
-    drive_off_home()
-    home()
-    check_homed()
-    post_home()
-
-
-def home_hsw_hstop():
-    """
-    HSW_STOP the axis must be configured to trigger on home index or home flag
-    this is used when there are hard stops instead of limit switches
-    e.g. piezo walker
-    """
-    # drive in opposite to homing direction until home flag or following error
-    drive_to_home(no_following_err=True, homing_direction=False)
-    drive_to_home(with_limits=True, homing_direction=True, state="FastSearch")
-    store_position_diff()
-    drive_off_home(homing_direction=False)
-    home(with_limits=True)
-    check_homed()
-
-
-def home_hsw_dir():
-    """
-    HSW_DIR home on a directional home switch
-    """
-    drive_off_home(state="PreHomeMove")
-    drive_to_home(
-        homing_direction=True,
-        with_limits=True,
-        state="FastSearch",
-        restore_homed_flags=True,
-    )
-    store_position_diff()
-    drive_off_home(homing_direction=False, state="FastRetrace")
-    home()
-    check_homed()
-    post_home()
-
-
-def home_limit():
-    """
-    LIMIT
-    """
-    drive_to_home(homing_direction=True, state="FastSearch")
-    store_position_diff()
-    drive_off_home(with_limits=False)
-    disable_limits()
-    home()
-    restore_limits()
-    check_homed()
-    post_home()
-
-
-def home_hsw_hlim():
-    """
-    HSW_HLIM
-    """
-    drive_to_home(homing_direction=True)
-    jog_if_on_limit()
-    drive_to_home(homing_direction=True, state="FastSearch", with_limits=True)
-    store_position_diff()
-    drive_off_home(homing_direction=False, state="FastRetrace")
-    home()
-    check_homed()
-    post_home()
-
-
-def home_home():
-    """
-    HOME
-    """
-    home()
-    check_homed()
-    post_home()
-
-
-def home_nothing():
-    """
-    NOTHING
-    In original code, this required a homing type other than NOTHING used
-    in the same group otherwise compilation would fail.
-    Simply goes through to post home move without homing or changing home status.
-    """
-    Group.the_group.htype = "NOTHING"
-    post_home()
-
-
-###############################################################################
-# functions for some common motor combinations
-###############################################################################
-
-
-def home_slits_hsw(posx: int, negx: int, posy: int, negy: int):
-    drive_to_limit(homing_direction=False)
-
-    with only_axes([posx, negx]):
-        home_hsw()
-    with only_axes([posy, negy]):
-        home_hsw()

@@ -9,6 +9,10 @@ from .plcgenerator import PlcGenerator
 
 
 class Plc:
+    """
+    Plc
+    """
+
     # this class variable holds the instance in the current context
     the_plc: Optional["Plc"] = None
 
@@ -48,6 +52,12 @@ class Plc:
 
     @classmethod
     def instance(cls) -> "Plc":
+        """
+        test
+
+        Returns:
+            Plc:
+        """
         assert cls.the_plc, "There is no group context currently defined"
         return cls.the_plc
 

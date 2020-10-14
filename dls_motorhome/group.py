@@ -7,6 +7,10 @@ from .template import Template
 
 
 class Group:
+    """
+    Group
+    """
+
     # this class variable holds the instance in the current context
     the_group: Optional["Group"] = None
 

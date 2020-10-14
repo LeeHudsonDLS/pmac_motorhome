@@ -1,7 +1,11 @@
 .. _API:
 
-Overview
 ===============================
+API
+===============================
+
+Overview
+========
 
 This is the internal API reference for dls_motorhome
 
@@ -12,9 +16,47 @@ same P-variables to be used.
 For the standard homing sequences supported by the original motorhome.py
 this module will create exactly the same PLC code.
 
-TODO - Over view of the approach, what is a snippet function and what is
-a sequence function (or whatever we call rlim, hsw etc ...)
+The following commands provide a set of predefined sequences that perform
+some standard homing sequences. These in turn rely upon snippet functions.
+To implement custom homing sequences the user can call the snippet functions
+directly and mix them with the standard homing sequences as required.
 
-.. automodule:: dls_motorhome
+
+
+Commands
+===============================
+
+.. automodule:: dls_motorhome.commands
     :members:
+
+Predfined Homing Sequences
+==========================
+
+.. automodule:: dls_motorhome.predefined
+    :members:
+
+Snippet Functions
+=======================
+
+.. automodule:: dls_motorhome.snippets
+    :members:
+
+
+Constants
+=======================
+
+.. automodule:: dls_motorhome.constants
+    :members:
+
+Classes
+========
+
+.. automodule:: dls_motorhome.plc
+.. autoclass:: Plc
+
+.. automodule:: dls_motorhome.motor
+.. autoclass:: Motor
+
+.. automodule:: dls_motorhome.group
+.. autoclass:: Group
 

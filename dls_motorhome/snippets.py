@@ -1,6 +1,22 @@
 """
-Group Snippet function will insert a snippet of PLC code
-using a jinja template with function name as priefix (func_name.pmc.jinja)
+All of these functions will insert a small snippet of PLC code into the
+generated PLC. Each snippet performs a specific action on all of the axes
+in a group simultaneously.
+
+They should be called in the context of a Group object.
+
+For example this code
+will create a homing PLC 12 for a group of axes which does nothing except
+drive all of them to their limit in the opposite direction to the homing
+direction::
+
+    with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file):
+        motor(axis=1)
+        motor(axis=2)
+        with group(group_num=2, axes=[1, 2]):
+            # drive opposite to homing direction
+            # continue if some axes have hit their limits
+            drive_to_limit(homing_direction=False, with_limits=False)
 """
 
 import inspect
@@ -30,9 +46,10 @@ wait_for_done_docstring = """
 
     Args:
         no_following_err (bool): don't check for following error during moves
-        with_limits (bool): check for limits during the move
-        wait_for_one_motor (bool): proceed to the next block as soon as one of
-            the motors have stopped instead of waiting for all motors
+        with_limits (bool): check for limits during the move. When False we continue
+            waiting even if a subset of the axes have stopped on a limit
+        wait_for_one_motor (bool): stop wating as soon as one of the motors
+            has stopped instead of waiting for all motors
 """
 
 # jinja snippets that include wait_for_done.pmc.jinja also may pass
@@ -118,44 +135,87 @@ def drive_off_home(state="FastRetrace", homing_direction=False, with_limits=True
 
 @snippet_function()
 def store_position_diff():
-    ...
+    """
+    Save the current offset from the original position.
+
+    This is only required in order to support driving back to initial position
+    after the home operation is complete
+    """
 
 
 @snippet_function(wait_for_done_args)
 def drive_to_home(
     state="PreHomeMove", homing_direction=False, restore_homed_flags=False
 ):
-    ...
+    """
+    drive all axes in the group until they hit the home flag or a limit
+
+    Args:
+        state (str): Which homing state to report to EPICS for monitoring
+        homing_direction (bool): When True Jog in the same direction as
+            each axis' homing direction, defaults False: opposite to homing direction
+        restore_homed_flags (bool): restore the home flags original state before
+            starting. Required if a previous step changed the home flags
+    """
 
 
 @snippet_function(wait_for_done_args)
 def home(with_limits=True):
-    ...
+    """
+    Initiate the home command on all axes in the group
+
+    Args:
+        with_limits (bool): check for limits during the move
+    """
 
 
 @snippet_function()
 def debug_pause():
-    ...
+    """
+    When running in debug mode, pause until the user indicates to continue
+    """
 
 
 @snippet_function(wait_for_done_args)
 def drive_to_initial_pos(with_limits=True):
-    ...
+    """
+    return all axes in the group to their original positions before the homing
+    sequence began. Requires that store_position_diff was called before home.
+
+    Args:
+        with_limits (bool): check for limits during the move
+    """
 
 
 @snippet_function(wait_for_done_args)
 def drive_to_soft_limit(homing_direction=False, with_limits=True):
-    ...
+    """
+    drive all axes in the group until they hit their soft limits
+
+    Args:
+        homing_direction (bool): When True Jog in the same direction as
+            each axis' homing direction, defaults False: opposite to homing direction
+        with_limits (bool): check for limits during the move
+    """
 
 
 @snippet_function(wait_for_done_args)
 def drive_relative(distance="123456", set_home=False, with_limits=True):
-    ...
+    """
+    drive all axes in the group a relative distance from current position
+
+    Args:
+        distance (str): distance in counts
+        set_home (bool): set the home flag afterward if True
+        with_limits (bool): check for limits during the move
+    """
 
 
 @snippet_function()
 def check_homed():
-    ...
+    """
+    verfiy that all axes in the group are homed. Set error condition if not.
+    """
 
 
 @snippet_function(wait_for_done_args)

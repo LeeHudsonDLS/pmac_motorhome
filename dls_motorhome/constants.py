@@ -1,13 +1,28 @@
+"""
+Defines some Enumerations for constant values
+
+TODO how do I docstring the values?
+"""
 from enum import Enum
 
 
 class ControllerType(Enum):
+    """
+    Defines the types of controller supported
+    """
+
     brick = "GeoBrick"
     pmac = "PMAC"
 
 
 class PostHomeMove(Enum):
+    """
+    Defines the set up actions available upon completion of the homing sequence
+    """
+
+    # no action
     none = 0
+    # move jdist away from the home mark and set that as home
     move_and_hmz = 1
     relative_move = 2
     initial_position = 3
@@ -18,6 +33,10 @@ class PostHomeMove(Enum):
 
 
 class HomingState(Enum):
+    """
+    Defines the stages of homing as reported back to the monitoring IOC
+    """
+
     StateIdle = 0
     StateConfiguring = 1
     StateMoveNeg = 2

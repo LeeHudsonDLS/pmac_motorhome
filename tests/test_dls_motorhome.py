@@ -6,6 +6,11 @@ from dls_motorhome.commands import (
     PostHomeMove,
     comment,
     group,
+    motor,
+    plc,
+    post_home,
+)
+from dls_motorhome.predefined import (
     home_home,
     home_hsw,
     home_hsw_dir,
@@ -13,9 +18,8 @@ from dls_motorhome.commands import (
     home_limit,
     home_nothing,
     home_slits_hsw,
-    motor,
-    plc,
-    post_home,
+    home_rlim,
+    home_hsw_hstop,
 )
 from dls_motorhome.snippets import (
     check_homed,
@@ -83,15 +87,6 @@ from dls_motorhome.snippets import (
 
 
 def test_BL07I_STEP_04_plc11():
-    from dls_motorhome.commands import (
-        ControllerType,
-        comment,
-        group,
-        home_rlim,
-        motor,
-        plc,
-    )
-
     file = "BL07I-MO-STEP-04.plc11"
     tmp_file = Path("/tmp") / file
     with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file):
@@ -135,15 +130,6 @@ def test_BL07I_STEP_04_plc11():
 
 
 def test_BL02I_STEP_13_plc11():
-    from dls_motorhome.commands import (
-        ControllerType,
-        comment,
-        group,
-        home_hsw_hstop,
-        motor,
-        plc,
-    )
-
     file = "BL02I-MO-STEP-13.plc11"
     tmp_file = Path("/tmp") / file
     with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file):
