@@ -172,8 +172,7 @@ def post_home(**args):
     elif group.post_home == PostHomeMove.move_and_hmz:
         drive_relative(distance=group.post_distance, set_home=True)
     elif group.post_home == PostHomeMove.move_absolute:
-        # TODO I'm not sure if number ohly in posthome meant relative or
-        # absolute - review
+        # TODO this is wrong - we need a jog absolute snippet
         drive_relative(distance=group.post_distance)
     else:
         pass
