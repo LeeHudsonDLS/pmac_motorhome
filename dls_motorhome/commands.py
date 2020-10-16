@@ -30,7 +30,7 @@ axes including axis 1 and axis 2. It will provide a standard home switch
 """
 
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
 from dls_motorhome.onlyaxes import OnlyAxes
 
@@ -52,7 +52,9 @@ from .snippets import (
 ###############################################################################
 # functions to declare motors, groups, plcs
 ###############################################################################
-def plc(plc_num: int, controller: ControllerType, filepath: Path) -> Plc:
+def plc(
+    plc_num: int, controller: Union[ControllerType, str], filepath: Union[Path, str]
+) -> Plc:
     """
     Define a new PLC. Use this to create a new Plc context using the 'with' keyword
     like this::
@@ -71,11 +73,15 @@ def plc(plc_num: int, controller: ControllerType, filepath: Path) -> Plc:
     Returns:
         Plc: [description]
     """
-    return Plc(plc_num, controller, filepath)
+
+    return Plc(plc_num, ControllerType(controller), Path(filepath))
 
 
 def group(
-    group_num: int, axes: List[int], post_home: PostHomeMove = PostHomeMove.none,
+    group_num: int,
+    axes: List[int],
+    post_home: Union[PostHomeMove, str] = PostHomeMove.none,
+    post_distance: int = 0,
 ) -> Group:
     """
     Define a new group of axes within a PLC that should be homed simultaneously.
@@ -98,7 +104,7 @@ def group(
     Returns:
         Group:
     """
-    return Plc.add_group(group_num, axes, post_home)
+    return Plc.add_group(group_num, axes, PostHomeMove(post_home), post_distance)
 
 
 def comment(htype: str, post: str = "None") -> None:
@@ -148,6 +154,7 @@ def only_axes(axes: List[int]) -> OnlyAxes:
 ###############################################################################
 def post_home(**args):
     group = Group.the_group
+
     if group.post_home == PostHomeMove.none:
         pass
     elif group.post_home == PostHomeMove.initial_position:
@@ -160,13 +167,13 @@ def post_home(**args):
         drive_to_hard_limit(homing_direction=True)
     elif group.post_home == PostHomeMove.hard_lo_limit:
         drive_to_hard_limit(homing_direction=False)
-    elif type(group.post_home) == str and group.post_home.startswith("r"):
-        distance = group.post_home.strip("r")
-        drive_relative(distance=distance)
-    elif type(group.post_home) == str and group.post_home.startswith("z"):
-        distance = group.post_home.strip("z")
-        drive_relative(distance=distance, set_home=True)
-    elif group.post_home not in (None, 0, "0"):
-        drive_relative(distance=group.post_home)
+    elif group.post_home == PostHomeMove.relative_move:
+        drive_relative(distance=group.post_distance)
+    elif group.post_home == PostHomeMove.move_and_hmz:
+        drive_relative(distance=group.post_distance, set_home=True)
+    elif group.post_home == PostHomeMove.move_absolute:
+        # TODO I'm not sure if number ohly in posthome meant relative or
+        # absolute - review
+        drive_relative(distance=group.post_distance)
     else:
         pass

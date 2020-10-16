@@ -18,14 +18,16 @@ class Group:
         self,
         group_num: int,
         axes: List[Motor],
-        post_home: PostHomeMove,
         plc_num: int,
         controller: ControllerType,
+        post_home: PostHomeMove,
+        post_distance: int,
         comment: str = None,
     ) -> None:
         self.axes = axes
         self.all_axes = axes
         self.post_home = post_home
+        self.post_distance = post_distance
         self.comment = comment
         self.plc_num = plc_num
         self.group_num = group_num

@@ -30,6 +30,7 @@ class PostHomeMove(Enum):
     low_limit = 5
     hard_hi_limit = 6
     hard_lo_limit = 7
+    move_absolute = 8
 
 
 class HomingState(Enum):

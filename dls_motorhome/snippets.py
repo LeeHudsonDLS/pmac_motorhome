@@ -67,6 +67,9 @@ F = TypeVar("F", bound=Callable)
 def snippet_function(*arglists: Dict[str, Any]) -> Callable[[F], F]:
     def wrap(wrapped: F) -> F:
         sig = inspect.signature(wrapped)
+        assert (
+            "kwargs" in sig.parameters.keys() or len(arglists) == 0
+        ), f"Bad snippet function definition - {wrapped.__name__} must take **kwargs"
 
         merged_args = {}
         # merge in any included jinja tempates arguments with defaults
@@ -90,9 +93,6 @@ def snippet_function(*arglists: Dict[str, Any]) -> Callable[[F], F]:
 
         # insert the original function's signature at the top of the docstring
         doc = wrapped.__name__ + str(sig)
-        # plus kwargs if we have added included jinja templates arguments
-        if arglists:
-            doc = doc[:-1] + ", **kwargs)"
         # then insert the original function's docstring
         doc += wrapped.__doc__ or ""
         # insert information about jinja the template this function is expanding
@@ -109,7 +109,7 @@ def snippet_function(*arglists: Dict[str, Any]) -> Callable[[F], F]:
 
 # TODO state should be an enum
 @snippet_function(wait_for_done_args)
-def drive_to_limit(state="PreHomeMove", homing_direction=False):
+def drive_to_limit(state="PreHomeMove", homing_direction=False, **kwargs):
     """
     Jog all of the group's axes until they have each hit a limit
 
@@ -121,7 +121,9 @@ def drive_to_limit(state="PreHomeMove", homing_direction=False):
 
 
 @snippet_function(wait_for_done_args)
-def drive_off_home(state="FastRetrace", homing_direction=False, with_limits=True):
+def drive_off_home(
+    state="FastRetrace", homing_direction=False, with_limits=True, **kwargs
+):
     """
     Jog all the group's axes until the home flag is released
 
@@ -145,7 +147,7 @@ def store_position_diff():
 
 @snippet_function(wait_for_done_args)
 def drive_to_home(
-    state="PreHomeMove", homing_direction=False, restore_homed_flags=False
+    state="PreHomeMove", homing_direction=False, restore_homed_flags=False, **kwargs
 ):
     """
     drive all axes in the group until they hit the home flag or a limit
@@ -160,7 +162,7 @@ def drive_to_home(
 
 
 @snippet_function(wait_for_done_args)
-def home(with_limits=True):
+def home(with_limits=True, **kwargs):
     """
     Initiate the home command on all axes in the group
 
@@ -177,7 +179,7 @@ def debug_pause():
 
 
 @snippet_function(wait_for_done_args)
-def drive_to_initial_pos(with_limits=True):
+def drive_to_initial_pos(with_limits=True, **kwargs):
     """
     return all axes in the group to their original positions before the homing
     sequence began. Requires that store_position_diff was called before home.
@@ -188,7 +190,7 @@ def drive_to_initial_pos(with_limits=True):
 
 
 @snippet_function(wait_for_done_args)
-def drive_to_soft_limit(homing_direction=False, with_limits=True):
+def drive_to_soft_limit(homing_direction=False, with_limits=True, **kwargs):
     """
     drive all axes in the group until they hit their soft limits
 
@@ -200,7 +202,7 @@ def drive_to_soft_limit(homing_direction=False, with_limits=True):
 
 
 @snippet_function(wait_for_done_args)
-def drive_relative(distance="123456", set_home=False, with_limits=True):
+def drive_relative(distance="123456", set_home=False, with_limits=True, **kwargs):
     """
     drive all axes in the group a relative distance from current position
 
@@ -219,7 +221,7 @@ def check_homed():
 
 
 @snippet_function(wait_for_done_args)
-def drive_to_home_if_on_limit(homing_direction=False):
+def drive_to_home_if_on_limit(homing_direction=False, **kwargs):
     ...
 
 
@@ -234,15 +236,15 @@ def restore_limits():
 
 
 @snippet_function(wait_for_done_args)
-def drive_to_hard_limit(state="PostHomeMove", homing_direction=False):
+def drive_to_hard_limit(state="PostHomeMove", homing_direction=False, **kwargs):
     ...
 
 
 @snippet_function(wait_for_done_args)
-def jog_if_on_limit(homing_direction=False):
+def jog_if_on_limit(homing_direction=False, **kwargs):
     ...
 
 
 @snippet_function(wait_for_done_args)
-def continue_home_maintain_axes_offset():
+def continue_home_maintain_axes_offset(**kwargs):
     ...

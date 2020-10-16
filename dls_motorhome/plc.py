@@ -19,11 +19,11 @@ class Plc:
     def __init__(
         self, plc_num: int, controller: ControllerType, filepath: Path
     ) -> None:
-        self.filepath = Path(filepath)
+        self.filepath = filepath
         self.plc_num = plc_num
         self.controller: ControllerType = controller
         self.groups: List[Group] = []
-        self.motors: OrderedDict[int, Motor] = OrderedDict()
+        self.motors: "OrderedDict[int, Motor]" = OrderedDict()
         self.generator = PlcGenerator()
         if not self.filepath.parent.exists():
             raise ValueError("bad file path")
@@ -63,14 +63,27 @@ class Plc:
 
     @classmethod
     def add_group(
-        cls, group_num: int, axes: List[int], post_home: PostHomeMove, **args
+        cls,
+        group_num: int,
+        axes: List[int],
+        post_home: PostHomeMove,
+        post_distance: int,
+        **args,
     ) -> Group:
         plc = Plc.instance()
         assert set(axes).issubset(
             plc.motors
         ), f"invalid axis numbers for group {group_num}"
         motors = [motor for axis_num, motor in plc.motors.items() if axis_num in axes]
-        group = Group(group_num, motors, post_home, plc.plc_num, plc.controller, **args)
+        group = Group(
+            group_num,
+            motors,
+            plc.plc_num,
+            plc.controller,
+            post_home,
+            post_distance,
+            **args,
+        )
         plc.groups.append(group)
         return group
 
