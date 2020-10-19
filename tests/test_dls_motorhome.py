@@ -10,7 +10,7 @@ from dls_motorhome.commands import (
     plc,
     post_home,
 )
-from dls_motorhome.predefined import (
+from dls_motorhome.sequences import (
     home_home,
     home_hsw,
     home_hsw_dir,

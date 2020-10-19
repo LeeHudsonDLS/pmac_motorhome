@@ -9,6 +9,7 @@ class ControllerType(Enum):
     """
     Defines the types of controller supported
     """
+
     #: Geobrick controller
     brick = "GeoBrick"
     #: VME PMAC Controller

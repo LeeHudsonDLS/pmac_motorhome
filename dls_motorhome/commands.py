@@ -145,8 +145,7 @@ def only_axes(axes: List[int]) -> OnlyAxes:
     Returns:
         OnlyAxes:
     """
-    group = Group.instance()
-    return OnlyAxes(group, axes)
+    return OnlyAxes(axes)
 
 
 ###############################################################################
