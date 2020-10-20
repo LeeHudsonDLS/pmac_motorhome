@@ -58,6 +58,7 @@ About the documentation
     :caption: Explanations
     :name: explanations
 
+    explanations/implemtation
     explanations/history
 
 .. rst-class:: no-margin-after-ul

@@ -44,14 +44,7 @@ from .snippets import (
     drive_to_soft_limit,
 )
 
-# continue_home_maintain_axes_offset,
-# debug_pause,
-# drive_to_home_if_on_limit,
 
-
-###############################################################################
-# functions to declare motors, groups, plcs
-###############################################################################
 def plc(
     plc_num: int, controller: Union[ControllerType, str], filepath: Union[Path, str]
 ) -> Plc:
@@ -71,7 +64,7 @@ def plc(
         filepath (pathlib.Path): The output file where the PLC will be written
 
     Returns:
-        Plc: [description]
+        Plc:
     """
 
     return Plc(plc_num, ControllerType(controller), Path(filepath))
@@ -110,7 +103,7 @@ def comment(htype: str, post: str = "None") -> None:
     Group.add_comment(htype, post)
 
 
-def motor(axis: int, jdist: int = 0):
+def motor(axis: int, jdist: int = 0) -> None:
     """
     Declare a motor for use in subsequently defined groups
 

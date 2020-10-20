@@ -11,9 +11,10 @@ drive all of them to their limit in the opposite direction to the homing
 direction::
 
     with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file):
-        motor(axis=1)
-        motor(axis=2)
-        with group(group_num=2, axes=[1, 2]):
+        with group(group_num=2):
+            motor(axis=1)
+            motor(axis=2)
+
             # drive opposite to homing direction
             # continue if some axes have hit their limits
             drive_to_limit(homing_direction=False, with_limits=False)

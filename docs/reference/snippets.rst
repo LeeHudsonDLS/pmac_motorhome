@@ -1,3 +1,4 @@
+.. _Snippet_Functions:
 
 Snippet Functions
 =======================
