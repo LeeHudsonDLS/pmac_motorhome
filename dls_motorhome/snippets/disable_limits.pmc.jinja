@@ -3,7 +3,7 @@
         ;Save the user home flags to P variables px52..x67
         ;NOTE: this overwrites inverse flag (ran out of P vars), so can't use inverse flag after this point
             {{ group.overwrite_inverse_flags() }}
-        {% for axis in group.axes -%}
+        {% for axis in group.motors -%}
             {% include 'disable_axis_limits.pmc.jinja' -%}
         {% endfor %}
     endif

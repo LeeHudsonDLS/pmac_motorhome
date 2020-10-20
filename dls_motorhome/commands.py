@@ -79,7 +79,6 @@ def plc(
 
 def group(
     group_num: int,
-    axes: List[int],
     post_home: Union[PostHomeMove, str] = PostHomeMove.none,
     post_distance: int = 0,
 ) -> Group:
@@ -104,7 +103,7 @@ def group(
     Returns:
         Group:
     """
-    return Plc.add_group(group_num, axes, PostHomeMove(post_home), post_distance)
+    return Plc.add_group(group_num, PostHomeMove(post_home), post_distance)
 
 
 def comment(htype: str, post: str = "None") -> None:
@@ -119,7 +118,8 @@ def motor(axis: int, jdist: int = 0):
         axis (int): axis number
         jdist (int): number of counts to jog after reaching a home mark
     """
-    Plc.add_motor(axis, jdist)
+    motor = Group.add_motor(axis, jdist)
+    Plc.add_motor(axis, motor)
 
 
 def only_axes(axes: List[int]) -> OnlyAxes:

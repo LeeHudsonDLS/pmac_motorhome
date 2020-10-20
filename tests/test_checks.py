@@ -16,6 +16,6 @@ def test_one_plc():
 def test_one_group():
     with plc(11, ControllerType.brick, Path("/tmp/t")):
         with pytest.raises(AssertionError):
-            with group(2, [1]):
-                with group(3, [1]):
+            with group(2):
+                with group(3):
                     pass

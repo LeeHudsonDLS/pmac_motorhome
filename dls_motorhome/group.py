@@ -15,7 +15,6 @@ class Group:
     def __init__(
         self,
         group_num: int,
-        axes: List[Motor],
         plc_num: int,
         controller: ControllerType,
         post_home: PostHomeMove,
@@ -35,8 +34,8 @@ class Group:
             comment (str): [description]. A comment to place in the output Plc code
                 at the beginning of this group's definition
         """
-        self.axes = axes
-        self.all_axes = axes
+        self.motors: List[Motor] = []
+        self.all_motors: List[Motor] = []
         self.post_home = post_home
         self.post_distance = post_distance
         self.comment = comment
@@ -53,6 +52,17 @@ class Group:
 
     def __exit__(self, exception_type, exception_value, traceback):
         Group.the_group = None
+
+    @classmethod
+    def add_motor(cls, axis: int, jdist: int) -> Motor:
+        group = Group.instance()
+        assert (
+            axis not in group.motors
+        ), f"motor {axis} already defined in group {group.plc_num}"
+        motor = Motor.get_motor(axis, jdist, group.plc_num)
+        group.motors.append(motor)
+        group.all_motors.append(motor)
+        return motor
 
     @classmethod
     def instance(cls) -> "Group":
@@ -75,7 +85,7 @@ class Group:
             [
                 f";  Axis {ax.axis}: htype = {htype}, "
                 f"jdist = {ax.jdist}, post = {post}"
-                for ax in group.axes
+                for ax in group.motors
             ]
         )
 
@@ -126,10 +136,10 @@ class Group:
         """
         if axes == []:
             # reset the axis filter
-            self.axes = self.all_axes
+            self.motors = self.all_motors
         else:
-            self.axes = [motor for motor in self.all_axes if motor.axis in axes]
-            assert len(self.axes) == len(axes), "set_axis_filter: invalid axis number"
+            self.motors = [motor for motor in self.all_motors if motor.axis in axes]
+            assert len(self.motors) == len(axes), "set_axis_filter: invalid axis number"
             # callback functions must return a string since we call them with
             # {{- group.callback(template.function, template.args) -}} from jinja
         return ""
@@ -168,7 +178,7 @@ class Group:
 
         # to the string format: pass any extra arguments first, then the dictionary
         # of the axis object so its elements can be addressed by name
-        all = [format.format(*arg, **ax.dict) for ax in self.axes]
+        all = [format.format(*arg, **ax.dict) for ax in self.motors]
         return separator.join(all)
 
     def callback(self, function: Callable, args: Dict[str, Any]) -> str:

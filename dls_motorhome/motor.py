@@ -1,17 +1,17 @@
-from typing import List
+from typing import Dict
 
 from dls_motorhome.constants import PostHomeMove
 
 
 class Motor:
     """
-    Declares a motor for use in homing routines in the enclosing Plc
+    Declares a motor for use in homing routines in the enclosing Group, Plc
 
     Returns:
         [type]: [description]
     """
 
-    instances: List["Motor"] = []
+    instances: Dict[int, "Motor"] = {}
 
     # offsets into the PLC's PVariables for storing the state of axes
     # these names go into long format strings so keep them short for legibility
@@ -43,7 +43,7 @@ class Motor:
         self.axis = axis
         self.jdist = jdist
         self.index = len(self.instances)
-        self.instances.append(self)
+        self.instances[axis] = self
         self.post_home = 0
 
         # dict is for terse string formatting code in _all_axes() functions
@@ -57,6 +57,25 @@ class Motor:
         }
         for name, start in self.PVARS.items():
             self.dict[name] = plc_num * 100 + start + self.index
+
+    @classmethod
+    def get_motor(
+        cls,
+        axis: int,
+        jdist: int,
+        plc_num: int,
+        post_home: PostHomeMove = PostHomeMove.none,
+    ) -> "Motor":
+        """
+        A factory function to return a Motor object but ensure that there
+        is only ever one instance of each axis number. This is required since
+        PLC code allocates p variables on a per axis basis.
+        """
+        motor = cls.instances.get(axis)
+        if motor is None:
+            motor = Motor(axis, jdist, plc_num, post_home)
+
+        return motor
 
     # TODO IMPORTANT - this is used in finding the Home capture flags etc. and is
     # specific to Geobrick - For a full implementation see Motor class in

@@ -43,7 +43,7 @@ class Plc:
         Plc.the_plc = None
         # need to do this for the case where 2 PLCs are defined in one file
         # (including in the unit tests)
-        Motor.instances = []
+        Motor.instances = {}
 
         # write out PLC
         plc_text = self.generator.render("plc.pmc.jinja", plc=self)
@@ -65,19 +65,13 @@ class Plc:
     def add_group(
         cls,
         group_num: int,
-        axes: List[int],
         post_home: PostHomeMove,
         post_distance: int,
         **args,
     ) -> Group:
         plc = Plc.instance()
-        assert set(axes).issubset(
-            plc.motors
-        ), f"invalid axis numbers for group {group_num}"
-        motors = [motor for axis_num, motor in plc.motors.items() if axis_num in axes]
         group = Group(
             group_num,
-            motors,
             plc.plc_num,
             plc.controller,
             post_home,
@@ -88,13 +82,10 @@ class Plc:
         return group
 
     @classmethod
-    def add_motor(cls, axis: int, jdist: int):
+    def add_motor(cls, axis: int, motor: Motor):
         plc = Plc.instance()
-        assert (
-            axis not in plc.motors
-        ), f"motor {axis} already defined in plc {plc.plc_num}"
-        motor = Motor(axis, jdist, plc.plc_num)
-        plc.motors[axis] = motor
+        if axis not in plc.motors:
+            plc.motors[axis] = motor
 
     def _all_axes(self, format: str, separator: str, *arg) -> str:
         # to the string format: pass any extra arguments first, then the dictionary
