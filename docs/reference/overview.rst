@@ -18,16 +18,3 @@ some standard homing sequences. These in turn rely upon snippet functions.
 To implement custom homing sequences the user can call the snippet functions
 directly and mix them with the standard homing sequences as required.
 
-
-
-
-
-
-
-
-Constants
-=======================
-
-.. automodule:: dls_motorhome.constants
-    :members:
-

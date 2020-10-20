@@ -63,8 +63,15 @@ wait_for_done_args = {
 F = TypeVar("F", bound=Callable)
 
 
-# TODO big explanation required!
-def snippet_function(*arglists: Dict[str, Any]) -> Callable[[F], F]:
+def _snippet_function(*arglists: Dict[str, Any]) -> Callable[[F], F]:
+    """
+    A decorator function to allow simple declaration of snippet functions.
+    TODO much further explanation required
+
+    Returns:
+        Callable[[F], F]: The decorated snippet function
+    """
+
     def wrap(wrapped: F) -> F:
         sig = inspect.signature(wrapped)
         assert (
@@ -108,7 +115,7 @@ def snippet_function(*arglists: Dict[str, Any]) -> Callable[[F], F]:
 
 
 # TODO state should be an enum
-@snippet_function(wait_for_done_args)
+@_snippet_function(wait_for_done_args)
 def drive_to_limit(state="PreHomeMove", homing_direction=False, **kwargs):
     """
     Jog all of the group's axes until they have each hit a limit
@@ -120,7 +127,7 @@ def drive_to_limit(state="PreHomeMove", homing_direction=False, **kwargs):
     """
 
 
-@snippet_function(wait_for_done_args)
+@_snippet_function(wait_for_done_args)
 def drive_off_home(
     state="FastRetrace", homing_direction=False, with_limits=True, **kwargs
 ):
@@ -135,7 +142,7 @@ def drive_off_home(
     """
 
 
-@snippet_function()
+@_snippet_function()
 def store_position_diff():
     """
     Save the current offset from the original position.
@@ -145,7 +152,7 @@ def store_position_diff():
     """
 
 
-@snippet_function(wait_for_done_args)
+@_snippet_function(wait_for_done_args)
 def drive_to_home(
     state="PreHomeMove", homing_direction=False, restore_homed_flags=False, **kwargs
 ):
@@ -161,7 +168,7 @@ def drive_to_home(
     """
 
 
-@snippet_function(wait_for_done_args)
+@_snippet_function(wait_for_done_args)
 def home(with_limits=True, **kwargs):
     """
     Initiate the home command on all axes in the group
@@ -171,14 +178,14 @@ def home(with_limits=True, **kwargs):
     """
 
 
-@snippet_function()
+@_snippet_function()
 def debug_pause():
     """
     When running in debug mode, pause until the user indicates to continue
     """
 
 
-@snippet_function(wait_for_done_args)
+@_snippet_function(wait_for_done_args)
 def drive_to_initial_pos(with_limits=True, **kwargs):
     """
     return all axes in the group to their original positions before the homing
@@ -189,7 +196,7 @@ def drive_to_initial_pos(with_limits=True, **kwargs):
     """
 
 
-@snippet_function(wait_for_done_args)
+@_snippet_function(wait_for_done_args)
 def drive_to_soft_limit(homing_direction=False, with_limits=True, **kwargs):
     """
     drive all axes in the group until they hit their soft limits
@@ -201,7 +208,7 @@ def drive_to_soft_limit(homing_direction=False, with_limits=True, **kwargs):
     """
 
 
-@snippet_function(wait_for_done_args)
+@_snippet_function(wait_for_done_args)
 def drive_relative(distance="123456", set_home=False, with_limits=True, **kwargs):
     """
     drive all axes in the group a relative distance from current position
@@ -213,38 +220,38 @@ def drive_relative(distance="123456", set_home=False, with_limits=True, **kwargs
     """
 
 
-@snippet_function()
+@_snippet_function()
 def check_homed():
     """
     verfiy that all axes in the group are homed. Set error condition if not.
     """
 
 
-@snippet_function(wait_for_done_args)
+@_snippet_function(wait_for_done_args)
 def drive_to_home_if_on_limit(homing_direction=False, **kwargs):
     ...
 
 
-@snippet_function()
+@_snippet_function()
 def disable_limits():
     ...
 
 
-@snippet_function()
+@_snippet_function()
 def restore_limits():
     ...
 
 
-@snippet_function(wait_for_done_args)
+@_snippet_function(wait_for_done_args)
 def drive_to_hard_limit(state="PostHomeMove", homing_direction=False, **kwargs):
     ...
 
 
-@snippet_function(wait_for_done_args)
+@_snippet_function(wait_for_done_args)
 def jog_if_on_limit(homing_direction=False, **kwargs):
     ...
 
 
-@snippet_function(wait_for_done_args)
+@_snippet_function(wait_for_done_args)
 def continue_home_maintain_axes_offset(**kwargs):
     ...

@@ -96,10 +96,6 @@ class Plc:
         motor = Motor(axis, jdist, plc.plc_num)
         plc.motors[axis] = motor
 
-    @property
-    def count(self) -> int:
-        return len(self.groups)
-
     def _all_axes(self, format: str, separator: str, *arg) -> str:
         # to the string format: pass any extra arguments first, then the dictionary
         # of the axis object so its elements can be addressed by name

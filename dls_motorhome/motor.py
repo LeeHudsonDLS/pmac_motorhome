@@ -4,6 +4,13 @@ from dls_motorhome.constants import PostHomeMove
 
 
 class Motor:
+    """
+    Declares a motor for use in homing routines in the enclosing Plc
+
+    Returns:
+        [type]: [description]
+    """
+
     instances: List["Motor"] = []
 
     # offsets into the PLC's PVariables for storing the state of axes
@@ -24,6 +31,15 @@ class Motor:
         plc_num: int,
         post_home: PostHomeMove = PostHomeMove.none,
     ) -> None:
+        """
+        Args:
+            axis (int): Axis number of the motor
+            jdist (int): Distance in counts to jog after finding the home mark
+                this should be enough distance to move clear of the home mark
+            plc_num (int): the plc number of the enclosing Plc
+            post_home (PostHomeMove): the action to perform on this motor when
+                hohing is complete
+        """
         self.axis = axis
         self.jdist = jdist
         self.index = len(self.instances)

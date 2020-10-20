@@ -1,3 +1,4 @@
+.. _sequences:
 
 Predfined Homing Sequences
 ==========================

@@ -47,16 +47,12 @@ About the documentation
     :name: tutorials
 
     tutorials/installation
-    tutorials/load-save
-    tutorials/control
-    tutorials/commandline-hdf
+    tutorials/example
 
 .. toctree::
     :caption: How-to Guides
     :name: how-to
 
-    how-to/library-hdf
-    how-to/poll-changes
 
 .. toctree::
     :caption: Explanations

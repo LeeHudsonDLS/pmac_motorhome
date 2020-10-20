@@ -18,7 +18,7 @@ Classes
 .. automodule:: dls_motorhome.group
     :members:
 
-.. automodule:: dls_motorhome.onlaxes
+.. automodule:: dls_motorhome.onlyaxes
     :members:
 
 .. automodule:: dls_motorhome.plcgenerator

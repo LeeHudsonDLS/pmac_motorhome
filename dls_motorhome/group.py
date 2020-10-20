@@ -26,12 +26,14 @@ class Group:
         Args:
             group_num (int): A unique number to represent this group within its
                 Plc. group 1 is reservered for 'all groups'
-            axes (List[Motor]): A list of axis
-            plc_num (int): [description]
-            controller (ControllerType): [description]
-            post_home (PostHomeMove): [description]
-            post_distance (int): [description]
-            comment (str, optional): [description]. Defaults to None.
+            axes (List[Motor]): A list of axis numbers that this group will control
+            plc_num (int): The plc number of the enclosing Plc
+            controller (ControllerType): Enum representing the type of motor controller
+            post_home (PostHomeMove): An action to perform on the group after homing
+                completes successfully
+            post_distance (int): a distance to use in post_home if required
+            comment (str): [description]. A comment to place in the output Plc code
+                at the beginning of this group's definition
         """
         self.axes = axes
         self.all_axes = axes
@@ -51,10 +53,6 @@ class Group:
 
     def __exit__(self, exception_type, exception_value, traceback):
         Group.the_group = None
-
-    @property
-    def count(self) -> int:
-        return len(self.templates)
 
     @classmethod
     def instance(cls) -> "Group":
@@ -122,7 +120,7 @@ class Group:
             axes (List[int]): List of axis numbers to be controlled in this context
 
         Returns:
-            str: blank string - required because this function is used as a callback
+            str: Blank string. Required because this function is used as a callback
                 from a jinja template and thus must return some string to insert into
                 the template
         """
@@ -172,16 +170,6 @@ class Group:
         # of the axis object so its elements can be addressed by name
         all = [format.format(*arg, **ax.dict) for ax in self.axes]
         return separator.join(all)
-
-    """
-    Callback functions
-    ====================
-
-    The following functions are callled from Jinja templates to generate
-    a line (or lines) of PLC code that act on all motors in the current group.
-
-    These are known as Group Axis Callback functions
-    """
 
     def callback(self, function: Callable, args: Dict[str, Any]) -> str:
         """

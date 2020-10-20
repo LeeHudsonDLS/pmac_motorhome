@@ -11,3 +11,4 @@ External API
     commands
     sequences
     snippets
+    constants
