@@ -4,12 +4,22 @@ from .group import Group
 
 
 class OnlyAxes:
-    # this class variable holds the current axis filter for a group
+    """
+    Sets the current axis filter applied to the current group
+
+    Should always be instantiated using `dls_motorhome.commands.only_axes`
+    """
+
+    # a class member to hold the current context instance
     the_only_axes: Optional["OnlyAxes"] = None
 
-    def __init__(self, group: Group, axes: List[int]) -> None:
+    def __init__(self, axes: List[int]) -> None:
+        """
+        Args:
+            group (Group): The parent group context
+            axes (List[int]): The subset of axes from the parent to enable
+        """
         self.axes = axes
-        self.group = group
 
     def __enter__(self):
         assert (
@@ -17,10 +27,12 @@ class OnlyAxes:
         ), "cannot use only_axes within another only_axes"
 
         OnlyAxes.the_only_axes = self
-        self.group.add_action(Group.set_axis_filter, axes=self.axes)
+        group = Group.instance()
+        group.add_action(Group.set_axis_filter, axes=self.axes)
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
         OnlyAxes.the_only_axes = None
+        group = Group.instance()
         # empty axis filter means reset the axis filter
-        self.group.add_action(Group.set_axis_filter, axes=[])
+        group.add_action(Group.set_axis_filter, axes=[])

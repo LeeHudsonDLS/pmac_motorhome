@@ -1,4 +1,0 @@
-    if ({{ group.limits() }})
-        {{ group.set_large_jog_distance(negative=template.args.negative) }}
-        cmd "{{ group.jog_to_trigger_distance }}"
-    endif

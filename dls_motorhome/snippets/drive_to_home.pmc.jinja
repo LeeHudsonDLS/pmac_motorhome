@@ -5,9 +5,9 @@
         HomingState=State{{template.args.state}}
         ; Execute the move commands
         {% if template.args.restore_homed_flags %}
-        {{ group.restore_home_flags() }} {{ group.set_large_jog_distance(negative=template.args.negative) }}
+        {{ group.restore_home_flags() }} {{ group.set_large_jog_distance(homing_direction=template.args.homing_direction) }}
         {% else %}
-        {{ group.set_large_jog_distance(negative=template.args.negative) }}
+        {{ group.set_large_jog_distance(homing_direction=template.args.homing_direction) }}
         {% endif %}
         cmd "{{ group.jog_to_home_jdist() }}"
         {% include "wait_for_done.pmc.jinja" %}
