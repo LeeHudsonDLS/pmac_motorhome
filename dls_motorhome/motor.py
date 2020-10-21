@@ -7,8 +7,7 @@ class Motor:
     """
     Declares a motor for use in homing routines in the enclosing Group, Plc
 
-    Returns:
-        [type]: [description]
+    Should always be instantiated using `dls_motorhome.commands.motor`
     """
 
     instances: Dict[int, "Motor"] = {}

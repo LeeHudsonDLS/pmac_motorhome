@@ -48,16 +48,19 @@ About the documentation
 
     tutorials/installation
     tutorials/example
+    tutorials/custom
 
 .. toctree::
     :caption: How-to Guides
     :name: how-to
 
+    how-to/modifying
 
 .. toctree::
     :caption: Explanations
     :name: explanations
 
+    explanations/epics
     explanations/implemtation
     explanations/history
 

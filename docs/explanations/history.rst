@@ -38,7 +38,7 @@ For the standard homing sequences supported by the original motorhome.py
 this module will create exactly the same PLC code.
 
 This is to the extent that existing homing PLCs have been imported into
-this projects test area and used for system tests that generate the same
+this project's test area and used for system tests that generate the same
 code.
 
 

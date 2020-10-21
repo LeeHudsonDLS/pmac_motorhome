@@ -1,3 +1,10 @@
+"""
+Predefined homing sequences. These functions can all be called directly from
+`PlcDefinition`
+
+Call these functions in a group context to
+perform the sequence on all axes in the group.
+"""
 from .commands import only_axes, post_home
 from .group import Group
 from .snippets import (
@@ -13,9 +20,6 @@ from .snippets import (
 )
 
 
-###############################################################################
-# common action sequences to recreate htypes= from the original motorhome.py
-###############################################################################
 def home_rlim():
     """
     Home on release of a limit
@@ -36,6 +40,7 @@ def home_rlim():
 
     .. image:: images/RLIM.png
     """
+
     # drive in opposite to homing direction until limit hit
     drive_to_limit(homing_direction=False)
     drive_to_home(
@@ -62,6 +67,7 @@ def home_hsw():
 
     .. image:: images/HSW.png
     """
+
     # drive in opposite to homing direction until home flag or limit hit
     drive_to_home(homing_direction=False)
     drive_to_home(with_limits=True, homing_direction=True, state="FastSearch")
@@ -103,7 +109,27 @@ def home_hsw_hstop():
 
 def home_hsw_dir():
     """
-    HSW_DIR home on a directional home switch
+     Home on a directional home switch (newport style)
+
+    - (Prehome Move) Jog in -hdir until off the home switch
+    - (Fast Search) Jog in hdir until the home switch is hit
+    - (Fast Retrace) Jog in -hdir until off the home switch
+    - (Home) Home
+
+    Finally do post home move if any.
+
+    This example shows homing on a directional home switch with -ve hdir.
+    E.g. ixx23 = -1, msyy,i912 = 2, msyy,i913 = 0.
+
+    The first figure shows what happens when the axis starts on the home switch.
+    E.g. Pos = -20000 cts, Index = 0 cts
+
+    .. image:: images/HSW_DIR.png
+
+    The second figure shows what happens when the axis starts off the home switch.
+    E.g. Pos = 20000 cts, Index = 0 cts
+
+    .. image:: images/HSW_DIR2.png
     """
     drive_off_home(state="PreHomeMove")
     drive_to_home(
@@ -121,7 +147,17 @@ def home_hsw_dir():
 
 def home_limit():
     """
-    LIMIT
+    Home on a limit switch.
+    - (Fast Search) Jog in hdir (direction of ixx23) until limit switch activ
+    - (Fast Retrace) Jog in -hdir until limit switch deactivates
+    - (Home) Disable limits and home
+
+    Finally re-enable limits and do post home move if any.
+
+    This example shows homing on -ve limit with -ve hdir.
+    E.g. ixx23 = -1, msyy,i912 = 2, msyy,i913 = 2.
+
+    .. image:: images/LIMIT.png
     """
     drive_to_home(homing_direction=True, state="FastSearch")
     store_position_diff()
@@ -135,7 +171,32 @@ def home_limit():
 
 def home_hsw_hlim():
     """
-    HSW_HLIM
+     Home on a home switch or index mark near the limit switch in hdir.
+
+    - (Prehome Move) Jog in hdir until either index/home switch (Figure 1) or
+      limit switch (Figure 2)
+    - If limit switch hit, jog in -hdir until index/home switch
+    - (Fast Search) Jog in hdir until index/home switch
+    - (Fast Retrace) Jog in -hdir until off the index/home switch
+    - (Home) Home
+
+    Finally do post home move if any.
+
+    **NOTE:** if using a reference mark, set jdist as described under
+    :py:meth:`~dls_motorhome.commands.group`
+
+    This example shows homing on an index with -ve hdir and +ve jdist.
+    E.g. ixx23 = -1, msyy,i912 = 1, jdist = 1000.
+
+    The first figure shows what happens when the index is in hdir of the
+    starting position. E.g. Pos = 20000 cts, Index = 0 cts
+
+    .. image:: images/HSW_HLIM.png
+
+    The second figure shows what happens when the index is in -hdir of the
+
+    .. image:: images/HSW_HLIM2.png
+
     """
     drive_to_home(homing_direction=True)
     jog_if_on_limit()
@@ -149,7 +210,8 @@ def home_hsw_hlim():
 
 def home_home():
     """
-    HOME
+    Dumb home, shouldn't be needed - just executes HM command on all axes
+    in the group
     """
     home()
     check_homed()
@@ -159,8 +221,7 @@ def home_home():
 def home_nothing():
     """
     NOTHING
-    In original code, this required a homing type other than NOTHING used
-    in the same group otherwise compilation would fail.
+
     Simply goes through to post home move without homing or changing home status.
     """
     # TODO review why this reference to Group is required
@@ -174,6 +235,20 @@ def home_nothing():
 
 
 def home_slits_hsw(posx: int, negx: int, posy: int, negy: int):
+    """
+    A special seqence for two pairs of slits in which the vertical and horizontal
+    pairs may collide with each other at the extreme of their homing direction.
+
+    - move all axes to the limit away from their homing direction
+    - home the horizontal pair using home switch or mark
+    - home the vertical pair using home switch or mark
+
+    Args:
+        posx (int): axis number of the positive horizontal motor
+        negx (int): axis number of the negative horizontal motor
+        posy (int): axis number of the positive vertical motor
+        negy (int): axis number of the negative vertical motor
+    """
     drive_to_limit(homing_direction=False)
 
     with only_axes([posx, negx]):

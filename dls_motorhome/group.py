@@ -7,7 +7,11 @@ from .template import Template
 
 
 class Group:
-    """Represents a group of axes to be homed as a unit"""
+    """
+    Defines a group of axes to be homed as a unit
+
+    Should always be instantiated using `dls_motorhome.commands.group`
+    """
 
     # this class variable holds the instance in the current context
     the_group: Optional["Group"] = None
@@ -46,15 +50,32 @@ class Group:
         self.controller = controller
 
     def __enter__(self):
+        """
+        Entering a context. Store the Group object for use in the scope of
+        this context.
+        """
         assert not Group.the_group, "cannot create a new Group within a Group context"
         Group.the_group = self
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
+        """
+        Exiting the context. Clear the Group object.
+        """
         Group.the_group = None
 
     @classmethod
     def add_motor(cls, axis: int, jdist: int) -> Motor:
+        """
+        Add a new motor to the current group
+
+        Args:
+            axis (int): Axis number
+            jdist (int): distance to jog to move off of home mark
+
+        Returns:
+            Motor: The newly created Motor
+        """
         group = Group.instance()
         assert (
             axis not in group.motors
@@ -66,13 +87,16 @@ class Group:
 
     @classmethod
     def instance(cls) -> "Group":
+        """
+        Get the current in-scope Group
+        """
         assert cls.the_group, "There is no group context currently defined"
         return cls.the_group
 
     @classmethod
     def add_comment(cls, htype: str, post: str = "None") -> None:
         """
-        add a comment to the top of the Plc code in the style of the original
+        Add a group comment to the top of the Plc code in the style of the original
         motorhome.py module but note that you can use any descriptive text
         for htype and post
 
@@ -196,74 +220,135 @@ class Group:
         return function(self, **args)
 
     def jog_axes(self) -> str:
+        """
+        Generate a command string for all group axes: jog a set distance
+        """
         return self._all_axes("#{axis}J^*", " ")
 
     def set_large_jog_distance(self, homing_direction: bool = True) -> str:
+        """
+        Generate a command string for all group axes: set large jog distance
+        """
         sign = "" if homing_direction else "-"
         return self._all_axes(
             "m{axis}72=100000000*({0}i{axis}23/ABS(i{axis}23))", " ", sign
         )
 
     def jog(self, homing_direction: bool = True) -> str:
+        """
+        Generate a command string for all group axes: jog indefinitely
+        """
         sign = "+" if homing_direction else "-"
         return self._all_axes("#{axis}J{0}", " ", sign)
 
     def in_pos(self, operator="&") -> str:
+        """
+        Generate a command string for all group axes: check in postiion
+        """
         return self._all_axes("m{axis}40", operator)
 
     def limits(self) -> str:
+        """
+        Generate a command string for all group axes: check limits
+        """
         return self._all_axes("m{axis}30", "|")
 
     def following_err(self) -> str:
+        """
+        Generate a command string for all group axes: check following error
+        """
         return self._all_axes("m{axis}42", "|")
 
     def homed(self) -> str:
+        """
+        Generate a command string for all group axes: check homed
+        """
         return self._all_axes("m{axis}45", "&")
 
     def clear_home(self) -> str:
+        """
+        Generate a command string for all group axes: clear home flag
+        """
         return self._all_axes("m{axis}45=0", " ")
 
     def store_position_diff(self):
+        """
+        Generate a command string for all group axes: save position
+        """
         return self._all_axes(
             "P{pos}=(P{pos}-M{axis}62)/(I{axis}08*32)+{jdist}-(i{axis}26/16)",
             separator="\n        ",
         )
 
     def stored_pos_to_jogdistance(self):
+        """
+        Generate a command string for all group axes: calculate jog distance
+        to return to pre homed position
+        """
         return self._all_axes("m{axis}72=P{pos}", " ")
 
     def stored_limit_to_jogdistance(self, homing_direction=True):
+        """
+        Generate a command string for all group axes: save distance to limit
+        """
         if homing_direction:
             return self._all_axes("m{axis}72=P{hi_lim}", " ")
         else:
             return self._all_axes("m{axis}72=P{lo_lim}", " ")
 
     def jog_distance(self, distance="*"):
+        """
+        Generate a command string for all group axes: jog to prejog position.
+        Useful if a program has been aborted in the middle of a move, because it
+        will move the motor to the programmed move end position
+        """
         return self._all_axes("#{axis}J=%s" % (distance), " ")
 
     def negate_home_flags(self):
+        """
+        Generate a command string for all group axes: invert homing flags
+        """
         if self.controller == ControllerType.pmac:
             return self._all_axes("MSW{macro_station},i912,P{not_homed}", " ")
         else:
             return self._all_axes("i{homed_flag}=P{not_homed}", " ")
 
     def restore_home_flags(self):
+        """
+        Generate a command string for all group axes: restore original homing flags
+        """
         if self.controller == ControllerType.pmac:
             return self._all_axes("MSW{macro_station},i912,P{homed}", " ")
         else:
             return self._all_axes("i{homed_flag}=P{homed}", " ")
 
     def jog_to_home_jdist(self):
+        """
+        Generate a command string for all group axes: jog to home and then move jdist
+        """
         return self._all_axes("#{axis}J^*^{jdist}", " ")
 
     def home(self) -> str:
+        """
+        Generate a command string for all group axes: home command
+        """
         return self._all_axes("#{axis}hm", " ")
 
     def set_home(self) -> str:
+        """
+        Generate a command string for all group axes: set current position as home
+        """
         return self._all_axes("#{axis}hmz", " ")
 
     def restore_limit_flags(self):
+        """
+        Generate a command string for all group axes: restore original limit flags
+        """
         return self._all_axes("i{axis}24=P{lim_flags}", " ")
 
     def overwrite_inverse_flags(self):
+        """
+        Generate a command string for all group axes: reuse the not homed store to
+        store ?? (TODO what is this doing ?)
+        """
         return self._all_axes("P{not_homed}=i{inverse_flag}", " ")

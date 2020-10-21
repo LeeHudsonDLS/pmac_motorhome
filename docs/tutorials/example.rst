@@ -1,6 +1,6 @@
 
 ==========================
-Create a Simple Homing PLC
+Simple Homing PLC
 ==========================
 The simplest homing PLC will use one of the predifined homing sequences that
 are built in to pmac_motorhome.

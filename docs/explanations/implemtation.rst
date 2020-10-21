@@ -1,19 +1,27 @@
+.. _How_it_Works:
+
 How it Works
 ============
 
-This section is useful for users two classes of users
+Audience
+-------------------
+
+This section is useful for users two classes of audience
 
 
--  Those that wish to wish to create custom homing sequences from
+-  Users that wish to wish to create custom homing sequences from
    the existing snippets. A deep understanding is not required but will
    show how the sequences are built up.
 
 
--  Those wishing to contribute to the project and add their own snippets and /
-   or callback functions. For this, good grasp of the concepts on this page is
-   required.
+-  Developers wishing to contribute to the project and add their own snippets
+   and / or callback functions. For this, good grasp of the concepts on this
+   page is required.
 
-Generating PLC code
+
+.. _Generating_PLC_Code:
+
+Generating PLC Code
 -------------------
 
 The output code is generated using a root jinja template called plc.pmc.jinja.
@@ -27,18 +35,160 @@ code. For example, consider the following definition code:
 Executing the above will create the following structure to be passed to the
 render.
 
-- a `Plc` object which has `groups` that contains a single `Group` object
-- the `Group` has `motors` which contains two `Motor` objects
-- `Group` also has `templates` which contains a list of `Template` objects that
+- a `Plc` object which has *groups* that contains a single `Group` object
+- the `Group` has *motors* which contains two `Motor` objects
+- `Group` also has *templates* which contains a list of `Template` objects that
   represent the sequence of snippets of PLC code to be inserted for the
   enclosing group.
 
-The `templates` list is created by the function `home_hsw` which is a
+The *templates* list is created by the function `home_hsw` which is a
 sequence of calls to `Snippet_Functions`.
 
-When the Plc context completes `Plc.__exit__` is called and this will invoke
-a render of the root jinja template
+When the Plc context completes *Plc.__exit__* is called and this will invoke
+a render of the root jinja template.
 
-.. include:: ../../dls_motorhome/snippets/plc.pmc.jinja
-    :lines: 93-109
+The core of plc.pmc.jinja looks like this:
+
+.. code-block:: python
+   :caption: plc.pmc.jinja main loop
+   :name: plc.pmc.jinja
+
+    {# Loop through the Groups in the Plc #}
+    {% for group in plc.groups %}
+    {% if group.group_num == 1 %}
+    if (HomingBackupGroup = 1)
+    {% else %}
+    if (HomingBackupGroup = 1 or HomingBackupGroup = {{ group.group_num }})
+    {% endif %}
+    and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
+        HomingGroup={{ group.group_num }}
+
+        ;Clear home flags
+        {% if group.htype != "NOTHING" %}
+        {{ group.clear_home() }}
+        {% endif %}
+        {# Loop through snippet templates in the Group #}
+        {% for template in group.templates %}
+            {% if template.function -%}
+            {{ group.callback(template.function, template.args) -}}
+            {% else %}
+            {% include template.jinja_file+'.pmc.jinja' %}
+
+            {% endif %}
+        {% endfor %}
+    endif
+
+This loops trough all of the groups held by Plc and though each of the
+snippet templates held by each of those groups. For each templates the
+jinja file associated with it is included into template, or the callback
+function is executed with arguments from the template object.
+
+Note that the current group object and current template object are in scope
+for the included jinja template and thus it will have access to their members
+e.g. the child jinja template will be able to see template.args.
+
+Included snippet templates may in turn include other templates and in most
+cases will also include callback functions. The following typical example is the
+snippet which searches for the home mark.
+
+.. include:: ../../dls_motorhome/snippets/drive_to_home.pmc.jinja
+   :literal:
+
+This jinja template follows these common patterns:
+
+- Uses arguments from template.args to insert literals e.g.
+  *{{template.args.state}}*
+- Also uses arguments for flow control e.g.
+  *{% if template.args.restore_homed_flags %}*
+- Includes further levels of jinja templates e.g.
+  *{% include "wait_for_done.pmc.jinja" %}*
+- Calls a callback function in the group object to output a command that
+  actions all of the group's axes on a single line e.g.
+  *{{ group.jog_to_home_jdist() }}*
+
+The second level jinja includes are typically used in most snippets. They are:
+
+- 'debug pause' inserts code that will wait for user intervention when in debug
+  (see `Homing_API`).
+- 'wait for done' loops while the motors are completing the current move
+  command.
+
+
+Templates and Functions
+------------------------
+`Generating_PLC_Code` describes a process that uses several levels of
+templates and callbacks. Here we will outline those levels separately to
+make the distinction clear.
+
+The rendering uses a mixture of Jinja Templates and callback functions.
+The decision as to which is used for each part of the PLC is made on this
+basis:
+
+- Any block of code that can be represented easily in Jinja and might be
+  used more than once goes into its own Jinja template
+- Occasional variable substitutions and flow control are acceptable in
+  Jinja as long as it is reasonably readable
+- Where the Jinja would be unreadable we substitute in a callback function
+  to output the relevant code
+- At present the only callback functions are for lines of PLC code that
+  perform an operation on all axes in a group on a single line (also
+  all axes in a PLC for some cases)
+
+The following headings are in order of hierarchy with the root first.
+
+Root Jinja Template
+^^^^^^^^^^^^^^^^^^^
+Template plc.pmc.jinja is the root template. Rendering this template
+with a Plc object generates the entire PLC. This template may directly
+use any of the below headings.
+
+The root Jinja Template is rendered automatically when a Plc context ends in
+the definition code.
+
+Snippet Jinja Templates
+^^^^^^^^^^^^^^^^^^^^^^^
+These templates are directly included by the root template in its inner
+loop that iterates over groups' contents.
+These templates may directly use any of the following headings.
+
+These templates represent one block of functionality in the PLC and
+typically take the form of:
+
+- Pause for debug if debugging
+- Setup some axis parameters
+- Initiate a move of all axes in the group
+- Wait for all axes to complete the move
+
+Every snippet template has a corresponding snippet function whose name is the
+same as the jinja file prefix (See `Snippet_Functions`). Calling this function
+in the context of a Group object causes the snippet to be instatiated in the
+render.
+
+Further Jinja Templates
+^^^^^^^^^^^^^^^^^^^^^^^^
+Repeated functionality from Snippet Jinja Templates may be implemented in
+a further template.
+These templates can use Callback Functions below.
+
+The most common examples are debug_pause.pmc.jinja and
+wait_for_done.pmc.jinja.
+
+Callback Functions
+^^^^^^^^^^^^^^^^^^
+Callback functions exist in the `Plc` class and `Group` class. These are
+used to output a line of code that operates on all axes in the `Plc` or
+`Group`.
+
+For example The function :py:meth:`~dls_motorhome.group.Group.home`
+will output code to
+home all the axes in a group. Assumimg the group has axes 1, 2, 3
+then the output of the command :py:meth:`~dls_motorhome.group.Group.home`
+will look like this::
+
+    #1hm #2hm #3hm
+
+
+
+
+
 

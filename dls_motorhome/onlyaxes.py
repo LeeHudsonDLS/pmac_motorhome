@@ -5,7 +5,9 @@ from .group import Group
 
 class OnlyAxes:
     """
-    Tracks the current axis filter applied to the current group
+    Sets the current axis filter applied to the current group
+
+    Should always be instantiated using `dls_motorhome.commands.only_axes`
     """
 
     # a class member to hold the current context instance

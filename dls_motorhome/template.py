@@ -14,7 +14,8 @@ class Template:
 
     Args:
         jinja_file (str): the prefix of the jinja template file name
-        args (Dict[str, Any]): arguments to pass to the template
+        args (Dict[str, Any]): arguments to pass to the template if jinja file
+            is not None, or to pass to the function if function is not None
         function: (Callable): if not None then this is a callback function to call
             instead of inserting a jinja template snippet
         custom_text: str = ""

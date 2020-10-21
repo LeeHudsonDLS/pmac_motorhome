@@ -3,21 +3,8 @@ All of these functions will insert a small snippet of PLC code into the
 generated PLC. Each snippet performs a specific action on all of the axes
 in a group simultaneously.
 
-They should be called in the context of a Group object.
-
-For example this code
-will create a homing PLC 12 for a group of axes which does nothing except
-drive all of them to their limit in the opposite direction to the homing
-direction::
-
-    with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file):
-        with group(group_num=2):
-            motor(axis=1)
-            motor(axis=2)
-
-            # drive opposite to homing direction
-            # continue if some axes have hit their limits
-            drive_to_limit(homing_direction=False, with_limits=False)
+These functions can all be called directly from
+`PlcDefinition`. They should be called in the context of a Group object.
 """
 
 import inspect
@@ -103,7 +90,7 @@ def _snippet_function(*arglists: Dict[str, Any]) -> Callable[[F], F]:
         doc = wrapped.__name__ + str(sig)
         # then insert the original function's docstring
         doc += wrapped.__doc__ or ""
-        # insert information about jinja the template this function is expanding
+        # insert information about jinja the template this function is inserting
         doc += str.format(snippet_docstring, template=wrapped.__name__ + ".pmc.jinja")
         # insert documentation on any jinja templates included by the above template
         if wait_for_done_args in arglists:
@@ -158,7 +145,7 @@ def drive_to_home(
     state="PreHomeMove", homing_direction=False, restore_homed_flags=False, **kwargs
 ):
     """
-    drive all axes in the group until they hit the home flag or a limit
+    Drive all axes in the group until they hit the home flag or a limit
 
     Args:
         state (str): Which homing state to report to EPICS for monitoring
@@ -189,7 +176,7 @@ def debug_pause():
 @_snippet_function(wait_for_done_args)
 def drive_to_initial_pos(with_limits=True, **kwargs):
     """
-    return all axes in the group to their original positions before the homing
+    Return all axes in the group to their original positions before the homing
     sequence began. Requires that store_position_diff was called before home.
 
     Args:
@@ -200,7 +187,7 @@ def drive_to_initial_pos(with_limits=True, **kwargs):
 @_snippet_function(wait_for_done_args)
 def drive_to_soft_limit(homing_direction=False, with_limits=True, **kwargs):
     """
-    drive all axes in the group until they hit their soft limits
+    Drive all axes in the group until they hit their soft limits
 
     Args:
         homing_direction (bool): When True Jog in the same direction as
@@ -212,7 +199,7 @@ def drive_to_soft_limit(homing_direction=False, with_limits=True, **kwargs):
 @_snippet_function(wait_for_done_args)
 def drive_relative(distance="123456", set_home=False, with_limits=True, **kwargs):
     """
-    drive all axes in the group a relative distance from current position
+    Drive all axes in the group a relative distance from current position
 
     Args:
         distance (str): distance in counts
@@ -224,35 +211,64 @@ def drive_relative(distance="123456", set_home=False, with_limits=True, **kwargs
 @_snippet_function()
 def check_homed():
     """
-    verfiy that all axes in the group are homed. Set error condition if not.
+    Verfiy that all axes in the group are homed. Set error condition if not.
     """
 
 
 @_snippet_function(wait_for_done_args)
 def drive_to_home_if_on_limit(homing_direction=False, **kwargs):
-    ...
+    """
+    Drive axes to the home mark or switch. Only perform this action on
+    axes that are currently on a limit.
+
+    Args:
+        homing_direction (bool): When True Jog in the same direction as
+            each axis' homing direction, defaults False: opposite to homing direction
+    """
 
 
 @_snippet_function()
 def disable_limits():
-    ...
+    """
+    Disable the soft limits on all axes in the group
+    """
 
 
 @_snippet_function()
 def restore_limits():
-    ...
+    """
+    Restore the saved soft limits on all axes on the group. By default the
+    Plc will always record the soft limits of all axes at the start.
+    """
 
 
 @_snippet_function(wait_for_done_args)
 def drive_to_hard_limit(state="PostHomeMove", homing_direction=False, **kwargs):
-    ...
+    """
+    Drive all axes until they hit a hard limit.
+
+    Args:
+        state (str): Which homing state to report to EPICS for monitoring
+        homing_direction (bool): When True Jog in the same direction as
+            each axis' homing direction, defaults False: opposite to homing direction
+    """
 
 
 @_snippet_function(wait_for_done_args)
 def jog_if_on_limit(homing_direction=False, **kwargs):
-    ...
+    """
+    Jog all axes in the group that are currently on a limit
+
+    Args:
+        homing_direction (bool): When True Jog in the same direction as
+            each axis' homing direction, defaults False: opposite to homing direction
+    """
 
 
 @_snippet_function(wait_for_done_args)
 def continue_home_maintain_axes_offset(**kwargs):
-    ...
+    """
+    Monitor axes that are homing and when one achieves home jog it in the
+    same direction as home. This is to avoid tilt on pairs of axes that have
+    misaligned home marks.
+    """
