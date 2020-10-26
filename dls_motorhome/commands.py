@@ -6,7 +6,7 @@ These functions are used to define PLCs, axes and axis groupings.
 """
 
 from pathlib import Path
-from typing import List, Union
+from typing import Union
 
 from dls_motorhome.onlyaxes import OnlyAxes
 
@@ -87,7 +87,7 @@ def motor(axis: int, jdist: int = 0) -> None:
     Plc.add_motor(axis, motor)
 
 
-def only_axes(axes: List[int]) -> OnlyAxes:
+def only_axes(*axes: int) -> OnlyAxes:
     """
     Creates a context in which actions are performed on a subset of the groups axes
 
@@ -96,12 +96,12 @@ def only_axes(axes: List[int]) -> OnlyAxes:
     For an example of the use of this, see :doc:`../tutorials/custom`
 
     Args:
-        axes (List[int]): List of axis numbers
+        axes int: List of axis numbers
 
     Returns:
         OnlyAxes: an OnlyAxes object for use in the context
     """
-    return OnlyAxes(axes)
+    return OnlyAxes(*axes)
 
 
 ###############################################################################

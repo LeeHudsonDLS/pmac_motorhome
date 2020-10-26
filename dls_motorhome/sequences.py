@@ -251,7 +251,7 @@ def home_slits_hsw(posx: int, negx: int, posy: int, negy: int):
     """
     drive_to_limit(homing_direction=False)
 
-    with only_axes([posx, negx]):
+    with only_axes(posx, negx):
         home_hsw()
-    with only_axes([posy, negy]):
+    with only_axes(posy, negy):
         home_hsw()
