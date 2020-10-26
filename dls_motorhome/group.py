@@ -219,6 +219,13 @@ class Group:
         """
         return function(self, **args)
 
+    def jog_stopped(self) -> str:
+        """
+        Generate a command string that will jog any stopped axes in the group
+        """
+        code = 'if (m{axis}40=1)\n    cmd "#{axis}J^*"\nendif'
+        return self._all_axes(code, "\n")
+
     def jog_axes(self) -> str:
         """
         Generate a command string for all group axes: jog a set distance

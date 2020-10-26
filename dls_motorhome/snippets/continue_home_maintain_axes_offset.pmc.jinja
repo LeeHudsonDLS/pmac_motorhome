@@ -1,23 +1,30 @@
     ;--- Homing State 2 ----
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StateHoming
-        ; This block to be used after a home block with wait_for_one_motor=True
-        ; it allows motors to continue to home but restarts those that have already
+        ; This block to be used after a home block with wait_for_one_motor=True.
+        ; It allows motors to continue to home but restarts those that have already
         ; reached home. For use with axes that are sensitve to tilt but do not have
         ; aligned home marks
-        if (m142|m242 = 0)
-            ; if one motor stopped on home mark then start it moving in home direction again
-            if (m140=1 and m240=0)
-                m172=100000000*(i123/ABS(i123))
-                cmd "#1J^*"
-            else
-                if (m240=1 and m140=0)
-                    m272=100000000*(i223/ABS(i223))
-                    cmd "#2J^*"
-                endif
-            endif
-            timer = 20 MilliSeconds ; Small delay to start moving
-            while (timer > 0)
-            endw
-        {% include "wait_for_done.pmc.jinja" %}
+
+        ; make sure all jogs will be a long distance
+        {{ group.set_large_jog_distance(homing_direction=template.args.homing_direction) }}
+
+        ; continue processing until all motors are homed or something goes wrong
+        timer = 600000 MilliSeconds
+        while ({{group.homed()}} = 0) ; at least one is not homed
+        and ({{group.following_err()}} = 0) ; there are no following errors
+        and ({{group.in_pos()}} = 0) ; at least one is not in postion
+        and (timer > 0) ; Check for timeout
+            ; jog any motors that have stopped on home
+            {% filter indent(width=12) %}
+            {{ group.jog_stopped() }}
+            {% endfilter %}
+        endw
+        ; Check why we left the while loop
+        if ({{ group.following_err() }} != 0) ; Following error check failed
+            HomingStatus = StatusFFErr
+        endif
+        if (timer<0 or timer=0) ; If we timed out
+            HomingStatus = StatusTimeout
+        endif
     endif

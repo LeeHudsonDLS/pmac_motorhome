@@ -47,6 +47,7 @@ def group(
     group_num: int,
     post_home: Union[PostHomeMove, str] = PostHomeMove.none,
     post_distance: int = 0,
+    comment: str = None,
 ) -> Group:
     """
     Define a new group of axes within a PLC that should be homed simultaneously.
@@ -65,7 +66,7 @@ def group(
     Returns:
         Group: The Group object for use in the context
     """
-    return Plc.add_group(group_num, PostHomeMove(post_home), post_distance)
+    return Plc.add_group(group_num, PostHomeMove(post_home), post_distance, comment)
 
 
 def comment(htype: str, post: str = "None") -> None:

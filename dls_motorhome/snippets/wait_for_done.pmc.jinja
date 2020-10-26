@@ -4,7 +4,7 @@
         endw
         timer = 600000 MilliSeconds ; Now start checking the conditions
 {% if template.args.wait_for_one_motor %}
-        while ({{ group.in_pos(operator='|') }}=0) ; Both motor should not be In Position
+        while ({{ group.in_pos(operator='|') }}=0) ; Wait until at least one motor is In Position
 {% else %}
         while ({{ group.in_pos() }}=0) ; At least one motor should not be In Position
 {% endif %}

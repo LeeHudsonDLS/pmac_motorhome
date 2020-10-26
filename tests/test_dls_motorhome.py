@@ -413,19 +413,23 @@ def test_BL18B_STEP01_plc13_slits():
     assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
 
 
-def __test_BL09I_STEP03_plc12_custom():
+def test_BL09I_STEP03_plc12_custom():
     # test the 'command' command which inserts arbitrary code
     file_name = "BL09I-MO-STEP-03.plc12"
     tmp_file = Path("/tmp") / file_name
     with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file):
-        with group(group_num=2):
+        with group(
+            group_num=2,
+            comment="; Special homing for a group of axes with tilt limits\n"
+            "; and misaligned home marks",
+        ):
             motor(axis=1)
             motor(axis=2)
 
             drive_to_limit(homing_direction=False, with_limits=False)
             # drive_to_home(with_limits=False)
             home(with_limits=False, wait_for_one_motor=True)
-            continue_home_maintain_axes_offset()
+            continue_home_maintain_axes_offset(wait_for_one_motor=True)
             check_homed()
             post_home()
 
