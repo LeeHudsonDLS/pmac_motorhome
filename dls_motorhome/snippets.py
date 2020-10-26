@@ -54,7 +54,27 @@ F = TypeVar("F", bound=Callable)
 def _snippet_function(*arglists: Dict[str, Any]) -> Callable[[F], F]:
     """
     A decorator function to allow simple declaration of snippet functions.
-    TODO much further explanation required
+    Snippet functions are used to append snippets of Jinja PLC code to
+    the current PLC.
+
+    The decorated function should have:
+
+    - the same name as a jinja template file (less .pmc.jinja)
+      in the folder dls_motorhome/snippets. The function should take
+    - Type hinted parameters that the template will use
+    - A docstring that describes the function of the snippet
+
+    The snippet may itself include further snippets and if this is the case
+    any argument lists required by further snippets should be passed to the
+    decorator. The only example of this at present is `wait_for_done_args`.
+
+    The decorator adds the following to the decorated function:
+
+    - code to check parameters passed at runtime
+    - code to implement appending the template with parameters
+    - appends the original Jinja to the docstring
+    - appends a description of arguments to the wait_for_done template
+      if  wait_for_done_args was passed to the decorator
 
     Returns:
         Callable[[F], F]: The decorated snippet function

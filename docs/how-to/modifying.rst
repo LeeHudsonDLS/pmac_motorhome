@@ -19,9 +19,9 @@ TODO - flesh this out
 - Make calls to functions in `commands`, `snippets`
   and possibly other :py:mod:`dls_motorhome.sequences`
 
-A nice example is home_slits_hsw (TODO cannot get literalinclude to work!)
+A nice example is home_slits_hsw
 
-.. literalinclude:: `commands.py`
+.. literalinclude:: ../../dls_motorhome/sequences.py
   :pyobject: home_slits_hsw
 
 Adding a New Snippet Template
@@ -31,11 +31,11 @@ TODO - flesh this out
 - write the Jina template
 - add a snippet command to snippets.py using _snippet_function decorator
 
-TODO - also cant get _snippet function documentation to included here
+The decorator _snippet function allows you to declare a function whose name
+is the same as the Jina template file prefix. This function need only have
+arguments and a docstring. The decorator will provide the rest as follows:
 
-.. automodule:: dls_motorhome.snippets
-
-    .. automethod:: _snippet_function
+.. autofunction:: dls_motorhome.snippets._snippet_function
 
 Adding a New Callback Function
 ------------------------------
