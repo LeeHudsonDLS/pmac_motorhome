@@ -1,5 +1,7 @@
 #!/bin/env dls-python
 
+# type: ignore
+
 import sys, os, re
 from motorhome import *
 
@@ -34,7 +36,7 @@ gonioZPhase = """
 
 detectorZPreMove = """
         cmd "#8j+"
-        while(m821=0) 
+        while(m821=0)
         endw
 
         timer = 100 MilliSeconds ; Small delay to start moving
@@ -44,7 +46,7 @@ detectorZPreMove = """
         cmd"#8j-"
         while(m821=1)
         endw
-        
+
         cmd"#8j/"
         timer = 100 MilliSeconds ; Small delay to start moving
 		while (timer > 0)
@@ -82,7 +84,7 @@ oavYPhase = """
 
 """
 
-# Drive to the negative limit switch 
+# Drive to the negative limit switch
 # before starting a home move
 oavYPre = """
         cmd "#6J-"
@@ -90,7 +92,7 @@ oavYPre = """
         endw
 """
 
-# Drive to the positive limit switch 
+# Drive to the positive limit switch
 # before starting a home move
 oavXPre = """
 	cmd "#5J+"
@@ -282,7 +284,7 @@ elif name == "GONIO":
     plc.add_motor(2, group=2, htype=HSW, jdist=-1000)
     plc.add_motor(3, group=3, htype=HSW, jdist=-1000)
 
-    
+
   #  plc.add_motor(1, group=4, htype=HSW, jdist=-1000)
   #  plc.configure_group(4,pre=gonioOmegaPhase,post='cmd "setphase1" ')
 ######################################################

@@ -84,7 +84,7 @@ class Plc:
         group_num: int,
         post_home: PostHomeMove,
         post_distance: int,
-        comment: str = None
+        comment: str = None,
     ) -> Group:
         """
         Add a new group of axes to the current Plc
@@ -99,12 +99,7 @@ class Plc:
         """
         plc = Plc.instance()
         group = Group(
-            group_num,
-            plc.plc_num,
-            plc.controller,
-            post_home,
-            post_distance,
-            comment
+            group_num, plc.plc_num, plc.controller, post_home, post_distance, comment
         )
         plc.groups.append(group)
         return group
