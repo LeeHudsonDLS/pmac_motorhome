@@ -9,7 +9,7 @@
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=State{{template.args.state}}
         ; Execute the move commands
-        {{ group.negate_home_flags() }} {{ group.set_large_jog_distance(negative=template.args.negative) }}
-        cmd "{{ group.jog_to_trigger_jdist() }}"
+        {{ group.negate_home_flags() }} {{ group.set_large_jog_distance(homing_direction=template.args.homing_direction) }}
+        cmd "{{ group.jog_to_home_jdist() }}"
         {% include "wait_for_done.pmc.jinja" %}
     endif
