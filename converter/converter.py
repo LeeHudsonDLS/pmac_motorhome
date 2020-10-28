@@ -45,13 +45,12 @@ def convert(infile: str, outfile: str):
     make_code(plcs, outpath)
 
 
-import_1 = "from dls_motorhome.commands import group, motor, plc\n"
-import_2 = """from dls_motorhome.sequences import (
+code_import = """from dls_motorhome.sequences import (
     {names}
 )
 """
 
-plc_block = """
+code_plc = """
 with plc(
     plc_num={plc.plc},
     controller={plc.bricktype},
@@ -64,7 +63,7 @@ def make_code(plcs: Sequence[PLC], outpath: Path):
     plc_folder = outpath.parent / "PLCs"
 
     with outpath.open("w") as stream:
-        stream.write(import_1)
+        stream.write("from dls_motorhome.commands import group, motor, plc\n")
 
         # collect all the homing sequences used for the import statement
         imports = set()
@@ -73,9 +72,23 @@ def make_code(plcs: Sequence[PLC], outpath: Path):
                 imports.add(group.sequence.name)
 
         imps = "\n    ".join(imports)
-        stream.write(import_2.format(names=imps))
+        stream.write(code_import.format(names=imps))
 
         for plc in plcs:
             plc_path = plc_folder / plc.filename
-            fs = plc_block.format(plc=plc, plc_path=plc_path)
+            fs = code_plc.format(plc=plc, plc_path=plc_path)
             stream.write(fs)
+
+            for group in plc.groups.values():
+                fs = f"    with group(group_num={group.group_num}):\n"
+                stream.write(fs)
+
+                for motor in group.motors:
+                    fs = f"        motor(axis={motor.axis}, jdist={motor.jdist})\n"
+                    stream.write(fs)
+
+                fs = f"        {group.sequence.name}()\n"
+                stream.write(fs)
+                stream.write("\n")
+
+            stream.write("\n")

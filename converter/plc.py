@@ -86,6 +86,9 @@ class PLC:
             new_group = Group(group, checks=[], pre="", post="")
             self.groups[group] = new_group
 
+        if jdist is not None:
+            motor.jdist = jdist
+
         self.groups[group].motors.append(motor)
 
         if htype is not None:

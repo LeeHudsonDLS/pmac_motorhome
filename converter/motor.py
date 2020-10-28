@@ -4,6 +4,7 @@ class Motor:
         self.enc_axes = enc_axes
         self.ctype = ctype
         self.ms = ms
+        self.jdist = 0
 
     def override_jdist_for_phase(self, phase_code):
         pass
