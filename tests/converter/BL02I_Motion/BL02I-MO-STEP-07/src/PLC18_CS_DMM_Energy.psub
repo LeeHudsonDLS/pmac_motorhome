@@ -1,0 +1,8 @@
+substitute "COORD=3"
+substitute "PLC=18"
+substitute "ZSEP=1"
+substitute "XSEP=25"
+substitute "B1=5"
+substitute "B2=6"
+substitute "N=1"
+include "CS_dmm.pmc"

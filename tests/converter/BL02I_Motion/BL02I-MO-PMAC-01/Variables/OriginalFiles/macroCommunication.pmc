@@ -1,0 +1,21 @@
+;
+; These settings enable communication from the PMAC to the MACRO ring,
+; therefore, download this file first. Then do:
+; "save" and "$$$" before downloading the other files.
+;
+
+I80 = 0
+I81 = 0
+I82 = 0
+
+;transfer encoder loss bits for motors 1,2 using IC0 IO node 6
+i6841=$fb37f		;enable nodes 0-6,8,9,12,13,15 (was $fb33f)
+
+;transfer encoder loss bits for motors 3-16 using IC1 IO nodes 2,3,6,7,10
+i6891=$1fb7ff		;enable nodes 0-10,12,13,15 (was $1fb333)
+
+;transfer encoder loss bits for motors 17 to 32 using IC2 IO nodes 2,3,6,7,10,11
+i6941=$2fbfff		;enable nodes 0-9,10,11,12,13,15 (was $2fb333)
+
+; Setup motor nodes for IC3 (motor nodes only)
+i6991 = $3FB333

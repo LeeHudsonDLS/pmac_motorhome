@@ -1,0 +1,101 @@
+
+; Motion Program 6 - Homing Routine for Pre-HFM Slits: Y Negative, Y Positive
+
+#define homing_started_prog6            P406
+
+#define acc_time_var_mtr14             I1420
+#define s_curve_time_var_mtr14         I1421
+#define jog_speed_var_mtr14            I1422
+#define home_speed_var_mtr14           I1423
+#define flag_mode_control_mtr14        I1424
+#define rapid_mode_speed_select_mtr14  I1490
+#define trigger_mode_mtr14             I1497
+
+#define neg_limit_bit_mtr14            M1432
+#define amplifier_enabled_mtr14        M1439
+#define in_position_bit_mtr14          M1440
+#define home_complete_mtr14            M1444
+#define commanded_position_mtr14       M1461
+#define actual_position_mtr14          M1462
+#define DacOut_mtr14                   M1468
+#define encoder_capture_position_mtr14 M1473
+#define StartDeact_mtr14               M1482
+#define ElapsedDeact_mtr14             M1483
+#define encoder_loss_reg_mtr14         M1484
+#define encoder_loss_dpram_mtr14       M1485
+#define encoder_stall_mtr14            M1486
+#define Starttime_mtr14                M1487
+#define Elapsedtime_mtr14              M1488
+#define encoder_lost_mtr14             M1489
+
+#define acc_time_var_mtr15             I1520
+#define s_curve_time_var_mtr15         I1521
+#define jog_speed_var_mtr15            I1522
+#define home_speed_var_mtr15           I1523
+#define flag_mode_control_mtr15        I1524
+#define rapid_mode_speed_select_mtr15  I1590
+#define trigger_mode_mtr15             I1597
+
+#define neg_limit_bit_mtr15            M1532
+#define amplifier_enabled_mtr15        M1539
+#define in_position_bit_mtr15          M1540
+#define home_complete_mtr15            M1544
+#define commanded_position_mtr15       M1561
+#define actual_position_mtr15          M1562
+#define DacOut_mtr15                   M1568
+#define encoder_capture_position_mtr15 M1573
+#define StartDeact_mtr15               M1582
+#define ElapsedDeact_mtr15             M1583
+#define encoder_loss_reg_mtr15         M1584
+#define encoder_loss_dpram_mtr15       M1585
+#define encoder_stall_mtr15            M1586
+#define Starttime_mtr15                M1587
+#define Elapsedtime_mtr15              M1588
+#define encoder_lost_mtr15             M1589
+
+#define MOVEMENT_RANGE_MTR14   42000
+#define MOVEMENT_RANGE_MTR15   42000
+
+#define LIMIT_OFFSET_MTR14 1000
+#define LIMIT_OFFSET_MTR15 1000
+
+#define HOME_OFFSET_MTR14 -5402
+#define HOME_OFFSET_MTR15 14307
+
+open prog 6
+clear
+RAPID
+homing_started_prog6 =1
+ta(acc_time_var_mtr14)						  ; acc time
+ts(s_curve_time_var_mtr14)					  ; s-curve time
+f(jog_speed_var_mtr14)						  ; feedrate (velocity)
+home_complete_mtr14=0
+home_complete_mtr15=0
+cmd"ms25,mi912=2"	                                          ; capture home on rising edge of a flag
+cmd"ms28,mi912=2"	                                          ; capture home on rising edge of a flag
+cmd"ms25,mi913=2"	                                          ; use -limit as a flag
+cmd"ms28,mi913=2"	                                          ; use -limit as a flag
+flag_mode_control_mtr14=LIMITS_OFF		                  ; disable +/- limits
+flag_mode_control_mtr15=LIMITS_OFF		                  ; disable +/- limits
+dwell 10
+INC
+; Ending position should be as large as the whole motor move range to
+; ensure that -limit switch is found
+X(-MOVEMENT_RANGE_MTR14)^LIMIT_OFFSET_MTR14 Y(-MOVEMENT_RANGE_MTR15)^LIMIT_OFFSET_MTR15
+dwell 0
+flag_mode_control_mtr14=LIMITS_ON			          ; reenable +/-limits
+flag_mode_control_mtr15=LIMITS_ON			          ; reenable +/-limits
+cmd"ms25,mi912=1"	                                          ; capture on marker pulse
+cmd"ms28,mi912=1"	                                          ; capture on marker pulse
+cmd"ms25,mi913=0"	                                          ; use home switch as a flag
+cmd"ms28,mi913=0"	                                          ; use home switch as a flag
+dwell 10
+X(MOVEMENT_RANGE_MTR14)^HOME_OFFSET_MTR14 Y(MOVEMENT_RANGE_MTR15)^HOME_OFFSET_MTR15
+dwell 1000
+HOMEZ 14,15
+ABS
+dwell 0
+LINEAR
+home_complete_mtr14=1
+home_complete_mtr15=1
+close

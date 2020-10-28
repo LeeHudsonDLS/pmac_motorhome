@@ -1,0 +1,12 @@
+;Pre command to set phase error for sample brushless motors. This triggers phasing in home PLC
+substitute "CMDS= m148=1 m348=1 m448=1 m548=1 m648=1"
+substitute "PLC4=ENABLE"
+substitute "PLC5=ENABLE"
+substitute "PLC6=ENABLE"
+substitute "PLC7=ENABLE"
+substitute "PLC8=ENABLE"
+substitute "PLC9=ENABLE"
+substitute "PLC14=ENABLE"
+substitute "PLC17=ENABLE"
+
+include "PLC1_BRICK_initialise.pmc"

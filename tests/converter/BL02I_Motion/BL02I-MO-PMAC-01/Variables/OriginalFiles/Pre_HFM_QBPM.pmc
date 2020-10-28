@@ -1,0 +1,58 @@
+
+; Motion Program 15 - Homing Routine for Pre-HFM QBPM
+
+#define homing_started_prog15           P415
+
+#define acc_time_var_mtr11             I1120
+#define s_curve_time_var_mtr11         I1121
+#define jog_speed_var_mtr11            I1122
+#define home_speed_var_mtr11           I1123
+#define flag_mode_control_mtr11        I1124
+#define rapid_mode_speed_select_mtr11  I1190
+#define trigger_mode_mtr11             I1197
+
+#define neg_limit_bit_mtr11            M1132
+#define amplifier_enabled_mtr11        M1139
+#define in_position_bit_mtr11          M1140
+#define home_complete_mtr11            M1144
+#define commanded_position_mtr11       M1161
+#define actual_position_mtr11          M1162
+#define DacOut_mtr11                   M1168
+#define encoder_capture_position_mtr11 M1173
+#define StartDeact_mtr11               M1182
+#define ElapsedDeact_mtr11             M1183
+#define encoder_loss_reg_mtr11         M1184
+#define encoder_loss_dpram_mtr11       M1185
+#define encoder_stall_mtr11            M1186
+#define Starttime_mtr11                M1187
+#define Elapsedtime_mtr11              M1188
+#define encoder_lost_mtr11             M1189
+
+#define MOVEMENT_RANGE_MTR11   17100
+#define LIMIT_OFFSET_MTR11 1000
+#define HOME_OFFSET_MTR11 -400
+
+open prog 15
+clear
+RAPID
+homing_started_prog15=1
+ta(acc_time_var_mtr11)						  ; acc time
+ts(s_curve_time_var_mtr11)					  ; s-curve time
+f(jog_speed_var_mtr11)						  ; feedrate (velocity)
+home_complete_mtr11=0
+cmd"ms20,mi912=2"	                                          ; capture home on rising edge of a flag
+cmd"ms20,mi913=1"	                                          ; use +limit as a flag
+flag_mode_control_mtr11=LIMITS_OFF		                  ; disable +/- limits
+dwell 10
+INC
+; Ending position should be as large as the whole motor move range to
+; ensure that +limit switch is found
+X(MOVEMENT_RANGE_MTR11)^HOME_OFFSET_MTR11
+dwell 0
+flag_mode_control_mtr11=LIMITS_ON			          ; reenable +/-limits
+HOMEZ 11
+ABS
+dwell 0
+LINEAR
+home_complete_mtr11=1
+close

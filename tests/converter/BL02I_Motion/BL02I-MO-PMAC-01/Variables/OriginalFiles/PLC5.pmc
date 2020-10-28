@@ -1,0 +1,157 @@
+;****************** PLC 5 Motion Control Housekeeping ******************
+
+; this PLC makes sure that all tasks that must take place at the end of a
+; motion program really get executed. Even if motion program gets interrupted
+; during execution important settings get set. This includes:
+; - reenabling limits if homing procedure gets interrupted
+; - puts picos back in open loop after motion programs finish
+; - kills nanomotion after motion programs finish
+
+;if homing program is interrupted limits can stay disabled or running bits stay set
+;this plc makes sure that limits for the motors are enabled after every homing procedure
+;it also sets running program bits to zero (energy programs for DCM)
+
+#define final_bragg_pos M4801
+M4801->F:$60F39                 ; DCM Bragg position
+
+#define final_perp_pos  M4802
+M4802->F:$60F3A                 ; DCM perp position
+
+#define actual_position_mtr10          M1062
+
+#define cs1_program_running            M5180
+#define cs2_program_running            M5280
+#define cs4_program_running            M5480
+#define cs5_program_running            M5580
+#define cs6_program_running            M5680
+#define cs8_program_running            M5880
+#define cs9_program_running            M5980
+#define cs10_program_running           M6080
+#define cs11_program_running           M6180
+#define cs12_program_running           M6280
+#define cs13_program_running           M6380
+#define cs14_program_running           M6480
+#define cs15_program_running           M6580
+
+OPEN PLC 5
+clear
+
+;program 1
+If (cs15_program_running = 0 And homing_started_prog1 = 1)
+  flag_mode_control_mtr5 = LIMITS_ON
+  homing_started_prog1 = 0
+
+  ; copy final position to allow reading via DPRAM reader
+  final_bragg_pos = INT(actual_position_mtr5/3072+0.5)
+
+  CMD"&15#5->0&7#5->X"
+EndIf
+
+; assigning the bragg motor after the homing
+If (Bragg_home_done = 1)
+  Bragg_home_done = 0
+
+  ; copy final position to allow reading via DPRAM reader
+  final_bragg_pos = INT(actual_position_mtr5/3072+0.5)
+
+  CMD"&15#5->0&7#5->X"
+EndIf
+
+; checking if perp homing completed ok, if not, update the positions
+if(M1052=1 And M1034=0)
+  final_perp_pos = INT(actual_position_mtr10/3072+0.5)
+  M1052=0
+EndIf
+
+;program 3
+If (cs1_program_running = 0 And homing_started_prog3 = 1)
+  flag_mode_control_mtr1=LIMITS_ON
+  flag_mode_control_mtr2=LIMITS_ON
+  homing_started_prog3 =0
+EndIf
+
+;program 4
+If (cs2_program_running = 0 And homing_started_prog4 = 1)
+  flag_mode_control_mtr3=LIMITS_ON
+  flag_mode_control_mtr4=LIMITS_ON
+  homing_started_prog4 =0
+EndIf
+
+;program 5
+If (cs5_program_running = 0 And homing_started_prog5 = 1)
+  flag_mode_control_mtr12=LIMITS_ON
+  flag_mode_control_mtr13=LIMITS_ON
+  homing_started_prog5 =0
+EndIf
+
+;program 6
+If (cs4_program_running = 0 And homing_started_prog6 = 1)
+  flag_mode_control_mtr14=LIMITS_ON
+  flag_mode_control_mtr15=LIMITS_ON
+  homing_started_prog6 =0
+EndIf
+
+;program 7
+If (cs5_program_running = 0 And homing_started_prog7 = 1)
+  flag_mode_control_mtr21=LIMITS_ON
+  flag_mode_control_mtr22=LIMITS_ON
+  homing_started_prog7 =0
+EndIf
+
+;program 8
+If (cs6_program_running = 0 And homing_started_prog8 = 1)
+  flag_mode_control_mtr23=LIMITS_ON
+  flag_mode_control_mtr24=LIMITS_ON
+  homing_started_prog8 =0
+EndIf
+
+;program 9
+If (cs13_program_running = 0 And homing_started_prog9 = 1)
+  flag_mode_control_mtr25=LIMITS_ON
+  flag_mode_control_mtr26=LIMITS_ON
+  flag_mode_control_mtr27=LIMITS_ON
+  homing_started_prog9 =0
+EndIf
+
+;program 10
+If (cs14_program_running = 0 And homing_started_prog10 = 1)
+  cmd"#31k"				;kill nano motor #31
+  cmd"#32k"				;kill nano motor #32
+  homing_started_prog10 =0
+EndIf
+
+;program 12
+If (cs11_program_running = 0 And homing_started_prog12 = 1)
+  flag_mode_control_mtr17=LIMITS_ON
+  flag_mode_control_mtr18=LIMITS_ON
+  flag_mode_control_mtr19=LIMITS_ON
+  homing_started_prog12 =0
+EndIf
+
+;program 13
+If (cs12_program_running = 0 And homing_started_prog13 = 1)
+  cmd"#29k"				;kill nano motor #29
+  cmd"#30k"				;kill nano motor #30
+  homing_started_prog13 =0
+EndIf
+
+;program 15
+If (cs8_program_running = 0 And homing_started_prog15 = 1)
+  flag_mode_control_mtr11=LIMITS_ON
+  homing_started_prog15 =0
+EndIf
+
+;program 16
+If (cs9_program_running = 0 And homing_started_prog16 = 1)
+  flag_mode_control_mtr20=LIMITS_ON
+  homing_started_prog16 =0
+EndIf
+
+;program 17
+If (cs10_program_running = 0 And homing_started_prog17 = 1)
+  flag_mode_control_mtr28=LIMITS_ON
+  homing_started_prog17 =0
+EndIf
+
+close
+enable plc 5

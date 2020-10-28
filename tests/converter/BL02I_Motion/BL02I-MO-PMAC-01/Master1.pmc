@@ -1,0 +1,7 @@
+
+; Set up VME Communications
+#include "Variables/STANDARD_VME_PMAC1.pmc"
+
+; Load standard i-variable definitions
+#include "Variables/STANDARD_CONTROL.pmc"
+

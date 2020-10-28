@@ -1,0 +1,4 @@
+substitute "CMDS="
+substitute "PLC5=ENABLE"
+
+include "PLC1_BRICK_initialise.pmc"

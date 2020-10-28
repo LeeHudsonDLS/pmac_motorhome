@@ -1,0 +1,7 @@
+substitute "PLC=9"
+substitute "OUTPIN=6"
+substitute "MONPLC14=1"
+substitute "MONPLC17=1"
+substitute "MONPLC18=1"
+
+include "PLC_heart_beat.pmc"

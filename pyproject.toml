@@ -4,5 +4,7 @@ exclude = '''
 (
     tests/converter/BL02I_generate_homing_plcs.py
     | converter/old_motorhome.py
+    | dls_motorhome/tests/converter/BL02I_Motion/configure/generate_homing_plcs.py
+    | tests/converter/BL02I_Motion/BL02I-MO-STEP-14/src/TrajPointsGenerator.py
 )
 '''

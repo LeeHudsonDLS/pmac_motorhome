@@ -1,0 +1,135 @@
+;####################################################
+; DO NOT MODIFY: File created from src/PLC17_DCM.psub
+;####################################################
+
+CLOSE
+
+;###############################################
+;; \file
+;; Define motion for Energy in Accel DCM
+;;
+;; Original Author: Tom Cobb.
+;; Modified by Emma Shepherd to add support for
+;; backlash/hysterisis correction (see PROG_CS_motion_backlash.pmc)
+;;
+;; Defined axes:
+;; - X (addr 6) = Energy in kEv
+;; - Y (addr 7) = Offset in mm
+;;
+;; Macros (and example values):
+;; - COORD = 2  CS number (only works for CS 1..9), e.g. 2
+;; - PLC = 17  PLC number, should be CS number+15, e.g. 17
+;; - BRAGG = 1  Axisnum for Bragg, e.g. 2
+;; - T2 = 5  Axisnum for T2, e.g. 3
+;; - OFFSET_SET_DEMAND_RBV  By default sets the demand=readback for the offset 
+;;                          parameter. Can be disabled by setting this macro to
+;;                          an empty string or a ';' comment.
+;################################################
+
+; Change to CS2
+&2
+
+; Set relevant axes to use kinematics
+#1->I
+#5->I
+
+; These are set by motor_in_cs.template
+#define BMOVE P(4700+1)
+#define BMRES P(4800+1)
+#define BOFF  P(4900+1)
+#define TMOVE P(4700+5)
+#define TMRES P(4800+5)
+#define TOFF  P(4900+5)
+
+; These are set by the motion program for backlash correction
+#define BBDST Q(400+1)
+#define TBDST Q(400+5)
+
+; Crystal d spacing in angstrom
+; NOTE: default is silicon 111 at room temp,
+; at liquid N2 it is 3.13475 or 3.13492 depending on who you believe...)
+#define DSPACING Q20
+DSPACING=3.1355
+; Default mode is to move Bragg and T2
+#define LOCKT2 Q21
+LOCKT2=0
+; EvLambda constant
+#define EVLAMBDA Q22
+EVLAMBDA=12.3985
+; n order constant (i.e. the n in n*Lambda=2Dsin(theta) - 1,2,3.. etc 
+#define NORDER Q23
+NORDER=1
+
+; Calculate Energy and Offset from Bragg and T2
+#define BPOS (BMRES*P1+BOFF)
+#define TPOS (TMRES*P5+TOFF)
+#define ENERGY Q7
+#define OFFSET Q8
+#define SETERROR M(100*2+5082)=1
+; Local variables
+#define NLAMBDA Q128
+OPEN FORWARD
+CLEAR
+    NLAMBDA=(2*DSPACING*sin(BPOS))/NORDER
+    IF (ABS(NLAMBDA)>0.01)
+        ENERGY = EVLAMBDA/NLAMBDA
+        OFFSET = 2*TPOS*cos(BPOS)
+    ELSE
+        SETERROR
+    ENDIF
+CLOSE
+
+; Calculate Bragg and T2 from Energy and Offset
+; Local variables
+#define SINTHETA Q228
+#define BPOS Q229
+#define TPOS Q230
+OPEN INVERSE
+CLEAR
+    SINTHETA=EVLAMBDA/((2*DSPACING*ENERGY)/NORDER)
+    IF (ABS(SINTHETA)<1)
+        ; calculate bragg in EGUs
+        BPOS=asin(SINTHETA)
+        ; then in cts
+        P1=(BPOS+BBDST-BOFF)/BMRES
+        ; Don't calculate T2 if we are in 'locked T2' mode
+        IF (LOCKT2=0)
+            ; calculate T2 in EGUs
+            TPOS=OFFSET/(2*cos(asin(SINTHETA)))
+            ; then in cts
+            P5=(TPOS+TBDST-TOFF)/TMRES
+        ENDIF
+    ELSE
+        SETERROR
+    ENDIF
+CLOSE
+
+; A PLC(sx+15) needs to be made to do position reporting
+; Readbacks should be in &{axisnum}Q81..89
+; As forward kinematic, but with Px = mx62/(Ix08*32) and no error reporting
+#define BPOS (BMRES*m162/(I108*32)+BOFF)
+#define TPOS (TMRES*m562/(I508*32)+TOFF)
+#define ENERGY Q87
+#define OFFSET Q88
+; Local variables
+#define NLAMBDA Q328
+OPEN PLC 17
+CLEAR
+    ADDRESS&2
+    NLAMBDA=(2*DSPACING*sin(BPOS))/NORDER
+    IF (ABS(NLAMBDA)>0.01)
+        ENERGY = EVLAMBDA/NLAMBDA
+        OFFSET = 2*TPOS*cos(BPOS)
+    ENDIF
+    ; If bragg or t2 motor record did the last move, set demands = readbacks
+    if (BMOVE = 1)
+    or (TMOVE = 1)
+        BMOVE = 0
+        TMOVE = 0
+        Q77 = ENERGY
+        Q78 = OFFSET 
+    endif
+CLOSE
+ENABLE PLC 17
+
+

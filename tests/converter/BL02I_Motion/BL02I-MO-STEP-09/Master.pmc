@@ -1,0 +1,44 @@
+
+; Add the axes and control I Variables
+;;#include "Variables/Axis.pmc"
+;;#include "Variables/Control.pmc"
+
+; And the m-variable definitions
+#include "../../../Common/BRICK_M_variables.pmc"
+
+;#############################################################################
+; Controls section
+; Uncomment this when brick is handed over
+;#############################################################################
+
+; First we want to clear all the PLCs and CSs
+#include "../../../Common/clear_PLC_CS.pmc"
+
+; a PLC to initialise the brick
+#include "PLCs/PLC1_BRICK_initialise.pmc"
+
+; a PLC to setup the internal amps
+#include "PLCs/PLC6_Initialise_and_Reset.pmc"
+
+; a PLC to do encoder loss and amp status protection
+#include "PLCs/PLC4_encoder_loss.pmc"
+
+; a PLC to do cpu load
+#include "PLCs/PLC5_cpu_load.pmc"
+
+; a PLC to kill axes after a move
+#include "PLCs/PLC7_kill_when_idle.pmc"
+
+; a PLC to handle the beamline interlock chain
+;#include "PLCs/PLC8_Interlock_Chain.pmc"
+
+; Add some homing PLCs
+#include "PLCs/PLC10_CHOPX_HM.pmc"
+#include "PLCs/PLC11_S4_HM.pmc"
+
+; Finally add some coordinate systems
+#include "PLCs/PLC17_S4_XSlits.pmc"
+#include "PLCs/PLC18_S4_YSlits.pmc"
+
+; Motion program for coordinate systems
+#include "PROGs/PROG10_CS_motion.pmc"

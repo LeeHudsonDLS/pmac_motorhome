@@ -1,0 +1,140 @@
+;####################################################
+; DO NOT MODIFY: File created from /dls_sw/prod/R3.14.12.3/support/mxMasterConfig/2-81/data/MPROG11_HOME_HFM_JACKS.pmc
+;####################################################
+
+; Motion Program 11, Coordinate System 11: Homing Routine for HFM jacks
+
+; Uses the following P-Variables:
+
+; P4301 - Homing started
+; P4302 - Movement range of Motor 17
+; P4303 - Move back this far off limit (Motor 17)
+; P4304 - Home offset of Motor 17
+; P4305 - Movement range of Motor 18
+; P4306 - Move back this far off limit (Motor 18)
+; P4307 - Home offset of Motor 18
+; P4308 - Movement range of Motor 19
+; P4309 - Move back this far off limit (Motor 19)
+; P4310 - Home offset of Motor 19
+; P4311 - Roll Limit Correction (Motors 18 & 19)
+
+; The following P-Variables are used internally (not set by user):
+
+; P4312 - Store positive soft limit for Motor 17
+; P4313 - Store negative soft limit for Motor 17
+; P4314 - Store positive soft limit for Motor 18
+; P4315 - Store negative soft limit for Motor 18
+; P4316 - Store positive soft limit for Motor 19
+; P4317 - Store negative soft limit for Motor 19
+
+M1745->Y:$0008C0,10,1 ; Motor 17, Home-complete bit
+M1832->X:$000930,22,1 ; Motor 18, Negative-end-limit-set bit
+M1845->Y:$000940,10,1 ; Motor 18, Home-complete bit
+M1932->X:$0009B0,22,1 ; Motor 19, Negative-end-limit-set bit
+M1945->Y:$0009C0,10,1 ; Motor 19, Home-complete bit
+
+#define home_complete_mtr17    M1745
+#define neg_limit_bit_mtr18    M1832
+#define home_complete_mtr18    M1845
+#define neg_limit_bit_mtr19    M1932
+#define home_complete_mtr19    M1945
+
+#define homing_started_prog11  P4301
+#define pos_soft_limit_mtr17   P4312
+#define neg_soft_limit_mtr17   P4313
+#define pos_soft_limit_mtr18   P4314
+#define neg_soft_limit_mtr18   P4315
+#define pos_soft_limit_mtr19   P4316
+#define neg_soft_limit_mtr19   P4317
+
+;********** Setting P-Variables **********
+P4301 = 0
+P4302 = 950000
+P4303 = -50
+P4304 = 201464
+P4305 = 950000
+P4306 = -50
+P4307 = 207312
+P4308 = 950000
+P4309 = -50
+P4310 = 199359
+P4311 = 40000
+;*****************************************
+
+;CS11 - HFM jacks
+ADDRESS &11
+cmd"#17->X"
+cmd"#18->Y"
+cmd"#19->Z"
+
+cmd"&11a"
+
+open prog 11
+clear
+
+homing_started_prog11=1                                                              ; This program has started
+I1790=0                                                                              ; use I1722 for RAPID moves
+I1890=0                                                                              ; use I1822 for RAPID moves
+I1990=0                                                                              ; use I1922 for RAPID moves
+RAPID                                                                                ; Use RAPID moves
+ta(I1720)                                                                            ; acc time
+ts(I1721)                                                                            ; s-curve time
+f(I1722)                                                                             ; feedrate (velocity)
+home_complete_mtr17=0                                                                ; set the home complete flag off
+home_complete_mtr18=0                                                                ; set the home complete flag off
+home_complete_mtr19=0                                                                ; set the home complete flag off
+cmd "ms32,mi912=2 ms33,mi912=2 ms36,mi912=2 ms32,mi913=2 ms33,mi913=2 ms36,mi913=2"  ; capture -ve limit on rising edge of flag
+dwell 100                                                                            ; give the above cmd time to execute
+I1724=$260001                                                                        ; disable +/- limits
+I1824=$260001                                                                        ; disable +/- limits
+I1924=$260001                                                                        ; disable +/- limits
+pos_soft_limit_mtr17 = I1713                                                         ; Remember current positive limit
+neg_soft_limit_mtr17 = I1714                                                         ; Remember current negative limit
+pos_soft_limit_mtr18 = I1813                                                         ; Remember current positive limit
+neg_soft_limit_mtr18 = I1814                                                         ; Remember current negative limit
+pos_soft_limit_mtr19 = I1913                                                         ; Remember current positive limit
+neg_soft_limit_mtr19 = I1914                                                         ; Remember current negative limit
+I1713 = 0                                                                            ; Disable positive soft limit
+I1714 = 0                                                                            ; Disable negative soft limit
+I1813 = 0                                                                            ; Disable positive soft limit
+I1814 = 0                                                                            ; Disable negative soft limit
+I1913 = 0                                                                            ; Disable positive soft limit
+I1914 = 0                                                                            ; Disable negative soft limit
+X(-P4302)^(P4303) Y(-P4305)^(P4306) Z(-P4308)^(P4309)                                ; Trigger move, looking for -ve limit with offset
+dwell 0                                                                              ; Make sure this move is not blended with next one
+I1724=$240001                                                                        ; reenable +/-limits
+I1824=$240001                                                                        ; reenable +/-limits
+I1924=$240001                                                                        ; reenable +/-limits
+if( neg_limit_bit_mtr18 = 0 and neg_limit_bit_mtr19 = 1 )                            ; Check for the Roll limit and correct
+  Y(-P4311)                                                                          ; Move Y by correction distance
+  dwell 0                                                                            ; Make sure this move is not blended with next one
+  I1724=$260001                                                                      ; disable +/- limits
+  I1824=$260001                                                                      ; disable +/- limits
+  I1924=$260001                                                                      ; disable +/- limits
+  Y(-P4305)^(P4306) Z(-P4308)^(P4309)                                                ; Repeat trigger move for Y and Z
+  dwell 0                                                                            ; Make sure this move is not blended with next one
+endif
+if( neg_limit_bit_mtr19 = 0 and neg_limit_bit_mtr18 = 1 )                            ; Check for the Roll limit and correct
+  Z(-P4311)                                                                          ; Move Z by correction distance
+  dwell 0                                                                            ; Make sure this move is not blended with next one
+  I1724=$260001                                                                      ; disable +/- limits
+  I1824=$260001                                                                      ; disable +/- limits
+  I1924=$260001                                                                      ; disable +/- limits
+  Y(-P4305)^(P4306) Z(-P4308)^(P4309)                                                ; Repeat trigger move for Y and Z
+  dwell 0                                                                            ; Make sure this move is not blended with next one
+endif
+I1724=$240001                                                                        ; reenable +/-limits
+I1824=$240001                                                                        ; reenable +/-limits
+I1924=$240001                                                                        ; reenable +/-limits
+cmd "ms32,mi912=1 ms33,mi912=1 ms36,mi912=1 ms32,mi913=0 ms33,mi913=0 ms36,mi913=0"  ; capture home on marker pulse
+dwell 100                                                                            ; give the above cmd time to execute
+X(P4302)^(P4304) Y(P4305)^(P4307) Z(P4308)^(P4310)                                   ; Trigger move, looking for home switch with offset
+HOMEZ 17,18,19                                                                       ; Set this position to 0 counts
+I1713 = pos_soft_limit_mtr17                                                         ; Set positive soft limit
+I1714 = neg_soft_limit_mtr17                                                         ; Set negative soft limit
+I1813 = pos_soft_limit_mtr18                                                         ; Set positive soft limit
+I1814 = neg_soft_limit_mtr18                                                         ; Set negative soft limit
+I1913 = pos_soft_limit_mtr19                                                         ; Set positive soft limit
+I1914 = neg_soft_limit_mtr19                                                         ; Set negative soft limit
+homing_started_prog11=0                                                              ; This program has finished
+close

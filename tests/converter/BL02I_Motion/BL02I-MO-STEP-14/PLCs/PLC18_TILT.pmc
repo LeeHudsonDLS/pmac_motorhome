@@ -1,0 +1,29 @@
+
+#define Tilt       M36
+#define Upright    M34
+; GPIO input from MPS to enable tilt
+#define Enabled    M0
+
+open plc18
+clear
+
+;Straight
+if (P1801 = 0 and Enabled = 1)
+    Tilt = 0
+    Upright = 1
+endif
+
+;Tilted
+if (P1801 = 1 and Enabled = 1)
+    Tilt = 1
+    Upright = 0
+endif
+
+;Off
+if (P1801 = 2 and Enabled = 1)
+    Tilt = 0
+    Upright = 0
+endif
+    
+
+close

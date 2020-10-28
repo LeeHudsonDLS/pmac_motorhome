@@ -1,0 +1,3 @@
+; This value was calculated at survey in June 2014
+substitute "HOME_OFFSET=0"
+include "PLC16_HOME_DCM_BRAGG.pmc"

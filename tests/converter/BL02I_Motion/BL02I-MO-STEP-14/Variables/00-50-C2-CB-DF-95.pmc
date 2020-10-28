@@ -1,0 +1,44 @@
+; SPREADSHEET GENERATED BL02I-MO-STEP-14
+; FROM - BL02I-MO-RACK-07.xlsm
+; Current(AMPS) Offset .pmc File 
+; Time Stamp: 14 November 2016            08:28
+; ASSET:  DCS00020781
+; MAC: 00 50 C2 CB DF 95
+; -----------------------------------------------------
+
+
+; ----- Axis 1
+I129 =  0               ;Output/First Phase Offset
+I179 =  0               ;Second Phase Offset
+
+; ----- Axis 2
+I229 =  0               ;Output/First Phase Offset
+I279 =  0               ;Second Phase Offset
+
+; ----- Axis 3
+I329 =  0               ;Output/First Phase Offset
+I379 =  0               ;Second Phase Offset
+
+; ----- Axis 4
+I429 =  0               ;Output/First Phase Offset
+I479 =  0               ;Second Phase Offset
+
+; ----- Axis 5
+I529 =  0               ;Output/First Phase Offset
+I579 =  0               ;Second Phase Offset
+
+; ----- Axis 6
+I629 =  0               ;Output/First Phase Offset
+I679 =  0               ;Second Phase Offset
+
+; ----- Axis 7
+I729 =  0               ;Output/First Phase Offset
+I779 =  0               ;Second Phase Offset
+
+; ----- Axis 8
+I829 =  0               ;Output/First Phase Offset
+I879 =  0               ;Second Phase Offset
+; -----------------------------------------------------
+
+; End Current Offset Values 
+

@@ -1,0 +1,174 @@
+;####################################################
+; DO NOT MODIFY: File created from src/PLC18_CS_DMM_Energy.psub
+;####################################################
+
+CLOSE
+;################################################
+;
+; Define motion for converting required energy from
+; a dmm to motions of two mirrors. A bragg and Z error
+; were also necessary to prevent unreasonable velocity 
+; demands.
+;
+;
+; Original Author: Arvinder Palaha
+; Modified by Lee Hudson
+;
+; Defined axes:
+;       W (addr 6) = Energy in eV
+;       Y (addr 8) = Bragg2 error in degrees
+;       Z (addr 9) = Z error in mm
+;
+; Macros:
+;       COORD 		= 3 CS number between 2 and 9 (1 is reserved)
+;       PLC   		= 18 PLC number, should be CS number + 15, i.e. between 17 and 24
+;       Z  			= $(Z,undefined) axis number for z traslation between the 2 mirrors
+;       BRAGG1 		= $(BRAGG1,undefined) axis number for mirror 1 pitch
+;       BRAGG2 		= $(BRAGG2,undefined) axis number for mirror 1 pitch
+;       OFFSET  	= $(OFFSET,undefined) Y offset between mirrors,eg 25
+;		DSPACING1 	= $(DSPACING1,undefined) First dspacing , eg, 0.000002
+;		DSPACING2 	= $(DSPACING2,undefined) Second dspacing , eg, 0.0000024
+;################################################
+
+; set trigonometry calculcations to be done in degrees
+i15 = 0
+
+; Change to CS3
+&3
+
+; Set relevant axes to use kinematics
+#$(Z,undefined)->I  		; z translation of 2nd mirror
+#$(BRAGG1,undefined)->I  	; Bragg 1 rotation
+#$(BRAGG2,undefined)->I  	; Bragg 2 rotation
+
+; These are set by motor_in_cs.template (from spreadsheet)
+#define ZMOVE  P(4700+$(Z,undefined))
+#define ZMRES  P(4800+$(Z,undefined))
+#define ZOFF   P(4900+$(Z,undefined))
+
+#define B1MOVE    P(4700+$(BRAGG1,undefined))
+#define B1MRES    P(4800+$(BRAGG1,undefined))
+#define B1OFF     P(4900+$(BRAGG1,undefined))
+
+#define B2MOVE    P(4700+$(BRAGG2,undefined))
+#define B2MRES    P(4800+$(BRAGG2,undefined))
+#define B2OFF     P(4900+$(BRAGG2,undefined))
+
+; The backlash demand in EGU's is set by PROG_CS_motion_backlash.pmc (Q401..408)
+; NB Backlash defaults to zero (for use with PROG_CS_motion.pmc)
+#define BDSTZ Q(400+$(Z,undefined))
+#define BDSTBRAGG1   Q(400+$(BRAGG1,undefined))
+#define BDSTBRAGG2   Q(400+$(BRAGG2,undefined))
+BDSTZ=0
+BDSTBRAGG1=0
+BDSTBRAGG2=0
+
+; Constants
+#define HC            0.00123984193          ; eV.mm
+
+; Q1-9 Kinematic Positions (temporary variables used in kinematic calculations by PMAC)
+#define ENERGY      Q6         ; Desired energy, eV
+#define BERROR		Q8
+#define ZERROR		Q9	
+#define DSPACING_MODE Q21
+
+; Real motor positions (p1,p2 etc)
+#define REAL_Z		p$(Z,undefined)
+#define REAL_BRAGG1	p$(BRAGG1,undefined)
+#define REAL_BRAGG2	p$(BRAGG2,undefined)
+
+;
+; Forward Kinematics - Calculate Energy real bragg motor cts
+;
+
+; Forward Kinematics - calculate energy from bragg angle and z separation
+#define B1POS       (B1MRES*REAL_BRAGG1 + B1OFF)
+#define B2POS       (B2MRES*REAL_BRAGG2 + B2OFF)
+#define ZPOS		(ZMRES*REAL_Z + ZOFF)
+#define NBRAGG      1          ; bragg number, should default to 1
+
+; Q128-199 Forward Kinematic Temporary Variables
+#define DSPACING Q128
+
+OPEN FORWARD
+CLEAR
+	if(DSPACING_MODE = 0)
+		DSPACING = $(DSPACING1,undefined)
+	else
+		DSPACING = $(DSPACING2,undefined)
+	endif
+    ENERGY = NBRAGG * HC / (2 * DSPACING * sin(B1POS))
+	BERROR = B1POS - B2POS 
+	ZERROR = ($(OFFSET,undefined) / tan(2 * B1POS)) - ZPOS
+CLOSE
+
+;
+; Inverse Kinematics - Calculate Bragg1, Bragg2 and Z from virtual Energy
+;
+
+#define BPOS     	Q232
+#define ZPOS    	Q233
+
+; Q228-299 Inverse Kinematic Temporary Variables
+#define OFFSET	Q228
+OFFSET = $(OFFSET,undefined)         ; Y separation between mirrors, mm
+#define DSPACING Q229
+
+OPEN INVERSE
+CLEAR
+	if(DSPACING_MODE = 0)
+		DSPACING = $(DSPACING1,undefined)
+	else
+		DSPACING = $(DSPACING2,undefined)
+	endif
+	
+	; bragg angle (theta) calculated in degrees, with corresponding z translation in mm
+	BPOS     = asin((NBRAGG * HC) / (2 * DSPACING * ENERGY))
+	ZPOS     = OFFSET / tan(2 * BPOS)
+	
+	REAL_BRAGG1 = ((BPOS -   B1OFF)   / B1MRES)
+	REAL_BRAGG2 = ((BPOS -   B2OFF)   / B2MRES)-(BERROR/B2MRES)
+	REAL_Z = ((ZPOS - ZOFF) / ZMRES) - (ZERROR/ZMRES)
+	
+CLOSE
+
+; A PLC for position reporting
+#define ENERGY      Q86
+#define BERROR		Q88
+#define ZERROR		Q89
+#define B1POS       (B1MRES   * (m$(BRAGG1,undefined)62   / (I$(BRAGG1,undefined)08*32))   + B1OFF)
+#define B2POS       (B2MRES   * (m$(BRAGG2,undefined)62   / (I$(BRAGG2,undefined)08*32))   + B2OFF)
+#define ZPOS     	(ZMRES * (m$(Z,undefined)62 / (I$(Z,undefined)08*32)) + ZOFF)
+
+
+; Q328-399 PLC Temporary Variables
+#define DSPACING Q328
+OPEN PLC 18
+CLEAR
+    ADDRESS&3
+	if(DSPACING_MODE = 0)
+		DSPACING = $(DSPACING1,undefined)
+	else
+		DSPACING = $(DSPACING2,undefined)
+	endif
+    ENERGY = (NBRAGG * HC) / (2 * DSPACING * sin(B1POS))
+	ZERROR = ($(OFFSET,undefined) / tan(2 * B1POS)) - ZPOS
+	BERROR = B1POS - B2POS
+	
+    ; if theta or z translation motor did the last move, set demands + readbacks
+    if (B1MOVE   = 1)
+    or (ZMOVE = 1)
+	or (B2MOVE = 1)
+        B1MOVE   = 0
+        ZMOVE = 0
+		B2MOVE = 0
+        ; set CS axis demand position to CS axis readback position
+        ; Q86 is the axis readback position for energy (set to Q6 above)
+        ; Q76 is the axis demand position for energy (set to Q6 above)
+        Q76 = Q86 
+		Q78 = Q88
+		Q79 = Q89
+    endif
+CLOSE
+
+ENABLE PLC 18

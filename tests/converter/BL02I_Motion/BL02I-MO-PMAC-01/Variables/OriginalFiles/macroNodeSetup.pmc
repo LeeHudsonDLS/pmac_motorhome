@@ -1,0 +1,51 @@
+;
+; Second file for download
+;
+
+;transfer encoder loss bits for motors 1,2 using IC0 IO node 6
+ms0,mi975=$4c		;enable io nodes 2,3,6 (was $c)
+
+;And also: (though shouldn't need to do this bit coz it should happen at power-on),
+ms0,mi996=$fb37f	;(was $fb33f)
+
+;transfer encoder loss bits for motors 3-16 using IC1 IO nodes 2,3,6,7,10
+ms0,mi1975=$4cc		;enable io nodes 2,3,6,7,10 (was $0)
+
+;And also: (though shouldn't need to do this bit coz it should happen at power-on),
+ms0,mi1996=$1fbfff	;(was $1f3b33 - node 11 aleady in use? and why isn't node 15 active?)
+
+;transfer encoder loss bits for motors 17 to 32 using IC2 IO nodes 2,3,6,7,10,11
+ms32,mi975=$ccc		;enable io nodes 2,3,6,7,10,11 (was $0)
+
+;And also: (though shouldn't need to do this bit coz it should happen at power-on),
+ms32,mi996=$2fbfff	;(was $2fb333)
+
+;transfer data from ACC-24 registers to io nodes, 
+;transfers are specified in ms0,mi30-45 
+;ms0,mi21-6 are used for ACC-28
+ms0,mi20=$1fffe3f	;(was $3f)
+
+;using the data in the MacroAcc24 doc, from Tony 9/11/2005:
+ms0,mi30=$6488c8dcc0a9
+ms0,mi31=$6488c9dcc0aa
+ms0,mi32=$6488cadcc0e1
+ms0,mi33=$6488cbdcc0e2
+ms0,mi34=$6488ccdcc0e3
+ms0,mi35=$6488cddcc0e5
+ms0,mi36=$6488cedcc0e6
+ms0,mi37=$6488cfdcc0e7
+ms0,mi38=$6498c8dcc0e9
+ms0,mi39=$6498c9dcc0ea
+ms0,mi40=$6498cadcc0eb
+ms0,mi41=$6498cbdcc0ed
+ms0,mi42=$6498ccdcc0ee
+ms0,mi43=$6498cddcc0ef
+ms0,mi44=$6498cedcc0f1
+ms0,mi45=$6498cfdcc0f2
+
+;transfers are specified in ms32,mi30-41 
+;ms32,mi21-6 haven't been used, for consistency with ms0
+ms32,mi20=$1fffe00	;(was $0)
+
+; For the Bragg, needed to reverse velocity encoder (axis 6)
+ms9,i910=3

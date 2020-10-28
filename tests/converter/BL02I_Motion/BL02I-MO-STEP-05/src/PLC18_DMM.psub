@@ -1,0 +1,10 @@
+substitute "COORD=3"
+substitute "PLC=18"
+substitute "Z=1"
+substitute "BRAGG1=5"
+substitute "BRAGG2=6"
+substitute "OFFSET=25"
+substitute "DSPACING1=0.000002"
+substitute "DSPACING2=0.0000024"
+ 
+include "CS_dmm.pmc"

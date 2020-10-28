@@ -1,0 +1,285 @@
+;####################################################
+; DO NOT MODIFY: File created from /dls_sw/prod/R3.14.12.3/support/mxMasterConfig/2-81/data/PLC11_HOUSEKEEPING.pmc
+;####################################################
+
+;***************** PLC 11 Motion Control Housekeeping ***********************
+; This PLC makes sure that limits get enabled, soft limits get reset and 
+; "homing_started" bits get set to 0
+; if the corresponding "homing" motion program is interrupted.
+; It also ensures that the nano-motors on the HFM and VFM are killed if the
+; "homing" fails on the mirror translations.
+;****************************************************************************
+
+M2940->Y:$000EC0,0,1  ; Axis 29: In-position bit
+M3040->Y:$000F40,0,1  ; Axis 30: In-position bit
+M3140->Y:$000FC0,0,1  ; Axis 31: In-position bit
+M3240->Y:$001040,0,1  ; Axis 32: In-position bit
+
+M5180->X:$002040,0,1  ; CS1,  Program-running bit
+M5280->X:$002140,0,1  ; CS2,  Program-running bit
+M5380->X:$002240,0,1  ; CS3,  Program-running bit
+M5480->X:$002340,0,1  ; CS4,  Program-running bit
+M5580->X:$002440,0,1  ; CS5,  Program-running bit
+M5680->X:$002540,0,1  ; CS6,  Program-running bit
+M5780->X:$002640,0,1  ; CS7,  Program-running bit
+M5880->X:$002740,0,1  ; CS8,  Program-running bit
+M5980->X:$002840,0,1  ; CS9,  Program-running bit
+M6080->X:$002940,0,1  ; CS10, Program-running bit
+M6180->X:$002A40,0,1  ; CS11, Program-running bit
+M6280->X:$002B40,0,1  ; CS12, Program-running bit
+M6380->X:$002C40,0,1  ; CS13, Program-running bit
+M6480->X:$002D40,0,1  ; CS14, Program-running bit
+
+#define cs1_program_running     M5180
+#define cs2_program_running     M5280
+#define cs3_program_running     M5380
+#define cs4_program_running     M5480
+#define cs5_program_running     M5580
+#define cs6_program_running     M5680
+#define cs7_program_running     M5780
+#define cs8_program_running     M5880
+#define cs9_program_running     M5980
+#define cs10_program_running    M6080
+#define cs11_program_running    M6180
+#define cs12_program_running    M6280
+#define cs13_program_running    M6380
+#define cs14_program_running    M6480
+
+#define homing_started_prog1    P3301
+#define pos_soft_limit_mtr1     P3308
+#define neg_soft_limit_mtr1     P3309
+#define pos_soft_limit_mtr2     P3310
+#define neg_soft_limit_mtr2     P3311
+
+#define homing_started_prog2    P3401
+#define pos_soft_limit_mtr3     P3408
+#define neg_soft_limit_mtr3     P3409
+#define pos_soft_limit_mtr4     P3410
+#define neg_soft_limit_mtr4     P3411
+
+#define homing_started_prog3    P3501
+#define pos_soft_limit_mtr12    P3508
+#define neg_soft_limit_mtr12    P3509
+#define pos_soft_limit_mtr13    P3510
+#define neg_soft_limit_mtr13    P3511
+
+#define homing_started_prog4    P3601
+#define pos_soft_limit_mtr14    P3608
+#define neg_soft_limit_mtr14    P3609
+#define pos_soft_limit_mtr15    P3610
+#define neg_soft_limit_mtr15    P3611
+
+#define homing_started_prog5    P3701
+#define pos_soft_limit_mtr21    P3708
+#define neg_soft_limit_mtr21    P3709
+#define pos_soft_limit_mtr22    P3710
+#define neg_soft_limit_mtr22    P3711
+
+#define homing_started_prog6    P3801
+#define pos_soft_limit_mtr23    P3808
+#define neg_soft_limit_mtr23    P3809
+#define pos_soft_limit_mtr24    P3810
+#define neg_soft_limit_mtr24    P3811
+
+#define homing_started_prog7    P3901
+#define pos_soft_limit_mtr5     P3905
+#define neg_soft_limit_mtr5     P3906
+
+#define homing_started_prog8    P4001
+#define pos_soft_limit_mtr11    P4004
+#define neg_soft_limit_mtr11    P4005
+
+#define homing_started_prog9    P4101
+#define pos_soft_limit_mtr20    P4104
+#define neg_soft_limit_mtr20    P4105
+
+#define homing_started_prog10   P4201
+#define pos_soft_limit_mtr28    P4204
+#define neg_soft_limit_mtr28    P4205
+
+#define homing_started_prog11   P4301
+#define pos_soft_limit_mtr17    P4312
+#define neg_soft_limit_mtr17    P4313
+#define pos_soft_limit_mtr18    P4314
+#define neg_soft_limit_mtr18    P4315
+#define pos_soft_limit_mtr19    P4316
+#define neg_soft_limit_mtr19    P4317
+
+#define homing_started_prog12   P4401
+#define pos_soft_limit_mtr29    P4410
+#define neg_soft_limit_mtr29    P4411
+#define pos_soft_limit_mtr30    P4412
+#define neg_soft_limit_mtr30    P4413
+
+#define homing_started_prog13   P4501
+#define pos_soft_limit_mtr25    P4512
+#define neg_soft_limit_mtr25    P4513
+#define pos_soft_limit_mtr26    P4514
+#define neg_soft_limit_mtr26    P4515
+#define pos_soft_limit_mtr27    P4516
+#define neg_soft_limit_mtr27    P4517
+
+#define homing_started_prog14   P4601
+#define pos_soft_limit_mtr31    P4610
+#define neg_soft_limit_mtr31    P4611
+#define pos_soft_limit_mtr32    P4612
+#define neg_soft_limit_mtr32    P4613
+
+
+open plc 11
+clear
+
+;program 1, coordinate system 1: White Beam Slits, X-axes
+if( cs1_program_running = 0 and homing_started_prog1 = 1 )
+  I124 = $240001                ; Enable limits
+  I224 = $240001                ; Enable limits
+  I113 = pos_soft_limit_mtr1    ; Set positive soft limit
+  I114 = neg_soft_limit_mtr1    ; Set negative soft limit
+  I213 = pos_soft_limit_mtr2    ; Set positive soft limit
+  I214 = neg_soft_limit_mtr2    ; Set negative soft limit
+  homing_started_prog1 = 0
+endif
+
+;program 2, coordinate system 2: White Beam Slits, Y-axes
+if( cs2_program_running = 0 and homing_started_prog2 = 1 )
+  I324 = $240001                ; Enable limits
+  I424 = $240001                ; Enable limits
+  I313 = pos_soft_limit_mtr3    ; Set positive soft limit
+  I314 = neg_soft_limit_mtr3    ; Set negative soft limit
+  I413 = pos_soft_limit_mtr4    ; Set positive soft limit
+  I414 = neg_soft_limit_mtr4    ; Set negative soft limit
+  homing_started_prog2 = 0
+endif
+
+;program 3, coordinate system 3: pre-HFM Slits, X-axes
+if( cs3_program_running = 0 and homing_started_prog3 = 1 )
+  I1224 = $240001               ; Enable limits
+  I1324 = $240001               ; Enable limits
+  I1213 = pos_soft_limit_mtr12  ; Set positive soft limit
+  I1214 = neg_soft_limit_mtr12  ; Set negative soft limit
+  I1313 = pos_soft_limit_mtr13  ; Set positive soft limit
+  I1314 = neg_soft_limit_mtr13  ; Set negative soft limit
+  homing_started_prog3 = 0
+endif
+
+;program 4, coordinate system 4: pre-HFM Slits, Y-axes
+if( cs4_program_running = 0 and homing_started_prog4 = 1 )
+  I1424 = $240001               ; Enable limits
+  I1524 = $240001               ; Enable limits
+  I1413 = pos_soft_limit_mtr14  ; Set positive soft limit
+  I1414 = neg_soft_limit_mtr14  ; Set negative soft limit
+  I1513 = pos_soft_limit_mtr15  ; Set positive soft limit
+  I1514 = neg_soft_limit_mtr15  ; Set negative soft limit
+  homing_started_prog4 = 0
+endif
+
+;program 5, coordinate system 5: pre-VFM Slits, X-axes
+if( cs5_program_running = 0 and homing_started_prog5 = 1 )
+  I2124 = $240001               ; Enable limits
+  I2224 = $240001               ; Enable limits
+  I2113 = pos_soft_limit_mtr21  ; Set positive soft limit
+  I2114 = neg_soft_limit_mtr21  ; Set negative soft limit
+  I2213 = pos_soft_limit_mtr22  ; Set positive soft limit
+  I2214 = neg_soft_limit_mtr22  ; Set negative soft limit
+  homing_started_prog5 = 0
+endif
+
+;program 6, coordinate system 6: pre-VFM Slits, Y-axes
+if( cs6_program_running = 0 and homing_started_prog6 = 1 )
+  I2324 = $240001               ; Enable limits
+  I2424 = $240001               ; Enable limits
+  I2313 = pos_soft_limit_mtr23  ; Set positive soft limit
+  I2314 = neg_soft_limit_mtr23  ; Set negative soft limit
+  I2413 = pos_soft_limit_mtr24  ; Set positive soft limit
+  I2414 = neg_soft_limit_mtr24  ; Set negative soft limit
+  homing_started_prog6 = 0
+endif
+
+;program 7, coordinate system 7: Bragg
+if( cs7_program_running = 0 and homing_started_prog7 = 1 )
+  I524 = $240001                ; Enable limits
+  I513 = pos_soft_limit_mtr5    ; Set positive soft limit
+  I514 = neg_soft_limit_mtr5    ; Set negative soft limit
+  homing_started_prog7 = 0
+endif
+
+;program 8, coordinate system 8: pre-HFM QBPM
+if( cs8_program_running = 0 and homing_started_prog8 = 1 )
+  I1124 = $240001               ; Enable limits
+  I1113 = pos_soft_limit_mtr11  ; Set positive soft limit
+  I1114 = neg_soft_limit_mtr11  ; Set negative soft limit
+  homing_started_prog8 = 0
+endif
+
+;program 9, coordinate system 9: pre-VFM QBPM
+if( cs9_program_running = 0 and homing_started_prog9 = 1 )
+  I2024 = $240001               ; Enable limits
+  I2013 = pos_soft_limit_mtr20  ; Set positive soft limit
+  I2014 = neg_soft_limit_mtr20  ; Set negative soft limit
+  homing_started_prog9 = 0
+endif
+
+;program 10, coordinate system 10: post-VFM QBPM
+if( cs10_program_running = 0 and homing_started_prog10 = 1 )
+  I2824 = $240001               ; Enable limits
+  I2813 = pos_soft_limit_mtr28  ; Set positive soft limit
+  I2814 = neg_soft_limit_mtr28  ; Set negative soft limit
+  homing_started_prog10 = 0
+endif
+
+;program 11, coordinate system 11: HFM jacks
+if( cs11_program_running = 0 and homing_started_prog11 = 1 )
+  I1724 = $240001               ; Enable limits
+  I1824 = $240001               ; Enable limits
+  I1924 = $240001               ; Enable limits
+  I1713 = pos_soft_limit_mtr17  ; Set positive soft limit
+  I1714 = neg_soft_limit_mtr17  ; Set negative soft limit
+  I1813 = pos_soft_limit_mtr18  ; Set positive soft limit
+  I1814 = neg_soft_limit_mtr18  ; Set negative soft limit
+  I1913 = pos_soft_limit_mtr19  ; Set positive soft limit
+  I1914 = neg_soft_limit_mtr19  ; Set negative soft limit
+  homing_started_prog11 = 0
+endif
+
+;program 12, coordinate system 12: HFM translations
+; There are no limits to enable but kill the nano-motors after a failed home
+if( cs12_program_running = 0 and homing_started_prog12 = 1 )
+  I2913 = pos_soft_limit_mtr29  ; Set positive soft limit
+  I2914 = neg_soft_limit_mtr29  ; Set negative soft limit
+  I3013 = pos_soft_limit_mtr30  ; Set positive soft limit
+  I3014 = neg_soft_limit_mtr30  ; Set negative soft limit
+  cmd "#29k M2940=1"            ; Set the axis in-position bit after the kill
+  cmd "#30k M3040=1"            ; Set the axis in-position bit after the kill
+  cmd "enable plc 0"            ; Start nano-motor protection plc
+  homing_started_prog12 = 0
+endif
+
+;program 13, coordinate system 13: VFM jacks
+if( cs13_program_running = 0 and homing_started_prog13 = 1 )
+  I2524 = $240001               ; Enable limits
+  I2624 = $240001               ; Enable limits
+  I2724 = $240001               ; Enable limits
+  I2513 = pos_soft_limit_mtr25  ; Set positive soft limit
+  I2514 = neg_soft_limit_mtr25  ; Set negative soft limit
+  I2613 = pos_soft_limit_mtr26  ; Set positive soft limit
+  I2614 = neg_soft_limit_mtr26  ; Set negative soft limit
+  I2713 = pos_soft_limit_mtr27  ; Set positive soft limit
+  I2714 = neg_soft_limit_mtr27  ; Set negative soft limit
+  homing_started_prog13 = 0
+endif
+
+;program 14, coordinate system 14: VFM translations
+; There are no limits to enable but kill the nano-motors after a failed home
+if( cs14_program_running = 0 and homing_started_prog14 = 1 )
+  I3113 = pos_soft_limit_mtr31  ; Set positive soft limit
+  I3114 = neg_soft_limit_mtr31  ; Set negative soft limit
+  I3213 = pos_soft_limit_mtr32  ; Set positive soft limit
+  I3214 = neg_soft_limit_mtr32  ; Set negative soft limit
+  cmd "#31k M3140=1"            ; Set the axis in-position bit after the kill
+  cmd "#32k M3240=1"            ; Set the axis in-position bit after the kill
+  cmd "enable plc 0"            ; Start nano-motor protection plc
+  homing_started_prog14 = 0
+endif
+
+close
+enable plc 11

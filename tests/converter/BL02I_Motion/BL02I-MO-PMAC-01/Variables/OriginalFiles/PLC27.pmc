@@ -1,0 +1,157 @@
+;****************** PLC 27 Encoder Loss Detection ******************
+
+;PLC used for copying the bit indicating encoder loss from channel
+;registers to DPRAM
+;Encoder loss bit latches added by OD (GMH) 26/6/2006
+
+#define encoder_lost_mtr6               M689
+#define encoder_loss_reg_mtr6           M684
+#define encoder_loss_dpram_mtr6         M685
+
+#define encoder_lost_mtr8               M889
+#define encoder_loss_reg_mtr8           M884
+#define encoder_loss_dpram_mtr8         M885
+
+#define encoder_lost_mtr9               M989
+#define encoder_loss_reg_mtr9           M984
+#define encoder_loss_dpram_mtr9         M985
+
+#define encoder_lost_mtr10             M1089
+#define encoder_loss_reg_mtr10         M1084
+#define encoder_loss_dpram_mtr10       M1085
+
+OPEN PLC 27
+clear
+
+encoder_loss_dpram_mtr1  = encoder_loss_reg_mtr1
+encoder_loss_dpram_mtr2  = encoder_loss_reg_mtr2
+encoder_loss_dpram_mtr3  = encoder_loss_reg_mtr3
+encoder_loss_dpram_mtr4  = encoder_loss_reg_mtr4
+encoder_loss_dpram_mtr5  = encoder_loss_reg_mtr5
+encoder_loss_dpram_mtr6  = encoder_loss_reg_mtr6
+encoder_loss_dpram_mtr7  = encoder_loss_reg_mtr7
+encoder_loss_dpram_mtr8  = encoder_loss_reg_mtr8
+encoder_loss_dpram_mtr9  = encoder_loss_reg_mtr9
+encoder_loss_dpram_mtr10 = encoder_loss_reg_mtr10
+encoder_loss_dpram_mtr11 = encoder_loss_reg_mtr11
+encoder_loss_dpram_mtr12 = encoder_loss_reg_mtr12
+encoder_loss_dpram_mtr13 = encoder_loss_reg_mtr13
+encoder_loss_dpram_mtr14 = encoder_loss_reg_mtr14
+encoder_loss_dpram_mtr15 = encoder_loss_reg_mtr15
+encoder_loss_dpram_mtr16 = encoder_loss_reg_mtr16
+encoder_loss_dpram_mtr17 = encoder_loss_reg_mtr17
+encoder_loss_dpram_mtr18 = encoder_loss_reg_mtr18
+encoder_loss_dpram_mtr19 = encoder_loss_reg_mtr19
+encoder_loss_dpram_mtr20 = encoder_loss_reg_mtr20
+encoder_loss_dpram_mtr21 = encoder_loss_reg_mtr21
+encoder_loss_dpram_mtr22 = encoder_loss_reg_mtr22
+encoder_loss_dpram_mtr23 = encoder_loss_reg_mtr23
+encoder_loss_dpram_mtr24 = encoder_loss_reg_mtr24
+encoder_loss_dpram_mtr25 = encoder_loss_reg_mtr25
+encoder_loss_dpram_mtr26 = encoder_loss_reg_mtr26
+encoder_loss_dpram_mtr27 = encoder_loss_reg_mtr27
+encoder_loss_dpram_mtr28 = encoder_loss_reg_mtr28
+encoder_loss_dpram_mtr29 = encoder_loss_reg_mtr29
+encoder_loss_dpram_mtr30 = encoder_loss_reg_mtr30
+encoder_loss_dpram_mtr31 = encoder_loss_reg_mtr31
+encoder_loss_dpram_mtr32 = encoder_loss_reg_mtr32
+
+If (encoder_loss_dpram_mtr1 = 0 And encoder_lost_mtr1 = 0)
+	encoder_lost_mtr1 = 1
+EndIf
+If (encoder_loss_dpram_mtr2 = 0 And encoder_lost_mtr2 = 0)
+	encoder_lost_mtr2 = 1
+EndIf
+If (encoder_loss_dpram_mtr3 = 0 And encoder_lost_mtr3 = 0)
+	encoder_lost_mtr3 = 1
+EndIf
+If (encoder_loss_dpram_mtr4 = 0 And encoder_lost_mtr4 = 0)
+	encoder_lost_mtr4 = 1
+EndIf
+If (encoder_loss_dpram_mtr5 = 0 And encoder_lost_mtr5 = 0)
+	encoder_lost_mtr5 = 1
+EndIf
+If (encoder_loss_dpram_mtr6 = 0 And encoder_lost_mtr6 = 0)
+	encoder_lost_mtr6 = 1
+EndIf
+If (encoder_loss_dpram_mtr7 = 0 And encoder_lost_mtr7 = 0)
+	encoder_lost_mtr7 = 1
+EndIf
+If (encoder_loss_dpram_mtr8 = 0 And encoder_lost_mtr8 = 0)
+	encoder_lost_mtr8 = 1
+EndIf
+If (encoder_loss_dpram_mtr9 = 0 And encoder_lost_mtr9 = 0)
+	encoder_lost_mtr9 = 1
+EndIf
+If (encoder_loss_dpram_mtr10 = 0 And encoder_lost_mtr10 = 0)
+	encoder_lost_mtr10 = 1
+EndIf
+If (encoder_loss_dpram_mtr11 = 0 And encoder_lost_mtr11 = 0)
+	encoder_lost_mtr11 = 1
+EndIf
+If (encoder_loss_dpram_mtr12 = 0 And encoder_lost_mtr12 = 0)
+	encoder_lost_mtr12 = 1
+EndIf
+If (encoder_loss_dpram_mtr13 = 0 And encoder_lost_mtr13 = 0)
+	encoder_lost_mtr13 = 1
+EndIf
+If (encoder_loss_dpram_mtr14 = 0 And encoder_lost_mtr14 = 0)
+	encoder_lost_mtr14 = 1
+EndIf
+If (encoder_loss_dpram_mtr15 = 0 And encoder_lost_mtr15 = 0)
+	encoder_lost_mtr15 = 1
+EndIf
+If (encoder_loss_dpram_mtr16 = 0 And encoder_lost_mtr16 = 0)
+	encoder_lost_mtr16 = 1
+EndIf
+If (encoder_loss_dpram_mtr17 = 0 And encoder_lost_mtr17 = 0)
+	encoder_lost_mtr17 = 1
+EndIf
+If (encoder_loss_dpram_mtr18 = 0 And encoder_lost_mtr18 = 0)
+	encoder_lost_mtr18 = 1
+EndIf
+If (encoder_loss_dpram_mtr19 = 0 And encoder_lost_mtr19 = 0)
+	encoder_lost_mtr19 = 1
+EndIf
+If (encoder_loss_dpram_mtr20 = 0 And encoder_lost_mtr20 = 0)
+	encoder_lost_mtr20 = 1
+EndIf
+If (encoder_loss_dpram_mtr21 = 0 And encoder_lost_mtr21 = 0)
+	encoder_lost_mtr21 = 1
+EndIf
+If (encoder_loss_dpram_mtr22 = 0 And encoder_lost_mtr22 = 0)
+	encoder_lost_mtr22 = 1
+EndIf
+If (encoder_loss_dpram_mtr23 = 0 And encoder_lost_mtr23 = 0)
+	encoder_lost_mtr23 = 1
+EndIf
+If (encoder_loss_dpram_mtr24 = 0 And encoder_lost_mtr24 = 0)
+	encoder_lost_mtr24 = 1
+EndIf
+If (encoder_loss_dpram_mtr25 = 0 And encoder_lost_mtr25 = 0)
+	encoder_lost_mtr25 = 1
+EndIf
+If (encoder_loss_dpram_mtr26 = 0 And encoder_lost_mtr26 = 0)
+	encoder_lost_mtr26 = 1
+EndIf
+If (encoder_loss_dpram_mtr27 = 0 And encoder_lost_mtr27 = 0)
+	encoder_lost_mtr27 = 1
+EndIf
+If (encoder_loss_dpram_mtr28 = 0 And encoder_lost_mtr28 = 0)
+	encoder_lost_mtr28 = 1
+EndIf
+If (encoder_loss_dpram_mtr29 = 0 And encoder_lost_mtr29 = 0)
+	encoder_lost_mtr29 = 1
+EndIf
+If (encoder_loss_dpram_mtr30 = 0 And encoder_lost_mtr30 = 0)
+	encoder_lost_mtr30 = 1
+EndIf
+If (encoder_loss_dpram_mtr31 = 0 And encoder_lost_mtr31 = 0)
+	encoder_lost_mtr31 = 1
+EndIf
+If (encoder_loss_dpram_mtr32 = 0 And encoder_lost_mtr32 = 0)
+	encoder_lost_mtr32 = 1
+EndIf
+
+close
+enable plc 27

@@ -1,0 +1,184 @@
+;####################################################
+; DO NOT MODIFY: File created from src/PLC17_GONIO.psub
+;####################################################
+
+;Rationalised to reduce real time calcs and line length TPB 2/5/2019
+;and to add demands for Interferometer axis
+;and to add TILT
+END GATHER
+DELETE GATHER
+DELETE TRACE
+CLOSE
+
+;##############################################################################
+;
+; Control Y by the X Positions of the Bases of a Scissor Jack
+;
+; Original Author: James O'Hea
+
+; This Version Modified TPB. 28/1/2019 from James original in Motion area
+
+; Defined axes:
+;        X (Addr 7) = X in mm
+;        Y (Addr 8) = Y in mm
+;
+; Macros (and example values):
+;       COORD = 2       CS number (only works for CS 1..9), e.g. 2
+;       PLC = 17           PLC number, should be CS number+15, e.g. 17
+;       X1 = 3             Axis Number for Inboard X (X1), e.g. 1 
+;       X2 = 4             Axis Number for Outboard X (X2), e.g. 2 
+;
+;       LEG_LENGTH = 180   Length of jack leg in mm
+;       PLATFORM_WIDTH = 105 (Distance between top of leg ball joints) Width of top platform in mm
+;       E1 = 34   	     Width of Inboard X (X1) Base in mm
+;       E2 = 41   	     Width of Outboard X (X2) Base in mm
+;	   X_OFFSET = 27.5   X offset
+;	   Y_OFFSET = 30     Y offset
+;##############################################################################
+
+; Set trig calculations to be performed in degrees
+i15 = 0
+
+; Change to CS2
+&2
+; Set relevant axes to use kinematics
+;&2#2->20000Z  ;Lab 04 Axis
+&2#5->20000Z ;on VMXi
+&2#3->I
+&2#4->I
+;&2#10->X ;100000X
+;&2#11->Y ;100000Y
+;&2#12->Z ;100000Z
+
+; Define resolution, offset, and move flag variables
+; These are set by motor_in_cs.template (from spreadsheet)
+#define X1MOVE P(4700+3)
+#define X1MRES P(4800+3)
+#define X1OFF  P(4900+3)
+
+#define X2MOVE P(4700+4)
+#define X2MRES P(4800+4)
+#define X2OFF  P(4900+4)
+;NOTE  X1MRES and X2MRES = 0.00005  (And Z which is P4802)
+;use constants here....
+;#Define X1MRES 0.00005
+;#define X2MRES 0.00005
+;#Defien X1OFF 0
+;#Define X2OFF 0
+
+
+; Q1-9 Kinematic Positions (Temporary variables used in kinematic calculations by PMAC)
+
+; Q128-199 Forward Kinematic Temporary Variables
+; Q133 used
+
+; Q228-299 Inverse Kinematic Temporary Variables
+; Q232, Q233 used
+; Q235, Q236 used
+
+; Q20-70 EPICS Variables
+
+#define X1 P3       	; X1 Calculation
+#define X1_DVEL	P103	; X1 velocity calculation result
+#define X2 P4         ; X2 Calculation
+#define X2_DVEL	P104	; X2 velocity calculation result
+
+#define LEG_LENGTH  180 ; Length of jack leg in mm
+#define LLSquared  32400 ;pre calculate saves time and space
+
+#define PLAT_WIDTH 105   ; Width of top platform in mm
+#define E1 35	; Width of Inboard X Base in mm  X2
+#define E2 41.0  ; Width of Outboard X Base in mm X1
+#define X_OFFSET 27.5  
+#define Y_OFFSET 30.0  
+
+#define K1 29 ;Precalculate (-E1-E2+PLAT_WIDTH)
+#define K2 99 ;Precalcutae (E1-E2+PLAT_WIDTH)
+
+; Forward Kinematics - Calculate X,Y from X1, X2
+;called manually using &2PMATCH or at the start of R or S command
+#define X1POSf (X1MRES*X1+X1OFF)
+#define X2POSf (X2MRES*X2+X2OFF)
+#define Xq     Q7     ; Desired X
+#define XDT    Q17	  ; X Velocity from PVT statement
+#define Yq     Q8     ; Desired Y 
+#define YDT    Q18	  ; Y Velocity from PVT statement
+#define calcf  Q133   ; temporary result
+
+OPEN FORWARD
+CLEAR
+  calcf=(0.5 * (X2POSf - X1POSf + K2))
+  Xq = 0.5*(X1POSf + X2POSf + K1 - (2*X_OFFSET))
+  Yq = SQRT((LLSquared) - (calcf * calcf)) + Y_OFFSET
+CLOSE
+
+
+; Inverse Kinematics - Calculate X1 and X2 from X,Y
+
+#define X1POSi		Q232
+#define X2POSi		Q233
+#define Calci   Q234
+#define Calci2  Q235
+#define Calci3  Q236
+
+OPEN INVERSE
+CLEAR
+ 	
+ ; X1 and X2 calculated in mm's
+ Calci=(Yq-Y_OFFSET)
+ Calci2=SQRT(LLSquared - (Calci*Calci))
+ Calci3= Calci/Calci2*YDT
+ 
+ X1POSi = Xq + X_OFFSET - Calci2 + E1 
+ X2POSi = Xq - (PLAT_WIDTH - X_OFFSET) + Calci2 + E2
+
+ ; X1 and X2 calculated in motor counts
+ P3 = ((X1POSi - X1OFF) / X1MRES)
+ P4 = ((X2POSi - X2OFF) / X2MRES)
+	
+ ;X1 and X2 velocities in motor counts / second
+ X1_DVEL = (XDT/X1MRES) + (Calci3)/X1MRES
+ X2_DVEL = (XDT/X2MRES) - (Calci3)/X2MRES
+
+CLOSE
+
+; A PLC for position reporting
+#define Xc Q87     ; Desired X
+#define Yc Q88     ; Desired Y
+#define X1POSc	(X1MRES*(m362/(I308*32))+X1OFF)
+#define X2POSc	(X2MRES*(m462/(I408*32))+X2OFF)
+#define CalcPLC  p1700  ;temp value 
+#define Theta P1701  ;calculated leg angle used for tilt
+;#define Tilt P1702
+;#define TyScale P1703
+;#define TzScale P1704
+
+; scale for encoder tilt angle =100 counts at radius 130
+
+;TyScale=0.8
+;TzScale=51
+
+OPEN PLC 17
+CLEAR
+
+ ADDRESS&2
+  
+ Xc = 0.5*(X1POSc + X2POSc + K1 - 2 * X_OFFSET)
+ CalcPLC=(0.5 * (X2POSc-X1POSc + K2))
+ 
+ Yc = SQRT((LLSquared - (CalcPLC * CalcPLC)))+Y_OFFSET
+ Theta= ASIN(Yc/LEG_LENGTH)
+ ;Tilt=m962
+ 
+ ; If X1 or X2 motor records did the last move, set demands = readbacks
+ if (X1MOVE = 1)
+ or (X2MOVE = 1)
+     X1MOVE = 0
+     X2MOVE = 0
+     Q77 = Q87
+     Q78 = Q88
+ endif
+ 
+CLOSE
+
+ENABLE PLC17

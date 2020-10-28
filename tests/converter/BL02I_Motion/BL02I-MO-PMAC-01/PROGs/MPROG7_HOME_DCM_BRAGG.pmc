@@ -1,0 +1,69 @@
+;####################################################
+; DO NOT MODIFY: File created from /dls_sw/prod/R3.14.12.3/support/mxMasterConfig/2-81/data/MPROG7_HOME_DCM_BRAGG.pmc
+;####################################################
+
+; Motion Program 7, Coordinate System 7: DCM Bragg Homing routine
+
+; Uses the following P-Variables:
+
+; P3901 - Homing started
+; P3902 - Movement range of Motor 5
+; P3903 - Move back this far off limit (Motor 5)
+; P3904 - Home offset of Motor 5
+
+; The following P-Variables are used internally (not set by user):
+
+; P3905 - Store positive soft limit for Motor 5
+; P3906 - Store negative soft limit for Motor 5
+
+M545->Y:$0002C0,10,1 ; Motor 5, Home-complete bit
+
+#define home_complete_mtr5   M545
+
+#define homing_started_prog7 P3901
+#define pos_soft_limit_mtr5  P3905
+#define neg_soft_limit_mtr5  P3906
+
+;********** Setting P-Variables **********
+P3901 = 0
+P3902 = 6000000
+P3903 = 10000
+P3904 = -1540000
+;*****************************************
+
+; The following 3 lines were not in the original
+; initialization file but may be required? James O'Hea 06/01/11
+;CS7 - DCM Bragg
+ADDRESS &7
+cmd"#5->X"
+
+cmd"&7a"
+
+open prog 7
+clear
+
+homing_started_prog7=1                        ; This program has started
+I590=0                                        ; Use I522 for RAPID moves
+RAPID                                         ; Use RAPID moves
+ta(I520)                                      ; acc time
+ts(I521)                                      ; s-curve time
+f(I522)                                       ; feedrate (velocity)
+home_complete_mtr5=0                          ; set the home complete flag off
+cmd "ms8,mi912=2 ms8,mi913=2"                 ; capture -ve limit on rising edge of flag
+dwell 100                                     ; give the above cmd time to execute
+I524=$260001                                  ; disable +/- limits
+pos_soft_limit_mtr5 = I513                    ; Remember current positive limit
+neg_soft_limit_mtr5 = I514                    ; Remember current negative limit
+I513 = 0                                      ; Disable positive soft limit
+I514 = 0                                      ; Disable negative soft limit
+X(-P3902)^(P3903)                             ; Trigger move, looking for -ve limit with offset
+dwell 0                                       ; Make sure this move is not blended with next one
+I524=$240001                                  ; reenable +/-limits
+cmd "ms8,mi912=1 ms8,mi913=0"                 ; capture home on marker pulse
+dwell 100                                     ; give the above cmd time to execute
+X(P3902)^(P3904)                              ; Trigger move, looking for home switch with offset
+HOMEZ 5                                       ; Set this position to 0 counts
+I513 = pos_soft_limit_mtr5                    ; Set positive soft limit
+I514 = neg_soft_limit_mtr5                    ; Set negative soft limit
+homing_started_prog7=0                        ; This program has finished
+close

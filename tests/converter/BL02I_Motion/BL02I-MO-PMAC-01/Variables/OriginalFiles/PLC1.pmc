@@ -1,0 +1,267 @@
+;*****************************************************************************
+; this PLC is executed only at startup and then disables itself.
+; it is used for following tasks
+; - assigns the motors to their CS
+; - sets some Ivars and MACRO Ivars
+; - sets the latches for the PLCs to their initial value, preventing
+;   the PLCs to get stuck at the begining
+; - resets the homed bits for all motors.
+; - sets default parameters for energy move
+; - clears possible MACRO station faults
+; - initialise machine protection
+; - initialise nanomotor overheat protection
+; - and then enable the PLCs
+;*****************************************************************************
+
+#define MILLISECONDS 8388608/i10
+
+#define encoder_lost_mtr6               M689
+#define encoder_lost_mtr8               M889
+#define encoder_lost_mtr9               M989
+#define encoder_lost_mtr10             M1089
+
+#define home_complete_mtr10            M1044
+
+#define rapid_mode_speed_select_mtr10  I1090
+
+OPEN PLC 1
+clear
+
+;initialization plc, executed once at start up
+
+; Stop motor 10 (Perp motor)
+cmd"10o0"
+
+; disable all plc's to begin with
+disable plc 0..31
+
+cmd"UNDEFINE ALL" ; erase all CS definitions
+
+;clear possible Macro station faults
+cmd"msclrf0"
+cmd"msclrf32"
+
+;wait to allow encoder loss bits to be transfered from UMACs
+;Use the overheat timer - it's not being used because plcs disabled
+i6311 = 2000*MILLISECONDS
+While (i6311 > 0)
+EndWhile
+
+;CS1 - pre-DCM slits horizontal
+ADDRESS &1
+cmd"#1->X"
+cmd"#2->Y"
+
+;CS2 - pre-DCM slits vertical
+ADDRESS &2
+cmd"#3->X"
+cmd"#4->Y"
+
+;CS3 - pre-HFM slits horizontal
+ADDRESS &3
+cmd"#12->X"
+cmd"#13->Y"
+
+;CS4 - pre-HFM slits vertical
+ADDRESS &4
+cmd"#14->X"
+cmd"#15->Y"
+
+;CS5 - pre-VFM slits horizontal
+ADDRESS &5
+cmd"#21->X"
+cmd"#22->Y"
+
+;CS6 - pre-VFM slits vertical
+ADDRESS &6
+cmd"#23->X"
+cmd"#24->Y"
+
+;CS7 - DCM
+ADDRESS &7
+cmd"#5->X"
+cmd"#10->Y"
+cmd"#8->0"
+cmd"#9->0"
+
+;CS8 - pre HFM QBPM
+ADDRESS &8
+cmd"#11->X"
+
+;CS9 - pre VFM QBPM
+ADDRESS &9
+cmd"#20->X"
+
+;CS10 - post VFM QBPM
+ADDRESS &10
+cmd"#28->X"
+
+;CS11 - HFM jacks
+ADDRESS &11
+cmd"#17->X"
+cmd"#18->Y"
+cmd"#19->Z"
+
+;CS12 - HFM trans
+ADDRESS &12
+cmd"#29->X"
+cmd"#30->Y"
+
+;CS13 - VFM jacks
+ADDRESS &13
+cmd"#25->X"
+cmd"#26->Y"
+cmd"#27->Z"
+
+;CS14 - VFM trans
+ADDRESS &14
+cmd"#31->X"
+cmd"#32->Y"
+
+;set homed bits to 0 for all motors
+home_complete_mtr1  = 0 
+home_complete_mtr2  = 0
+home_complete_mtr3  = 0
+home_complete_mtr4  = 0 
+home_complete_mtr5  = 0
+home_complete_mtr10 = 0
+home_complete_mtr11 = 0
+home_complete_mtr12 = 0
+home_complete_mtr13 = 0
+home_complete_mtr14 = 0
+home_complete_mtr15 = 0
+home_complete_mtr17 = 0
+home_complete_mtr18 = 0
+home_complete_mtr19 = 0
+home_complete_mtr20 = 0
+home_complete_mtr21 = 0
+home_complete_mtr22 = 0
+home_complete_mtr23 = 0
+home_complete_mtr24 = 0
+home_complete_mtr25 = 0
+home_complete_mtr26 = 0
+home_complete_mtr27 = 0
+home_complete_mtr28 = 0
+home_complete_mtr29 = 0
+home_complete_mtr30 = 0
+home_complete_mtr31 = 0
+home_complete_mtr32 = 0
+
+; clear bragg homing status bit
+; This one is used to assign the bragg motor
+; back to the 7 CS
+Bragg_home_done = 0
+
+; Abort all coordinate system moves
+cmd"&1a"
+cmd"&2a"
+cmd"&3a"
+cmd"&4a"
+cmd"&5a"
+cmd"&6a"
+cmd"&7a"
+cmd"&8a"
+cmd"&9a"
+cmd"&10a"
+cmd"&11a"
+cmd"&13a"
+cmd"&15a"
+
+;Motor xx Rapid Mode Speed Select (set to 0 in order to use Ixx22 for speed while homing)
+rapid_mode_speed_select_mtr1=0
+rapid_mode_speed_select_mtr2=0
+rapid_mode_speed_select_mtr3=0
+rapid_mode_speed_select_mtr4=0
+rapid_mode_speed_select_mtr5=0
+rapid_mode_speed_select_mtr10=0
+rapid_mode_speed_select_mtr11=0
+rapid_mode_speed_select_mtr12=0
+rapid_mode_speed_select_mtr13=0
+rapid_mode_speed_select_mtr14=0
+rapid_mode_speed_select_mtr15=0
+rapid_mode_speed_select_mtr17=0
+rapid_mode_speed_select_mtr18=0
+rapid_mode_speed_select_mtr19=0
+rapid_mode_speed_select_mtr20=0
+rapid_mode_speed_select_mtr21=0
+rapid_mode_speed_select_mtr22=0
+rapid_mode_speed_select_mtr23=0
+rapid_mode_speed_select_mtr24=0
+rapid_mode_speed_select_mtr25=0
+rapid_mode_speed_select_mtr26=0
+rapid_mode_speed_select_mtr27=0
+rapid_mode_speed_select_mtr28=0
+rapid_mode_speed_select_mtr29=0
+rapid_mode_speed_select_mtr30=0
+rapid_mode_speed_select_mtr31=0
+rapid_mode_speed_select_mtr32=0
+
+;set CS time units to mseconds
+i5190=1	;CS1
+i5290=1	;CS2
+i5390=1	;CS3
+i5490=1	;CS4
+i5590=1	;CS5
+i5690=1	;CS6
+i5790=1	;CS7
+i5890=1	;CS8
+i5990=1	;CS9
+i6090=1	;CS10
+i6190=1	;CS11
+i6290=1	;CS12
+i6390=1	;CS13
+i6490=1	;CS14
+i6590=1 ;CS15
+
+encoder_lost_mtr1  = 0
+encoder_lost_mtr2  = 0
+encoder_lost_mtr3  = 0
+encoder_lost_mtr4  = 0
+encoder_lost_mtr5  = 0
+encoder_lost_mtr6  = 0
+encoder_lost_mtr7  = 0
+encoder_lost_mtr8  = 0
+encoder_lost_mtr9  = 0
+encoder_lost_mtr10 = 0
+encoder_lost_mtr11 = 0
+encoder_lost_mtr12 = 0
+encoder_lost_mtr13 = 0
+encoder_lost_mtr14 = 0
+encoder_lost_mtr15 = 0
+encoder_lost_mtr16 = 0
+encoder_lost_mtr17 = 0
+encoder_lost_mtr18 = 0
+encoder_lost_mtr19 = 0
+encoder_lost_mtr20 = 0
+encoder_lost_mtr21 = 0
+encoder_lost_mtr22 = 0
+encoder_lost_mtr23 = 0
+encoder_lost_mtr24 = 0
+encoder_lost_mtr25 = 0
+encoder_lost_mtr26 = 0
+encoder_lost_mtr27 = 0
+encoder_lost_mtr28 = 0
+encoder_lost_mtr29 = 0
+encoder_lost_mtr30 = 0
+encoder_lost_mtr31 = 0
+encoder_lost_mtr32 = 0
+
+; setup and enable nanomotor protection plc
+
+ENABLED_TIME         = 30                               ;seconds
+COOLING_TIME         = 240                              ;seconds
+SERVO_INTERRUPT_TIME = I10/(8388608 * 1000)             ;seconds
+PLC0_PERIOD          = (I8 + 1) * SERVO_INTERRUPT_TIME  ;seconds
+ENABLED_COUNTER      = INT( ENABLED_TIME/PLC0_PERIOD )
+COOLING_COUNTER      = INT( COOLING_TIME/PLC0_PERIOD )
+
+; Enable necessary plc's
+enable plc  0
+enable plc  5
+disable plc 6  ; This "homes" the Perp motor
+enable plc  9
+enable plc 11
+enable plc 27
+
+disable plc 1
+close

@@ -1,0 +1,90 @@
+;####################################################
+; DO NOT MODIFY: File created from /dls_sw/prod/R3.14.12.3/support/mxMasterConfig/2-81/data/MPROG4_HOME_PRE_HFM_SLITS_Y.pmc
+;####################################################
+
+; Motion Program 4, Coordinate System 4: Homing Routine for Pre-HFM Slits, Y axes
+
+; Uses the following P-Variables:
+
+; P3601 - Homing started
+; P3602 - Movement range of Motor 14
+; P3603 - Move back this far off limit (Motor 14)
+; P3604 - Home offset for Motor 14
+; P3605 - Movement range of Motor 15
+; P3606 - Move back this far off limit (Motor 15)
+; P3607 - Home offset for Motor 15
+
+; The following P-Variables are used internally (not set by user):
+
+; P3608 - Store positive soft limit for Motor 14
+; P3609 - Store negative soft limit for Motor 14
+; P3610 - Store positive soft limit for Motor 15
+; P3611 - Store negative soft limit for Motor 15
+
+M1445->Y:$000740,10,1 ; Motor 14, Home-complete bit
+M1545->Y:$0007C0,10,1 ; Motor 15, Home-complete bit
+
+#define home_complete_mtr14   M1445
+#define home_complete_mtr15   M1545
+
+#define homing_started_prog4  P3601
+#define pos_soft_limit_mtr14  P3608
+#define neg_soft_limit_mtr14  P3609
+#define pos_soft_limit_mtr15  P3610
+#define neg_soft_limit_mtr15  P3611
+
+;********** Setting P-Variables **********
+P3601 = 0
+P3602 = 42000
+P3603 = 1000
+P3604 = -5402
+P3605 = 42000
+P3606 = 1000
+P3607 = 14307
+;*****************************************
+
+;CS4 - pre-HFM slits vertical
+ADDRESS &4
+cmd"#14->X"
+cmd"#15->Y"
+
+cmd"&4a"
+
+open prog 4
+clear
+
+homing_started_prog4=1                                     ; This program has started
+I1490=0                                                    ; Use I1422 for RAPID moves
+I1590=0                                                    ; Use I1522 for RAPID moves
+RAPID                                                      ; Use RAPID moves
+ta(I1420)                                                  ; acc time
+ts(I1421)                                                  ; s-curve time
+f(I1422)                                                   ; feedrate (velocity)
+home_complete_mtr14=0                                      ; set the home complete flag off
+home_complete_mtr15=0                                      ; set the home complete flag off
+cmd "ms25,mi912=2 ms28,mi912=2 ms25,mi913=2 ms28,mi913=2"  ; capture -ve limit on rising edge of flag
+dwell 100                                                  ; give the above cmd time to execute
+I1424=$260001                                              ; disable +/- limits
+I1524=$260001                                              ; disable +/- limits
+pos_soft_limit_mtr14 = I1413                               ; Remember current positive limit
+neg_soft_limit_mtr14 = I1414                               ; Remember current negative limit
+pos_soft_limit_mtr15 = I1513                               ; Remember current positive limit
+neg_soft_limit_mtr15 = I1514                               ; Remember current negative limit
+I1413 = 0                                                  ; Disable positive soft limit
+I1414 = 0                                                  ; Disable negative soft limit
+I1513 = 0                                                  ; Disable positive soft limit
+I1514 = 0                                                  ; Disable negative soft limit
+X(-P3602)^(P3603) Y(-P3605)^(P3606)                        ; Trigger move, looking for -ve limit with offset
+dwell 0                                                    ; Make sure this move is not blended with next one
+I1424=$240001                                              ; reenable +/-limits
+I1524=$240001                                              ; reenable +/-limits
+cmd "ms25,mi912=1 ms28,mi912=1 ms25,mi913=0 ms28,mi913=0"  ; capture home on marker pulse
+dwell 100                                                  ; give the above cmd time to execute
+X(P3602)^(P3604) Y(P3605)^(P3607)                          ; Trigger move, looking for home switch with offset
+HOMEZ 14,15                                                ; Set this position to 0 counts
+I1413 = pos_soft_limit_mtr14                               ; Set positive soft limit
+I1414 = neg_soft_limit_mtr14                               ; Set negative soft limit
+I1513 = pos_soft_limit_mtr15                               ; Set positive soft limit
+I1514 = neg_soft_limit_mtr15                               ; Set negative soft limit
+homing_started_prog4=0                                     ; This program has finished
+close

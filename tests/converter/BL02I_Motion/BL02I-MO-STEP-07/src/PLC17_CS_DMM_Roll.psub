@@ -1,0 +1,8 @@
+substitute "COORD=2"
+substitute "PLC=17"
+substitute "J1=2"
+substitute "J2=3"
+substitute "DIST=240"
+substitute "PIVOT=120"
+substitute "DEPTH=0"
+include "CS_2jack.pmc"

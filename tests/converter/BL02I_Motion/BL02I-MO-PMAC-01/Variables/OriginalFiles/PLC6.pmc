@@ -1,0 +1,80 @@
+
+;****************** PLC 6 DCM Perp Motor Homing Routine ******************
+
+#define MILLISECONDS 8388608/i10
+
+#define position1_mtr10 P233
+#define position2_mtr10 P333
+#define in_position_bit_mtr10          M1040
+#define home_complete_mtr10            M1044
+#define commanded_position_mtr10       M1061
+#define actual_position_mtr10          M1062
+
+define MOVEMENT_RANGE_MTR10   50000
+#define HOME_OFFSET_MTR10 -935
+
+#define final_perp_pos  M4802
+M4802->F:$60F3A                 ; DCM perp position
+
+OPEN PLC 6
+
+clear
+M1034=1
+M1052=1                  ; add a bit to know how plc was stopped
+home_complete_mtr10 = 0
+
+cmd"#10o2"                                            ; 2% open loop move
+position1_mtr10 = commanded_position_mtr10/(I1008*32)
+i5111 = 1000*MILLISECONDS                             ; timer, allow some time to move
+while( i5111 > 0 )
+endwhile
+
+position2_mtr10 = commanded_position_mtr10/(I1008*32)
+
+while( position2_mtr10 !< position1_mtr10 )           ; until position is increasing, finishes on top
+  position1_mtr10 = position2_mtr10
+  i5111 = 1000*MILLISECONDS                           ; timer, checking every second
+  while( i5111 > 0 )
+  endwhile
+  position2_mtr10 = commanded_position_mtr10/(I1008*32)
+endwhile
+
+while( position2_mtr10 !> position1_mtr10 )           ; until position is decreasing, finishes at the bottom
+  position1_mtr10 = position2_mtr10
+  i5111 = 1000*MILLISECONDS; timer, timer, checking every second
+  while( i5111 > 0 )
+  endwhile
+  position2_mtr10 = commanded_position_mtr10/(I1008*32)
+endwhile
+
+cmd"#10k"                                             ; kill - stop open loop move
+
+i5111=10*MILLISECONDS                                 ; timer, allow some time to stop
+while( i5111 > 0 )
+endwhile
+
+cmd"#10j/"                                            ; close loop
+cmd"ms17,mi912=1"	                              ; capture on marker pulse
+cmd"ms17,mi913=0"	                              ; use home switch as a flag
+cmd"#10j:MOVEMENT_RANGE_MTR10^HOME_OFFSET_MTR10"      ; jog until trigger move
+
+i5111=10*MILLISECONDS                                 ; timer, allow some time to stop
+while( i5111 > 0 )
+endwhile
+
+while( in_position_bit_mtr10 = 0 )                    ; wait until in_position bit is set
+endwhile
+
+i5111=1000*MILLISECONDS                               ; timer, allow some time to stop
+while( i5111 > 0 )
+endwhile
+
+cmd"#10HMZ"
+
+home_complete_mtr10=1
+M1034=0
+M1052=0			                              ; homing completed by plc program
+final_perp_pos = INT(actual_position_mtr10/3072+0.5)  ; updating position into dpram
+
+disable plc 6
+close

@@ -1,0 +1,99 @@
+
+; Motion Program 7 - Homing Routine for Pre-VFM Slits: X Negative, X Positive
+
+#define homing_started_prog7            P407
+
+#define acc_time_var_mtr21             I2120
+#define s_curve_time_var_mtr21         I2121
+#define jog_speed_var_mtr21            I2122
+#define home_speed_var_mtr21           I2123
+#define flag_mode_control_mtr21        I2124
+#define rapid_mode_speed_select_mtr21  I2190
+#define trigger_mode_mtr21             I2197
+
+#define neg_limit_bit_mtr21            M2132
+#define amplifier_enabled_mtr21        M2139
+#define in_position_bit_mtr21          M2140
+#define home_complete_mtr21            M2144
+#define commanded_position_mtr21       M2161
+#define actual_position_mtr21          M2162
+#define DacOut_mtr21                   M2168
+#define encoder_capture_position_mtr21 M2173
+#define StartDeact_mtr21               M2182
+#define ElapsedDeact_mtr21             M2183
+#define encoder_loss_reg_mtr21         M2184
+#define encoder_loss_dpram_mtr21       M2185
+#define encoder_stall_mtr21            M2186
+#define Starttime_mtr21                M2187
+#define Elapsedtime_mtr21              M2188
+#define encoder_lost_mtr21             M2189
+
+#define acc_time_var_mtr22             I2220
+#define s_curve_time_var_mtr22         I2221
+#define jog_speed_var_mtr22            I2222
+#define home_speed_var_mtr22           I2223
+#define flag_mode_control_mtr22        I2224
+#define rapid_mode_speed_select_mtr22  I2290
+#define trigger_mode_mtr22             I2297
+
+#define neg_limit_bit_mtr22            M2232
+#define amplifier_enabled_mtr22        M2239
+#define in_position_bit_mtr22          M2240
+#define home_complete_mtr22            M2244
+#define commanded_position_mtr22       M2261
+#define actual_position_mtr22          M2262
+#define DacOut_mtr22                   M2268
+#define encoder_capture_position_mtr22 M2273
+#define StartDeact_mtr22               M2282
+#define ElapsedDeact_mtr22             M2283
+#define encoder_loss_reg_mtr22         M2284
+#define encoder_loss_dpram_mtr22       M2285
+#define encoder_stall_mtr22            M2286
+#define Starttime_mtr22                M2287
+#define Elapsedtime_mtr22              M2288
+#define encoder_lost_mtr22             M2289
+
+#define MOVEMENT_RANGE_MTR21   42000
+#define MOVEMENT_RANGE_MTR22   42000
+#define LIMIT_OFFSET_MTR21 1000
+#define LIMIT_OFFSET_MTR22 1000
+#define HOME_OFFSET_MTR21 15629
+#define HOME_OFFSET_MTR22 -5967
+
+open prog 7
+clear
+RAPID
+homing_started_prog7 =1
+ta(acc_time_var_mtr21)						  ; acc time
+ts(s_curve_time_var_mtr21)					  ; s-curve time
+f(jog_speed_var_mtr21)						  ; feedrate (velocity)
+home_complete_mtr21=0
+home_complete_mtr22=0
+cmd"ms40,mi912=2"	                                          ; capture home on rising edge of a flag
+cmd"ms41,mi912=2"	                                          ; capture home on rising edge of a flag
+cmd"ms40,mi913=2"	                                          ; use -limit as a flag
+cmd"ms41,mi913=2"	                                          ; use -limit as a flag
+flag_mode_control_mtr21=LIMITS_OFF		                  ; disable +/- limits
+flag_mode_control_mtr22=LIMITS_OFF		                  ; disable +/- limits
+dwell 10
+INC
+; Ending position should be as large as the whole motor move range to
+; ensure that -limit switch is found
+X(-MOVEMENT_RANGE_MTR21)^LIMIT_OFFSET_MTR21 Y(-MOVEMENT_RANGE_MTR22)^LIMIT_OFFSET_MTR22
+dwell 0
+flag_mode_control_mtr21=LIMITS_ON			          ; reenable +/-limits
+flag_mode_control_mtr22=LIMITS_ON			          ; reenable +/-limits
+cmd"ms40,mi912=1"	                                          ; capture on marker pulse
+cmd"ms41,mi912=1"	                                          ; capture on marker pulse
+cmd"ms40,mi913=0"	                                          ; use home switch as a flag
+cmd"ms41,mi913=0"	                                          ; use home switch as a flag
+dwell 10
+X(MOVEMENT_RANGE_MTR21)^HOME_OFFSET_MTR21 Y(MOVEMENT_RANGE_MTR22)^HOME_OFFSET_MTR22
+dwell 1000
+HOMEZ 21,22
+ABS
+dwell 0
+LINEAR
+home_complete_mtr21=1
+home_complete_mtr22=1
+close

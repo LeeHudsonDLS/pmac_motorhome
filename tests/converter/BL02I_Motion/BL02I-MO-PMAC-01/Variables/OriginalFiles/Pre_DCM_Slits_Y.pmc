@@ -1,0 +1,101 @@
+
+; Motion Program 4 - Homing Routine for Pre-DCM Slits: Y Negative, Y Positive
+
+#define homing_started_prog4            P404
+
+#define acc_time_var_mtr3               I320
+#define s_curve_time_var_mtr3           I321
+#define jog_speed_var_mtr3              I322
+#define home_speed_var_mtr3             I323
+#define flag_mode_control_mtr3          I324
+#define rapid_mode_speed_select_mtr3    I390
+#define trigger_mode_mtr3               I397
+
+#define neg_limit_bit_mtr3              M332
+#define amplifier_enabled_mtr3          M339
+#define in_position_bit_mtr3            M340
+#define home_complete_mtr3              M344
+#define commanded_position_mtr3         M361
+#define actual_position_mtr3            M362
+#define DacOut_mtr3                     M368
+#define encoder_capture_position_mtr3   M373
+#define StartDeact_mtr3                 M382
+#define ElapsedDeact_mtr3               M383
+#define encoder_loss_reg_mtr3           M384
+#define encoder_loss_dpram_mtr3         M385
+#define encoder_stall_mtr3              M386
+#define Starttime_mtr3                  M387
+#define Elapsedtime_mtr3                M388
+#define encoder_lost_mtr3               M389
+
+#define acc_time_var_mtr4               I420
+#define s_curve_time_var_mtr4           I421
+#define jog_speed_var_mtr4              I422
+#define home_speed_var_mtr4             I423
+#define flag_mode_control_mtr4          I424
+#define rapid_mode_speed_select_mtr4    I490
+#define trigger_mode_mtr4               I497
+
+#define neg_limit_bit_mtr4              M432
+#define amplifier_enabled_mtr4          M439
+#define in_position_bit_mtr4            M440
+#define home_complete_mtr4              M444
+#define commanded_position_mtr4         M461
+#define actual_position_mtr4            M462
+#define DacOut_mtr4                     M468
+#define encoder_capture_position_mtr4   M473
+#define StartDeact_mtr4                 M482
+#define ElapsedDeact_mtr4               M483
+#define encoder_loss_reg_mtr4           M484
+#define encoder_loss_dpram_mtr4         M485
+#define encoder_stall_mtr4              M486
+#define Starttime_mtr4                  M487
+#define Elapsedtime_mtr4                M488
+#define encoder_lost_mtr4               M489
+
+#define MOVEMENT_RANGE_MTR3    42000
+#define MOVEMENT_RANGE_MTR4    42000
+
+#define LIMIT_OFFSET_MTR3 1000
+#define LIMIT_OFFSET_MTR4 1000
+
+#define HOME_OFFSET_MTR3 -4671
+#define HOME_OFFSET_MTR4 14013
+
+open prog 4
+clear
+RAPID
+homing_started_prog4 = 1
+ta(acc_time_var_mtr3)                                              ; acc time
+ts(s_curve_time_var_mtr3)                                          ; s-curve time
+f(jog_speed_var_mtr3)                                              ; feedrate (velocity)
+home_complete_mtr3=0
+home_complete_mtr4=0
+cmd"ms4,mi912=2"	                                           ; capture home on rising edge of a flag
+cmd"ms5,mi912=2"	                                           ; capture home on rising edge of a flag
+cmd"ms4,mi913=2"	                                           ; use -limit as a flag
+cmd"ms5,mi913=2"	                                           ; use -limit as a flag
+flag_mode_control_mtr3=LIMITS_OFF		                   ; disable +/- limits
+flag_mode_control_mtr4=LIMITS_OFF		                   ; disable +/- limits
+dwell 10
+INC
+; Ending position should be as large as the whole motor move range to
+; ensure that -limit switch is found
+X(-MOVEMENT_RANGE_MTR3)^LIMIT_OFFSET_MTR3 Y(-MOVEMENT_RANGE_MTR4)^LIMIT_OFFSET_MTR4
+dwell 0
+flag_mode_control_mtr3=LIMITS_ON			          ; reenable +/-limits
+flag_mode_control_mtr4=LIMITS_ON			          ; reenable +/-limits
+cmd"ms4,mi912=1"	                                          ; capture on marker pulse
+cmd"ms5,mi912=1"	                                          ; capture on marker pulse
+cmd"ms4,mi913=0"	                                          ; use home switch as a flag
+cmd"ms5,mi913=0"	                                          ; use home switch as a flag
+dwell 10
+X(MOVEMENT_RANGE_MTR3)^HOME_OFFSET_MTR3 Y(MOVEMENT_RANGE_MTR4)^HOME_OFFSET_MTR4
+dwell 1000
+HOMEZ 3,4
+ABS
+dwell 0
+LINEAR
+home_complete_mtr3=1
+home_complete_mtr4=1
+close

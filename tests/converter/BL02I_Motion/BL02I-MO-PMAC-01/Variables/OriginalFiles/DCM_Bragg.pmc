@@ -1,0 +1,61 @@
+
+; Motion Program 1 - Homing Routine for DCM Bragg 
+
+#define homing_started_prog1            P401
+#define Bragg_home_done                 P418
+
+#define acc_time_var_mtr5               I520
+#define s_curve_time_var_mtr5           I521
+#define jog_speed_var_mtr5              I522
+#define home_speed_var_mtr5             I523
+#define flag_mode_control_mtr5          I524
+#define rapid_mode_speed_select_mtr5    I590
+#define trigger_mode_mtr5               I597
+
+#define neg_limit_bit_mtr5              M532
+#define amplifier_enabled_mtr5          M539
+#define in_position_bit_mtr5            M540
+#define home_complete_mtr5              M544
+#define commanded_position_mtr5         M561
+#define actual_position_mtr5            M562
+#define DacOut_mtr5                     M568
+#define StartDeact_mtr5                 M582
+#define ElapsedDeact_mtr5               M583
+#define Starttime_mtr5                  M587
+#define Elapsedtime_mtr5                M588
+
+#define MOVEMENT_RANGE_MTR5  6000000
+#define LIMIT_OFFSET_MTR5 10000
+#define HOME_OFFSET_MTR5 -1540000
+
+open prog 1
+clear
+RAPID
+homing_started_prog1=1
+ta(acc_time_var_mtr5)                                              ; acc time
+ts(s_curve_time_var_mtr5)                                          ; s-curve time
+f(jog_speed_var_mtr5)                                              ; feedrate (velocity)
+home_complete_mtr5=0
+cmd"ms8,mi912=2"                                                   ; capture home on rising edge of a flag
+cmd"ms8,mi913=2"                                                   ; use -limit as a flag
+flag_mode_control_mtr5=LIMITS_OFF                                  ; disable +/- limits
+dwell 10
+INC
+; Ending position should be as large as the whole motor move range to
+; ensure that -limit switch is found
+X(-MOVEMENT_RANGE_MTR5)^LIMIT_OFFSET_MTR5
+dwell 0
+flag_mode_control_mtr5=LIMITS_ON                                   ; reenable +/-limits
+cmd"ms8,mi912=1"                                                   ; capture on marker pulse
+cmd"ms8,mi913=0"                                                   ; use home switch as a flag
+dwell 10
+X(MOVEMENT_RANGE_MTR5)^HOME_OFFSET_MTR5                            ; move-until-trigger
+dwell 1000
+HOMEZ 5                                                            ; set current position to "home"
+ABS
+dwell 0
+LINEAR
+home_complete_mtr5   = 1
+Bragg_home_done      = 1
+homing_started_prog1 = 0
+close

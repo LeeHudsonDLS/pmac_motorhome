@@ -1,0 +1,417 @@
+CLOSE
+END GATHER
+DELETE GATHER
+DELETE TRACE
+;Phases and Homes Axis 3 and 4 For VMXi X1 and X2
+;Then positions to X and Y start positions.
+;PLC or Axis Specific definitions
+;Not all definitions etc listed below are used... but they may be 
+;Modified to use ixx01 to select phasing (if 0 then no phase needed)
+#define Axis3 3
+#define AxisBase3 300 ;this is axis number * 100 saves processor time
+#define Axis4 4
+#define AxisBase4 400 ;this is axis number * 100 saves processor time
+
+#define State P2300
+#define Debug P2301 ;0=normal 1=pause each state
+#define Store1 P2302 ;temp storage of values
+#define Store2 P2303
+#define Store3 P2304
+#define Store4 P2305
+#define Ramp P2306
+#define Counter P2307
+#define PLC7Store P2308
+#define MaxCurrent P2309
+
+#define TimedOut P2310
+#define JogSpeed P2311
+#define HomeSpeed P2312
+#define XHomePos P2315
+#define YHomePos P2316
+#define ZHomePos P2317
+
+;commands - not all are used
+;Axis #3  X1
+#define cmdKillAxis3 COMMAND "#3k"
+#define cmdOutZero3 COMMAND "#3o0"
+#define cmdHome3 COMMAND "#3hm" 
+#define cmdHMZ3 COMMAND "#3HMZ"
+#define cmdTrigPlus3 COMMAND "#3J:20000000^0"
+#define cmdTrigNeg3 COMMAND "#3J:-20000000^-2000000"
+#define cmdTweakBack3 COMMAND "#3j:-1600000"
+#define cmdTweak3 COMMAND "#3J:1600000"  
+#define cmdJMLIM3 COMMAND "#3J-"
+#define cmdJPLIM3 COMMAND "#3J+"
+#define cmdStop3 COMMAND "#3j/"
+#define cmdPhase3 Command "#3$"
+
+;Axis #4 X2
+#define cmdKillAxis4 COMMAND "#4k"
+#define cmdOutZero4 COMMAND "#4o0"
+#define cmdHome4 COMMAND "#4hm"
+#define cmdHMZ4 COMMAND "#4HMZ"
+#define cmdTrigPlus4 COMMAND "#4J:20000000^0"
+#define cmdTrigNeg4 COMMAND "#4J:-20000000^-2000000"
+#define cmdTweakBack4 COMMAND "#4j:-1600000"
+#define cmdTweak4 COMMAND "#4J:1600000"  
+#define cmdJMLIM4 COMMAND "#4J-"
+#define cmdJPLIM4 COMMAND "#4J+"
+#define cmdStop4 COMMAND "#4j/"
+#define cmdPhase4 COMMAND "#4$"
+
+;Both Axis X1 and X2
+;X2 has been reversed was =-1600000
+#define cmdZStart Command "#3j=-1600000 #4j=1600000"
+#define cmdPhaseBoth COMMAND "#3$ #4$"
+#define cmdNoLimits COMMAND "I343,2,100=$3558"
+#define cmdResLimits COMMAND "I343,2,100=$0"
+
+#define cmdclrf COMMAND "clrf"
+
+; timer
+#define Timer i6212  ;timer reserved for PLC23
+#define millisec 8388608/i10 ;max is 1,600,000 mS aprox. 
+
+;I Vars definitions axis 3
+#define iComEnable3 I(AxisBase3+1)
+#define iSWPLIM3 I(AxisBase3+13)
+#define iSWMLIM3 I(AxisBase3+14)
+#define iJog3 I(AxisBase3+22)
+#define iHome3 I(AxisBase3+23)
+#define iMaxOutput3 I(AxisBase3+69)
+#define iOffset13 I(AxisBase3+29)
+#define iOffset23 I(AxisBase3+79)
+#define iPhaseMode3 I(AxisBase3+80)
+#define iPhaseOffset3 I(AxisBase3+75)
+#define mPhasePos3 M(AxisBase3+71)
+
+;I Vars definitions axis 4
+#define iComEnable4 I(AxisBase4+1)
+#define iSWPLIM4 I(AxisBase4+13)
+#define iSWMLIM4 I(AxisBase4+14)
+#define iJog4 I(AxisBase4+22)
+#define iHome4 I(AxisBase4+23)
+#define iMaxOutput4 I(AxisBase4+69)
+#define iOffset14 I(AxisBase4+29)
+#define iOffset24 I(AxisBase4+79)
+#define iPhaseMode4 I(AxisBase4+80)
+#define iPhaseOffset4 I(AxisBase4+75)
+#define mPhasePos4 M(AxisBase4+71)
+
+;Flags
+;Global
+#define Halls3 M(HallBase3+28)
+#define Enabled3 M(AxisBase3+39)
+#define fZeroVel3 M(AxisBase3+33)
+#define fInPos3 M(AxisBase3+40)
+#define AENx3 M(AxisBase3+14)
+#define fFE3 M(AxisBase3+42)
+#define fAmpFault3 M(AxisBase3+43)
+#define fI2t3 M(AxisBase3+47)
+#define fPhaseError3 M(AxisBase3+48)
+#define fPhaseSearch3 M(AxisBase3+49)
+#define fEncoderOK3 M(AxisBase3+84)
+#define fHomeOK3 M(AxisBase3+45)
+#define MNodeOK3 M(AxisBase3+55) ;1 = OK
+#define ActEncPos3 M(AxisBase3+62) ; Actual Position /32/ixx08
+
+#define Halls4 M(HallBase4+28)
+#define Enabled4 M(AxisBase4+39)
+#define fZeroVel4 M(AxisBase4+33)
+#define fInPos4 M(AxisBase4+40)
+#define AENx4 M(AxisBase4+14)
+#define fFE4 M(AxisBase4+42)
+#define fAmpFault4 M(AxisBase4+43)
+#define fI2t4 M(AxisBase4+47)
+#define fPhaseError4 M(AxisBase4+48)
+#define fPhaseSearch4 M(AxisBase4+49)
+#define fEncoderOK4 M(AxisBase4+84)
+#define fHomeOK4 M(AxisBase4+45)
+#define MNodeOK4 M(AxisBase4+55) ;1 = OK
+#define ActEncPos4 M(AxisBase4+62) ; Actual Position /32/ixx08
+
+;diagnostic encoder channels X, Y, Z Absolute #9, #10, #11
+#define ActEncPosX M(1062) ; Actual Position /32/ixx08
+#define ActEncPosY M(1162) ; Actual Position /32/ixx08
+#define ActEncPosZ M(1262) ; Actual Position /32/ixx08
+
+#define PLC7State M5007  ;0 = running 1 = disabled
+
+;Inputs
+
+#define MSTOP M7647 ; Motion Stop input 0 = stop 1 = OK
+#define HWPLIM3 M321  ;0 off limit = 1 = on limit H/W 
+#define HWMLIM3 M322
+#define HWPLIM4 M421  ;0 off limit = 1 = on limit H/W 
+#define HWMLIM4 M422
+
+
+;Outputs
+
+; define clock resolution in milliseconds
+#define Ticks 20   ;time check every 20mS - max 100
+
+;Defaults (only set when PLC is loaded)
+XHomePos=2422146784
+YHomePos=5809114432
+ZHomePos=1181011264
+
+OPEN PLC 23 CLEAR
+
+State=0  ;phasing State
+
+PLC7Store=PLC7State
+Disable PLC7 ;stop PLC7
+fPhaseError3=0
+fPhaseError4=0
+iPhaseMode3=2
+iPhaseMode4=2
+TimedOut=0
+JogSpeed=iJog3  ;remember
+iJog3=ABS(iHome3) ;set a new value (home speed)
+iJog4=iJog3
+;save S/W Limit settings
+Store1=iSWPLIM3
+Store2=iSWMLIM3
+Store3=iSWPLIM4
+Store4=iSWMLIM4
+
+;ready to rock and roll?
+  
+;Tonic encoder only in this version
+ 
+ cmdKillAxis3 ;stop anything and wait 1 sec
+ cmdKillAxis4
+ Timer=1000*millisec
+ WHILE(Timer>0)
+ END WHILE
+
+ 
+ cmdHMZ3
+ cmdHMZ4
+ cmdNoLimits ;no hardware limits to get in the way
+ Counter=0
+ 
+ ;Simple 1 step phasing in this version
+ State=1
+ fPhaseError3=0   ; reset Ph error bit
+ fPhaseError4=0
+ 
+ IF(iComEnable3>0)  ;commutation enabled - assume both
+  cmdPhaseBoth
+
+  Timer=2000*millisec ;wait 2 sec
+  WHILE(Timer>0)
+  END WHILE
+  Timer=120*1000*millisec
+  WHILE(fZeroVel3=0)
+   AND(Timer>0)
+   OR(fPhaseSearch3=1)
+   OR(fPhaseSearch4=1)
+  END WHILE
+  IF(fPhaseError3=1)
+   OR(fPhaseError4=1)
+   State=999
+   TimedOut=1
+  endif
+ endif
+  
+ cmdResLimits   ;restore H/W limits
+ State=11
+ ;for diagnostics --- Pause
+  While(State=11)
+   AND (Debug>0) ;you may continue set state = 2
+  End While 
+ 
+
+;jog axis other axis moves opposite direction
+;jog negative so that Frame does not hit mirror if its set wrong
+  State=2
+  IF(TimedOut=0)
+   AND(fFE3=0)
+   AND(fFE4=0)
+   iSWPLIM3=0 ;disable sw limits
+   iSWMLIM3=0
+   iSWPLIM4=0
+   iSWMLIM4=0
+
+   cmdJMLIM3 ;Jog to MLIM(does'nt need to reach it)
+   ;cmdJPLIM4 ;jog axis 4 to PLIM --- reversed X2 
+   cmdJMLIM4 ;jog axis 4 to MLIM 
+   Timer=500*millisec ;wait 1/2 sec
+   WHILE(Timer>0)
+   END WHILE
+   Timer=120*1000*millisec
+   WHILE(fZeroVel4=0)
+    AND(Timer>0)
+    OR(fFE3=1)
+    OR(fFE4=1)
+   END WHILE
+   WHILE(fInPos4=0)
+    AND(Timer>0)
+    OR(fFE4=1)
+   END WHILE
+   IF(Timer<1)
+    OR(fFE4>0)
+    TimedOut=1
+   ENDIF 
+  ENDIF
+  cmdStop3  ;in case its still moving
+  
+  State=22
+ ;for diagnostics --- Pause
+  While(State=22)
+   AND (Debug>0) ;you may continue set state = 3
+  End While 
+ 
+  State=3   ;home X2 home i423 was -100 now 100
+  IF(TimedOut=0)
+   AND(fFE3=0)
+   AND(fFE4=0)
+   cmdHome4 ;now Home in negative direction 
+   Timer=1000*millisec ;wait 1 sec
+   WHILE(Timer>0)
+   END WHILE
+   Timer=120*1000*millisec
+   WHILE(fZeroVel4=0)
+    AND(Timer>0)
+    OR(fFE3=1)
+    OR(fFE4=1)
+   END WHILE
+   WHILE(fInPos4=0)
+    AND(Timer>0)
+    OR(fFE3=1)
+    OR(fFE4=1)
+   END WHILE
+   WHILE(fHomeOK4=0)
+    AND(Timer>0)
+    OR(fFE3=1)
+    OR(fFE4=1)
+   END WHILE
+   IF(Timer<1)
+    OR(fFE3>0)
+    OR(fFE4>0)
+    TimedOut=1
+   ENDIF
+   If(iPhaseOffset4!=0)
+    AND(TimedOut=0)
+    ;sometimes the Phase offset appears to change so do not use if 0
+    COMMAND "Setphase4" ;phase offset at home is i475
+   endif 
+  ENDIF
+
+  State=33
+  ;for diagnostics --- Pause
+   While(State=33)
+    AND (Debug>0) ;you may continue set state = 4
+   End While 
+
+  State=4   ;Home X1
+  IF(TimedOut=0)
+   AND(fFE3=0)
+   AND(fFE4=0)
+   cmdTweak4 ;jog axis 4 to Safe Position (to avoid mirror)
+;   cmdTweakBack4 ;jog axis 4 to Safe Position - X2 reversed
+   cmdHome3 ;now Home in positive direction 
+   Timer=500*millisec ;wait 1/2 sec
+   WHILE(Timer>0)
+   END WHILE
+   Timer=120*1000*millisec
+   WHILE(fZeroVel3=0)
+    AND(Timer>0)
+    OR(fFE3=1)
+    OR(fFE4=1)
+   END WHILE
+   WHILE(fInPos3=0)
+    AND(Timer>0)
+    OR(fFE3=1)
+    OR(fFE4=1)
+   END WHILE
+   WHILE(fHomeOK3=0)
+    AND(Timer>0)
+    OR(fFE3=1)
+    OR(fFE4=1)
+   END WHILE
+   IF(Timer<1)
+    OR(fFE3>0)
+    OR(fFE4>0)
+    TimedOut=1
+   ENDIF 
+   If(iPhaseOffset3!=0)
+    AND(TimedOut=0)
+    ;sometimes the Phase offset appears to change so do not use if 0
+    COMMAND "Setphase3" ;phase offset at home is i375
+   endif
+   cmdStop4  ;in case its still moving
+   
+  ENDIF
+
+  State=44
+  ;for diagnostics --- Pause
+  While(State=44)
+   AND (Debug>0) ;you may continue set state = 5
+  End While
+ 
+  State=5   ;Wait for complete
+  IF(TimedOut=0)
+   AND(fFE3=0)
+   AND(fFE4=0)
+   cmdZStart  ;move X1 and X2 to start position
+   Timer=500*millisec ;wait 1/2 sec
+   WHILE(Timer>0)
+   END WHILE
+   Timer=120*1000*millisec
+   WHILE(fZeroVel3=0)
+    OR(fZeroVel4=0)
+    OR(fFE3=1)
+    OR(fFE4=1)
+    AND(Timer>0)
+   END WHILE
+   WHILE(fInPos3=0)
+    OR(fInPos4=0)
+    OR(fFE3=1)
+    OR(fFE4=1)
+    AND(Timer>0)
+   END WHILE
+   IF(Timer<1)
+    OR(fFE3>0)
+    OR(fFE4>0)
+    TimedOut=1
+   ENDIF 
+  ENDIF
+
+  State=55
+  ;for diagnostics --- Pause
+  While(State=55)
+   AND (Debug>0) ;you may continue set state = 5
+  End While 
+ 
+ State=6 
+ Timer=1000*millisec ;wait 1sec
+ WHILE(Timer>0)
+ END WHILE
+
+ IF(TimedOut=0)
+   State=0 ;state reset to indicate success otherwise indicates state fault
+ ENDIF
+ ActEncPosX=XHomePos
+ ActEncPosY=YHomePos
+ ActEncPosZ=ZHomePos
+  ; for debug
+ M1462=0
+ M1562=0
+ M1662=0
+
+ iSWPLIM3=Store1 ;restore sw limits
+ iSWMLIM3=Store2
+ iSWPLIM4=Store3
+ iSWMLIM4=Store4 
+ iJog3=JogSpeed
+ iJog4=JogSpeed
+ 
+ DISABLE PLC23
+ If(PLC7Store=0) ;was enabled
+  enable PLC7
+ END IF
+CLOSE
+

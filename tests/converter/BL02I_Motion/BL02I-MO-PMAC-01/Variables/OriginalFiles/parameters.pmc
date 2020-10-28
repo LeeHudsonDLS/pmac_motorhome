@@ -1,0 +1,213 @@
+; P-variable used in the I02 Optics Hutch PMAC card
+; -------------------------------------------------
+
+; Motion Programs - used for homing
+; ---------------------------------
+
+; White Beam Slits, X axes, motors 1 & 2, motion program 1, coordinate system 1
+; -----------------------------------------------------------------------------
+P3301 =     0 ; Homing started
+P3302 = 42000 ; Movement range               (motor 1)
+P3303 =  1000 ; Move back this far off limit (motor 1)
+P3304 = 13225 ; Home offset                  (motor 1)
+P3305 = 42000 ; Movement range               (motor 2)
+P3306 =  1000 ; Move back this far off limit (motor 2)
+P3307 = -5265 ; Home offset                  (motor 2)
+; P3308 - P3311 are used internally to store soft limits
+
+; White Beam Slits, Y axes, motors 3 & 4, motion program 2, coordinate system 2
+; -----------------------------------------------------------------------------
+P3401 =     0 ; Homing started
+P3402 = 42000 ; Movement range               (motor 3)
+P3403 =  1000 ; Move back this far off limit (motor 3)
+P3404 = -4671 ; Home offset                  (motor 3)
+P3405 = 42000 ; Movement range               (motor 4)
+P3406 =  1000 ; Move back this far off limit (motor 4)
+P3407 = 14013 ; Home offset                  (motor 4)
+; P3408 - P3411 are used internally to store soft limits
+
+; Pre-HFM Slits, X axes, motors 12 & 13, motion program 3, coordinate system 3
+; ----------------------------------------------------------------------------
+P3501 =     0 ; Homing started
+P3502 = 42000 ; Movement range               (motor 12)
+P3503 =  1000 ; Move back this far off limit (motor 12)
+P3504 = 13683 ; Home offset                  (motor 12)
+P3505 = 42000 ; Movement range               (motor 13)
+P3506 =  1000 ; Move back this far off limit (motor 13)
+P3507 = -6029 ; Home offset                  (motor 13)
+; P3508 - P3511 are used internally to store soft limits
+
+; Pre-HFM Slits, Y axes, motors 14 & 15, motion program 4, coordinate system 4
+; ----------------------------------------------------------------------------
+P3601 =     0 ; Homing started
+P3602 = 42000 ; Movement range               (motor 14)
+P3603 =  1000 ; Move back this far off limit (motor 14)
+P3604 = -5402 ; Home offset                  (motor 14)
+P3605 = 42000 ; Movement range               (motor 15)
+P3606 =  1000 ; Move back this far off limit (motor 15)
+P3607 = 14307 ; Home offset                  (motor 15)
+; P3608 - P3611 are used internally to store soft limits
+
+; Pre-VFM Slits, X axes, motors 21 & 22, motion program 5, coordinate system 5
+; ----------------------------------------------------------------------------
+P3701 =     0 ; Homing started
+P3702 = 42000 ; Movement range               (motor 21)
+P3703 =  1000 ; Move back this far off limit (motor 21)
+P3704 = 15629 ; Home offset                  (motor 21)
+P3705 = 42000 ; Movement range               (motor 22)
+P3706 =  1000 ; Move back this far off limit (motor 22)
+P3707 = -5967 ; Home offset                  (motor 22)
+; P3708 - P3711 are used internally to store soft limits
+
+; Pre-VFM Slits, Y axes, motors 23 & 24, motion program 6, coordinate system 6
+; ----------------------------------------------------------------------------
+P3801 =     0 ; Homing started
+P3802 = 42000 ; Movement range               (motor 23)
+P3803 =  1000 ; Move back this far off limit (motor 23)
+P3804 = -6005 ; Home offset                  (motor 23)
+P3805 = 42000 ; Movement range               (motor 24)
+P3806 =  1000 ; Move back this far off limit (motor 24)
+P3807 = 13890 ; Home offset                  (motor 24)
+; P3808 - P3811 are used internally to store soft limits
+
+; DCM Bragg, motor 5, motion program 7, coordinate system 7
+; ---------------------------------------------------------
+P3901 =        0 ; Homing started
+P3902 =  6000000 ; Movement range               (motor 5)
+P3903 =    10000 ; Move back this far off limit (motor 5)
+P3904 = -1540000 ; Home offset                  (motor 5)
+; P3905 - P3906 are used internally to store soft limits
+
+; pre-HFM QBPM, motor 11, motion program 8, coordinate system 8
+; -------------------------------------------------------------
+P4001 =     0 ; Homing started
+P4002 = 17100 ; Movement range               (motor 11)
+P4003 =  -400 ; Home offset                  (motor 11)
+; P4004 - P4005 are used internally to store soft limits
+
+; pre-VFM QBPM, motor 20, motion program 9, coordinate system 9
+; -------------------------------------------------------------
+P4101 =     0 ; Homing started
+P4102 = 17100 ; Movement range               (motor 20)
+P4103 =  -400 ; Home offset                  (motor 20)
+; P4104 - P4105 are used internally to store soft limits
+
+; post-VFM QBPM, motor 28, motion program 10, coordinate system 10
+; ----------------------------------------------------------------
+P4201 =     0 ; Homing started
+P4202 = 17100 ; Movement range               (motor 28)
+P4203 =  -400 ; Home offset                  (motor 28)
+; P4204 - P4205 are used internally to store soft limits
+
+; HFM jacks, motors 17, 18 & 19, motion program 11, coordinate system 11
+; ----------------------------------------------------------------------
+P4301 =      0 ; Homing started
+P4302 = 950000 ; Movement range               (motor 17)
+P4303 =    -50 ; Move back this far off limit (motor 17)
+P4304 = 201464 ; Home offset                  (motor 17)
+P4305 = 950000 ; Movement range               (motor 18)
+P4306 =    -50 ; Move back this far off limit (motor 18)
+P4307 = 207312 ; Home offset                  (motor 18)
+P4308 = 950000 ; Movement range               (motor 19)
+P4309 =    -50 ; Move back this far off limit (motor 19)
+P4310 = 199359 ; Home offset                  (motor 19)
+P4311 =  40000 ; Roll limit correction        (motors 18 & 19)
+; P4312 - P4317 are used internally to store soft limits
+
+; HFM Translations, motors 29 & 30, motion program 12, coordinate system 12
+; -------------------------------------------------------------------------
+P4401 =       0 ; Homing started
+P4402 = 1440000 ; Movement range               (motor 29)
+P4403 =   10000 ; Move back this far off limit (motor 29)
+P4404 =  -42008 ; Home offset                  (motor 29)
+P4405 =   16000 ; Warning following error      (motor 29)
+P4406 = 1440000 ; Movement range               (motor 30)
+P4407 =   10000 ; Move back this far off limit (motor 30)
+P4408 =  172593 ; Home offset                  (motor 30)
+P4409 =   16000 ; Warning following error      (motor 30)
+; P4410 - P4413 are used internally to store soft limits
+
+; VFM jacks, motors 25, 26 & 27, motion program 13, coordinate system 13
+; ----------------------------------------------------------------------
+P4501 =      0 ; Homing started
+P4502 = 950000 ; Movement range               (motor 25)
+P4503 =    -50 ; Move back this far off limit (motor 25)
+P4504 = 203291 ; Home offset                  (motor 25)
+P4505 = 950000 ; Movement range               (motor 26)
+P4506 =    -50 ; Move back this far off limit (motor 26)
+P4507 = 104789 ; Home offset                  (motor 26)
+P4508 = 950000 ; Movement range               (motor 27)
+P4509 =    -50 ; Move back this far off limit (motor 27)
+P4510 = 193195 ; Home offset                  (motor 27)
+P4511 =  40000 ; Roll limit correction        (motors 26 & 27)
+; P4512 - P4517 are used internally to store soft limits
+
+; VFM Translations, motors 31 & 32, motion program 14, coordinate system 14
+; -------------------------------------------------------------------------
+P4601 =       0 ; Homing started
+P4602 = 1440000 ; Movement range               (motor 31)
+P4603 =   10000 ; Move back this far off limit (motor 31)
+P4604 =  -99721 ; Home offset                  (motor 31)
+P4605 =   16000 ; Warning following error      (motor 31)
+P4606 = 1440000 ; Movement range               (motor 32)
+P4607 =   10000 ; Move back this far off limit (motor 32)
+P4608 =   97086 ; Home offset                  (motor 32)
+P4609 =   16000 ; Warning following error      (motor 32)
+; P4610 - P4613 are used internally to store soft limits
+
+
+; PLC's
+; -----
+; We follow the Diamond convention for numbering of P-variables in PLC's
+
+; PLC 0 - Mirror nano-motors overheat protection
+; ----------------------------------------------
+P1  =  60 ; Enabled time (sec)
+P2  = 240 ; Cooling time (sec)
+P3  =   0 ; Current State of motor 29 (0 = CAN_MOVE, 1 = COOLING)
+P4  =   0 ; Current State of motor 30 (0 = CAN_MOVE, 1 = COOLING)
+P5  =   0 ; Current State of motor 31 (0 = CAN_MOVE, 1 = COOLING)
+P6  =   0 ; Current State of motor 32 (0 = CAN_MOVE, 1 = COOLING)
+; P7 - P10 are used internally by PLC 0
+P11 =   0 ; Enabled counter for motor 29
+P12 =   0 ; Enabled counter for motor 30
+P13 =   0 ; Enabled counter for motor 31
+P14 =   0 ; Enabled counter for motor 32
+P15 =   0 ; Cooling counter for motor 29
+P16 =   0 ; Cooling counter for motor 30
+P17 =   0 ; Cooling counter for motor 31
+P18 =   0 ; Cooling counter for motor 32
+
+; PLC 10 - Initialisation - uses no P-variables
+; PLC 11 - Housekeeping   - uses same P-variables as motion programs above
+; PLC 12 - Perp, pitch and mirror nano-motors disable - uses no P-variables
+
+; PLC 13 - DCM Pitch, motor 8, homing routine
+; -------------------------------------------
+; P1300 - Homing State  (interface to autohome.template - pmacUtils)
+; P1301 - Homing Status (interface to autohome.template - pmacUtils)
+; P1302 - Homing Group  (interface to autohome.template - pmacUtils)
+; P1303 - To hold current positive limit
+; P1304 - To hold current negative limit
+P1305 = 0.1 ; Homing velocity (cnts/msec)
+
+; PLC 14 - DCM Roll, motor 9, homing routine
+; ------------------------------------------
+; P1400 - Homing State  (interface to autohome.template - pmacUtils)
+; P1401 - Homing Status (interface to autohome.template - pmacUtils)
+; P1402 - Homing Group  (interface to autohome.template - pmacUtils)
+; P1403 - To hold current positive limit
+; P1404 - To hold current negative limit
+P1405 = 0.1 ; Homing velocity (cnts/msec)
+
+; PLC 15 - DCM Perp, motor 10, homing routine
+; -------------------------------------------
+;Encoding value for I65
+;{'domain': 0, 'PMAC-number': 1, 'sub-domain': 2, 'A1': 0, 'A0': 0, 'version': 1, 'A2': 0}
+;I65 = 8449 (0x2101)
+I65   = $2101
+P1501 = 2.0     ; Homing velocity (cnts/msec)
+P1502 = -935    ; Home offset    (motor 10)
+; P1503 - P1513 are used internally by PLC 15
+
+; PLC 16 - Pitch motor disable - uses no P-variables
