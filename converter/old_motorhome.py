@@ -1,6 +1,8 @@
 #!/usr/bin/env dls-python
 
 # type: ignore
+# NOTE: This is the original motorhome.py 1.0 copied here for reference
+# NOTE: It is verbatim apart from this comment block and tabs -> spaces
 
 ## \namespace motorhome
 # This contains a class and helper function for making automated homing

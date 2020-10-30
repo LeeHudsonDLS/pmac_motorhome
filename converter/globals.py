@@ -29,27 +29,28 @@ BRICK = 1
 
 
 class HomingSequence:
-    def __init__(self, function: Optional[Callable]):
+    def __init__(self, function: Optional[Callable] = None, old_name: str = "NONE"):
         self.function = function
         if function is None:
             self.name = "No Homing Type Specified"
         else:
             self.name = function.__name__
+        self.old_name = old_name
 
     def __repr__(self) -> str:
         return self.name
 
 
 HomingSequences = {
-    NO_HOMING_YET: HomingSequence(None),
-    HOME: HomingSequence(home_home),
-    LIMIT: HomingSequence(home_limit),
-    HSW: HomingSequence(home_hsw),
-    HSW_HLIM: HomingSequence(home_hsw_hlim),
-    HSW_DIR: HomingSequence(home_hsw_dir),
-    RLIM: HomingSequence(home_rlim),
-    NOTHING: HomingSequence(home_nothing),
-    HSW_HSTOP: HomingSequence(home_hsw_hstop),
+    NO_HOMING_YET: HomingSequence(None, 'NONE'),
+    HOME: HomingSequence(home_home, 'HOME'),
+    LIMIT: HomingSequence(home_limit, 'LIMIT'),
+    HSW: HomingSequence(home_hsw, 'HSW'),
+    HSW_HLIM: HomingSequence(home_hsw_hlim, 'HSW_HLIM'),
+    HSW_DIR: HomingSequence(home_hsw_dir, 'HSW_DIR'),
+    RLIM: HomingSequence(home_rlim, 'RLIM'),
+    NOTHING: HomingSequence(home_nothing, 'NOTHING'),
+    HSW_HSTOP: HomingSequence(home_hsw_hstop, 'HSTOP'),
 }
 
 

@@ -12,7 +12,7 @@ class Group:
         self.checks = checks
 
         self.htype = NO_HOMING_YET
-        self.sequence: HomingSequence = HomingSequence(None)
+        self.sequence: HomingSequence = HomingSequence()
         self.motors: List[Motor] = []
 
         self.error = 0

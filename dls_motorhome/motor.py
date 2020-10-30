@@ -29,6 +29,7 @@ class Motor:
         jdist: int,
         plc_num: int,
         post_home: PostHomeMove = PostHomeMove.none,
+        index: int = -1,
     ) -> None:
         """
         Args:
@@ -38,10 +39,18 @@ class Motor:
             plc_num (int): the plc number of the enclosing Plc
             post_home (PostHomeMove): the action to perform on this motor when
                 hohing is complete
+            index (int): for internal use in conversion of old scripts sets
+            the index of this motor to a different value than the order of
+            declaration.
         """
         self.axis = axis
         self.jdist = jdist
-        self.index = len(self.instances)
+        if index == -1:
+            self.index = len(self.instances)
+        # else:
+
+        self.index = index
+
         self.instances[axis] = self
         self.post_home = 0
 
@@ -56,6 +65,7 @@ class Motor:
         }
         for name, start in self.PVARS.items():
             self.dict[name] = plc_num * 100 + start + self.index
+            print(plc_num, axis, index, name, self.dict[name])
 
     @classmethod
     def get_motor(
@@ -64,6 +74,7 @@ class Motor:
         jdist: int,
         plc_num: int,
         post_home: PostHomeMove = PostHomeMove.none,
+        index: int = -1,
     ) -> "Motor":
         """
         A factory function to return a Motor object but ensure that there
@@ -72,7 +83,7 @@ class Motor:
         """
         motor = cls.instances.get(axis)
         if motor is None:
-            motor = Motor(axis, jdist, plc_num, post_home)
+            motor = Motor(axis, jdist, plc_num, post_home, index)
 
         return motor
 

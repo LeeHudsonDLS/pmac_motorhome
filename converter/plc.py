@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import List, OrderedDict
 
 from converter.group import Group
 
@@ -43,8 +43,9 @@ class PLC:
         self.bricktype: BrickType = BrickTypes[ctype]
 
         # members for recording what is addded to this PLC
-        self.groups: Dict[int, Group] = {}
-        self.filename = ""
+        self.groups: OrderedDict[int, Group] = OrderedDict()
+        self.filename: str = ""
+        self.motor_nums: List[int] = []
 
         self.instances.append(self)
 
@@ -81,7 +82,11 @@ class PLC:
         enc_axes=[],
         ms=None,
     ):
-        motor = Motor(axis, enc_axes, self.ctype, ms)
+        if axis not in self.motor_nums:
+            self.motor_nums.append(axis)
+        motor_index = self.motor_nums.index(axis)
+
+        motor = Motor(axis, enc_axes, self.ctype, ms, index=motor_index)
         if group not in self.groups:
             new_group = Group(group, checks=[], pre="", post="")
             self.groups[group] = new_group

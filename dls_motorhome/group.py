@@ -65,14 +65,14 @@ class Group:
         Group.the_group = None
 
     @classmethod
-    def add_motor(cls, axis: int, jdist: int) -> Motor:
+    def add_motor(cls, axis: int, jdist: int, index: int = 0) -> Motor:
         """
         Add a new motor to the current group
 
         Args:
             axis (int): Axis number
             jdist (int): distance to jog to move off of home mark
-
+            index (int): internal use
         Returns:
             Motor: The newly created Motor
         """
@@ -80,7 +80,7 @@ class Group:
         assert (
             axis not in group.motors
         ), f"motor {axis} already defined in group {group.plc_num}"
-        motor = Motor.get_motor(axis, jdist, group.plc_num)
+        motor = Motor.get_motor(axis, jdist, group.plc_num, index=index)
         group.motors.append(motor)
         group.all_motors.append(motor)
         return motor
