@@ -142,6 +142,7 @@ class Group:
         group = Group.instance()
         group.templates.append(Template(jinja_file=None, function=func, args=args))
 
+    # TODO maybe use *axes here for clarity in calls from Jinja
     def set_axis_filter(self, axes: List[int]) -> str:
         """
         A callback function to set group actions to only act on a subset of the

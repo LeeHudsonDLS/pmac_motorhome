@@ -275,7 +275,7 @@ def drive_to_hard_limit(state="PostHomeMove", homing_direction=False, **kwargs):
 
 
 @_snippet_function(wait_for_done_args)
-def jog_if_on_limit(homing_direction=False, **kwargs):
+def jog_if_on_limit(homing_direction=False, with_limits=True, **kwargs):
     """
     Jog all axes in the group that are currently on a limit
 

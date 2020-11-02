@@ -1,10 +1,15 @@
     ;---- Check if HSW_HLIM missed home mark and hit a limit ----
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         ; Execute the move commands if on a limit
+    {%- for motor in group.motors %}
+        {{- group.set_axis_filter([motor.axis]) }}
         if ({{ group.limits() }}=1)
             {{ group.set_large_jog_distance(homing_direction=template.args.homing_direction) }}
             cmd "{{ group.jog_to_home_jdist() }}"
         endif
+    {%- endfor %}
+        {{- group.set_axis_filter([]) }}
+        {# a unique variant of wait for done #}
         ; Wait for the move to complete
         timer = 20 MilliSeconds ; Small delay to start moving
         while (timer > 0)
