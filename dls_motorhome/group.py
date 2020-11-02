@@ -65,7 +65,7 @@ class Group:
         Group.the_group = None
 
     @classmethod
-    def add_motor(cls, axis: int, jdist: int, index: int = 0) -> Motor:
+    def add_motor(cls, axis: int, jdist: int, index: int) -> Motor:
         """
         Add a new motor to the current group
 

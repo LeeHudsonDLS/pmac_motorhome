@@ -47,9 +47,8 @@ class Motor:
         self.jdist = jdist
         if index == -1:
             self.index = len(self.instances)
-        # else:
-
-        self.index = index
+        else:
+            self.index = index
 
         self.instances[axis] = self
         self.post_home = 0
@@ -65,7 +64,6 @@ class Motor:
         }
         for name, start in self.PVARS.items():
             self.dict[name] = plc_num * 100 + start + self.index
-            print(plc_num, axis, index, name, self.dict[name])
 
     @classmethod
     def get_motor(

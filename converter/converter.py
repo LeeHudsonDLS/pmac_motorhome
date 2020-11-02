@@ -60,6 +60,10 @@ def motion(root: str):
         file(root_gen, outfile, relative_includes)
 
 
+# TODO I failed to get this to work as a click entrypoint and as a
+# function to be called from 'motion' - This could be fixed by
+# having separate functions for the implementation and click entries
+
 # @homing_convert.command()
 # @click.option(
 #     "--infile", type=click.Path(dir_okay=False), default="generate_homing_plcs.py"

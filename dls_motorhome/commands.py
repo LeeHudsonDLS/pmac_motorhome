@@ -73,7 +73,7 @@ def comment(htype: str, post: str = "None") -> None:
     Group.add_comment(htype, post)
 
 
-def motor(axis: int, jdist: int = 0, index: int = 0) -> None:
+def motor(axis: int, jdist: int = 0, index: int = -1) -> None:
     """
     Declare a motor for use in the current group.
 
@@ -85,7 +85,7 @@ def motor(axis: int, jdist: int = 0, index: int = 0) -> None:
             to far enough to move off of the home mark.
         index (int): for internal use in conversion of old scripts sets
             the index of this motor to a different value than the order of
-            declaration.
+            declaration. -1 means use the order that motors were added.
     """
     motor = Group.add_motor(axis, jdist, index)
     Plc.add_motor(axis, motor)
