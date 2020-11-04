@@ -188,7 +188,7 @@ class Motor:
         elif ctype == GEOBRICK:
             if ax < 9:
                 # nx for internal amp, GEOBRICK
-                self.nx = ((ax-1)/4)*10 + ((ax-1)%4+1)
+                self.nx = (int((ax-1)/4))*10 + ((ax-1) % 4+1)
             else:
                 # macrostation number for external amp, GEOBRICK
                 self.ms = 2*(ax-9)-(ax-9)%2
