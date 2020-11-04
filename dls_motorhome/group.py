@@ -24,6 +24,8 @@ class Group:
         post_home: PostHomeMove,
         post_distance: int,
         comment: str = None,
+        pre: Optional[str] = "",
+        post: Optional[str] = "",
     ) -> None:
         """
         Args:
@@ -48,6 +50,8 @@ class Group:
         self.templates: List[Template] = []
         self.htype: str = "unknown"
         self.controller = controller
+        self.pre = pre
+        self.post = post
 
     def __enter__(self):
         """

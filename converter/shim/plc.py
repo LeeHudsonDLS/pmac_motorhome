@@ -68,8 +68,9 @@ class PLC:
                 yield instance
 
     def configure_group(self, group, checks=None, pre=None, post=None):
-        # TODO this needs adding
-        pass
+        self.groups[group].checks = checks
+        self.groups[group].pre = pre
+        self.groups[group].post = post
 
     def add_motor(
         self,

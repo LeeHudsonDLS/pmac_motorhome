@@ -22,7 +22,9 @@ from .snippets import (
 
 
 def plc(
-    plc_num: int, controller: Union[ControllerType, str], filepath: Union[Path, str]
+    plc_num: int,
+    controller: Union[ControllerType, str],
+    filepath: Union[Path, str]
 ) -> Plc:
     """
     Define a new PLC. Use this to create a new Plc context using the 'with'
@@ -35,6 +37,8 @@ def plc(
         controller (ControllerType): Determines the class of controller Pmac or
             Geobrick
         filepath (pathlib.Path): The output file where the PLC will be written
+        pre (str): some raw PLC code to insert at the start of a group
+        post(str): some raw PLC code to insert at the end of a group
 
     Returns:
         Plc: the Plc object for use in the context
@@ -48,6 +52,8 @@ def group(
     post_home: Union[PostHomeMove, str] = PostHomeMove.none,
     post_distance: int = 0,
     comment: str = None,
+    pre: str = "",
+    post: str = "",
 ) -> Group:
     """
     Define a new group of axes within a PLC that should be homed simultaneously.
@@ -66,7 +72,9 @@ def group(
     Returns:
         Group: The Group object for use in the context
     """
-    return Plc.add_group(group_num, PostHomeMove(post_home), post_distance, comment)
+    return Plc.add_group(
+        group_num, PostHomeMove(post_home), post_distance, comment, pre, post
+    )
 
 
 def comment(htype: str, post: str = "None") -> None:

@@ -450,3 +450,15 @@ def test_two_plcs():
 
     verify(file_name1)
     verify(file_name2)
+
+
+def test_pre_post():
+    file_name = "pre_post.plc"
+    tmp_file = Path("/tmp") / file_name
+    with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file):
+        with group(
+            group_num=2, pre="\n\n        >> before move <<\n", post="\nafter\n"
+        ):
+            motor(axis=1)
+            home_hsw()
+    verify(file_name)

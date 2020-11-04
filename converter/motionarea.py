@@ -18,8 +18,7 @@ with plc(
     plc_num={plc.plc},
     controller={plc.bricktype},
     filepath="{plc.filename}",
-):
-"""
+):"""
 
 
 class MotionArea:
@@ -158,7 +157,7 @@ class MotionArea:
             relative = old_plc.relative_to(self.old_motion)
             new_plc = self.new_motion / relative
 
-            command = f"diff -b {old_plc} {new_plc}"
+            command = f"diff -bB {old_plc} {new_plc}"
             process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
             process.wait()
 
@@ -240,7 +239,20 @@ class MotionArea:
                 # the original created PLCs in PLC numeric order
                 for group_num in sorted(plc.groups.keys()):
                     group = plc.groups[group_num]
-                    stream.write(f"    with group(group_num={group.group_num}):\n")
+
+                    extra_args = ""
+                    if group.pre:
+                        pre = re.sub("\t", "    ", group.pre)
+                        stream.write(f'\n    pre{group_num} = """{pre} """\n')
+                        extra_args += f", pre=pre{group_num}"
+                    if group.post:
+                        post = re.sub("\t", "    ", group.post)
+                        stream.write(f'\n    post{group_num} = """{post} """\n')
+                        extra_args += f", post=post{group_num}"
+
+                    stream.write(
+                        f"\n    with group(group_num={group.group_num}{extra_args}):\n"
+                    )
 
                     for motor in group.motors:
                         fs = (

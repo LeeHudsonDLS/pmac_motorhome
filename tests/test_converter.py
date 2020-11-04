@@ -1,5 +1,6 @@
-from converter.motionarea import MotionArea
 from pathlib import Path
+
+from converter.motionarea import MotionArea
 
 ROOT_DIR = Path(__file__).parent.parent
 
@@ -17,4 +18,3 @@ def test_bl02i_convert():
     motionarea.make_old_motion()
     motionarea.make_new_motion()
     motionarea.check_matches()
-

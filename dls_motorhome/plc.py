@@ -20,7 +20,10 @@ class Plc:
     the_plc: Optional["Plc"] = None
 
     def __init__(
-        self, plc_num: int, controller: ControllerType, filepath: Path
+        self,
+        plc_num: int,
+        controller: ControllerType,
+        filepath: Path,
     ) -> None:
         """
         Args:
@@ -35,6 +38,7 @@ class Plc:
         self.filepath = filepath
         self.plc_num = plc_num
         self.controller: ControllerType = controller
+
         self.groups: List[Group] = []
         self.motors: "OrderedDict[int, Motor]" = OrderedDict()
         self.generator = PlcGenerator()
@@ -85,6 +89,8 @@ class Plc:
         post_home: PostHomeMove,
         post_distance: int,
         comment: str = None,
+        pre: str = None,
+        post: str = None,
     ) -> Group:
         """
         Add a new group of axes to the current Plc
@@ -99,7 +105,14 @@ class Plc:
         """
         plc = Plc.instance()
         group = Group(
-            group_num, plc.plc_num, plc.controller, post_home, post_distance, comment
+            group_num,
+            plc.plc_num,
+            plc.controller,
+            post_home,
+            post_distance,
+            comment,
+            pre,
+            post,
         )
         plc.groups.append(group)
         return group
