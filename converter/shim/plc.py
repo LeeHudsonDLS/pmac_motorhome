@@ -1,6 +1,6 @@
 from typing import List, OrderedDict
 
-from converter.group import Group
+from converter.shim.group import Group
 
 from .globals import (
     NO_HOMING_YET,

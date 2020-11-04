@@ -2,7 +2,7 @@
 # replaces the original PLC generating code.
 # Instead it generates a new dls_motohome style python file
 
-from converter.globals import (
+from converter.shim.globals import (
     BRICK,
     GEOBRICK,
     HOME,
@@ -15,9 +15,9 @@ from converter.globals import (
     PMAC,
     RLIM,
 )
-from converter.group import Group
-from converter.motor import Motor
-from converter.plc import PLC
+from converter.shim.group import Group
+from converter.shim.motor import Motor
+from converter.shim.plc import PLC
 
 # I split the code into modules but the original users of motorhome.py
 # expect to import a single file. Hence this file that only does imports.

@@ -1,7 +1,7 @@
 from typing import List
 
-from converter.globals import NO_HOMING_YET, HomingSequence, HomingSequences
-from converter.motor import Motor
+from converter.shim.globals import NO_HOMING_YET, HomingSequence, HomingSequences
+from converter.shim.motor import Motor
 
 
 class Group:

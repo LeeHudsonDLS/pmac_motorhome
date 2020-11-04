@@ -50,7 +50,7 @@ HomingSequences = {
     HSW_DIR: HomingSequence(home_hsw_dir, 'HSW_DIR'),
     RLIM: HomingSequence(home_rlim, 'RLIM'),
     NOTHING: HomingSequence(home_nothing, 'NOTHING'),
-    HSW_HSTOP: HomingSequence(home_hsw_hstop, 'HSTOP'),
+    HSW_HSTOP: HomingSequence(home_hsw_hstop, 'HSW_HSTOP'),
 }
 
 

@@ -44,6 +44,7 @@ wait_for_done_docstring = """
 # these arguments - the dictionary values are the defaults
 wait_for_done_args = {
     "no_following_err": False,
+    "fe_check_no_fail": False,
     "with_limits": False,
     "wait_for_one_motor": False,
 }
@@ -73,7 +74,7 @@ def _snippet_function(*arglists: Dict[str, Any]) -> Callable[[F], F]:
     - code to check parameters passed at runtime
     - code to implement appending the template with parameters
     - appends the original Jinja to the docstring
-    - appends a description of arguments to the wait_for_done template
+    - appends a description of parameters to the wait_for_done template
       if  wait_for_done_args was passed to the decorator
 
     Returns:

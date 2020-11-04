@@ -7,8 +7,10 @@
         while ({{ group.in_pos(operator='|') }}=0) ; Wait until at least one motor is In Position
 {% else %}
         while ({{ group.in_pos() }}=0) ; At least one motor should not be In Position
-{% endif %}
+{% endif -%}
+{% if not template.args.no_following_err or template.args.fe_check_no_fail%}
         and ({{ group.following_err() }} = 0) ; Following error check
+{% endif -%}
 {% if template.args.with_limits %}
         and ({{ group.limits() }} = 0) ; Limit check
 {% endif %}

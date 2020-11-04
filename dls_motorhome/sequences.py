@@ -69,8 +69,15 @@ def home_hsw():
     """
 
     # drive in opposite to homing direction until home flag or limit hit
-    drive_to_home(homing_direction=False)
-    drive_to_home(with_limits=True, homing_direction=True, state="FastSearch")
+    drive_to_home(
+        homing_direction=False,
+        # no_following_err=True,
+    )
+    drive_to_home(
+        with_limits=True,
+        homing_direction=True,
+        state="FastSearch",
+    )
     store_position_diff()
     drive_off_home()
     home()
@@ -99,7 +106,7 @@ def home_hsw_hstop():
     """
 
     # drive in opposite to homing direction until home flag or following error
-    drive_to_home(no_following_err=True, homing_direction=False)
+    drive_to_home(no_following_err=True, fe_check_no_fail=True, homing_direction=False)
     drive_to_home(with_limits=True, homing_direction=True, state="FastSearch")
     store_position_diff()
     drive_off_home(homing_direction=False)

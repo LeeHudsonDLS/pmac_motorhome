@@ -84,11 +84,19 @@ from dls_motorhome.snippets import (
 #     lines = [line for line in g.code().split("\n") if "#define MilliSeconds" in line]
 #     print(lines)
 #     assert "* 8388608/i10" in lines[0]
+def verify(file: str):
+    this_path = Path(__file__).parent
+
+    tmp_file = Path("/tmp") / file
+    example = this_path / "examples" / file
+    assert cmp(
+        tmp_file, example
+    ), f"File mismatch, see:\ncode --diff {tmp_file} {example} "
 
 
 def test_BL07I_STEP_04_plc11():
-    file = "BL07I-MO-STEP-04.plc11"
-    tmp_file = Path("/tmp") / file
+    file_name = "BL07I-MO-STEP-04.plc11"
+    tmp_file = Path("/tmp") / file_name
     with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file):
         with group(group_num=2):
             motor(axis=1)
@@ -102,10 +110,7 @@ def test_BL07I_STEP_04_plc11():
             comment("RLIM", "None")
             home_rlim()
 
-        this_path = Path(__file__).parent
-
-    example = this_path / "examples" / file
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file_name)
 
 
 def test_BL02I_STEP_13_plc11():
@@ -128,10 +133,7 @@ def test_BL02I_STEP_13_plc11():
             comment("HSW_HSTOP", "None")
             home_hsw_hstop()
 
-        this_path = Path(__file__).parent
-
-    example = this_path / "examples" / file
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file)
 
 
 def test_BL18B_STEP01_plc13():
@@ -155,9 +157,7 @@ def test_BL18B_STEP01_plc13():
             comment(htype="HSW", post="i")
             home_hsw()
 
-    this_path = Path(__file__).parent
-    example = this_path / "examples" / file_name
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file_name)
 
 
 def test_BL20I_STEP02_plc11():
@@ -191,9 +191,7 @@ def test_BL20I_STEP02_plc11():
             comment(htype="LIMIT", post="i")
             home_limit()
 
-    this_path = Path(__file__).parent
-    example = this_path / "examples" / file_name
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file_name)
 
 
 def test_BL06I_STEP21_plc12():
@@ -209,9 +207,7 @@ def test_BL06I_STEP21_plc12():
             comment(htype="HSW_DIR", post="i")
             home_hsw_dir()
 
-    this_path = Path(__file__).parent
-    example = this_path / "examples" / file_name
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file_name)
 
 
 def test_BL02I_PMAC01_plc17():
@@ -240,9 +236,7 @@ def test_BL02I_PMAC01_plc17():
             comment(htype="HSW_HLIM", post="None")
             home_hsw_hlim()
 
-    this_path = Path(__file__).parent
-    example = this_path / "examples" / file_name
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file_name)
 
 
 def test_NOTHING_plc12() -> None:
@@ -267,9 +261,7 @@ def test_NOTHING_plc12() -> None:
             comment(htype="HSW", post="H")
             home_hsw()
 
-    this_path = Path(__file__).parent
-    example = this_path / "examples" / file_name
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file_name)
 
 
 def test_post_high_limit():
@@ -285,9 +277,7 @@ def test_post_high_limit():
             comment(htype="HSW", post="h")
             home_hsw()
 
-    this_path = Path(__file__).parent
-    example = this_path / "examples" / file_name
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file_name)
 
 
 def test_post_low_limit():
@@ -303,9 +293,7 @@ def test_post_low_limit():
             comment(htype="HSW", post="l")
             home_hsw()
 
-    this_path = Path(__file__).parent
-    example = this_path / "examples" / file_name
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file_name)
 
 
 def test_post_jog_relative():
@@ -323,9 +311,7 @@ def test_post_jog_relative():
             comment(htype="HSW", post="r1000")
             home_hsw()
 
-    this_path = Path(__file__).parent
-    example = this_path / "examples" / file_name
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file_name)
 
 
 def test_post_move_to_position():
@@ -343,9 +329,7 @@ def test_post_move_to_position():
             comment(htype="HSW", post="z1000")
             home_hsw()
 
-    this_path = Path(__file__).parent
-    example = this_path / "examples" / file_name
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file_name)
 
 
 def test_post_distance():
@@ -363,9 +347,7 @@ def test_post_distance():
             comment(htype="HSW", post="32767")
             home_hsw()
 
-    this_path = Path(__file__).parent
-    example = this_path / "examples" / file_name
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file_name)
 
 
 def test_HOME_two_axes_post_L():
@@ -381,9 +363,7 @@ def test_HOME_two_axes_post_L():
             comment(htype="HOME", post="L")
             home_home()
 
-    this_path = Path(__file__).parent
-    example = this_path / "examples" / file_name
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file_name)
 
 
 def test_BL18B_STEP01_plc13_slits():
@@ -408,9 +388,7 @@ def test_BL18B_STEP01_plc13_slits():
             comment(htype="HSW", post="i")
             home_slits_hsw(posx=1, negx=2, posy=3, negy=4)
 
-    this_path = Path(__file__).parent
-    example = this_path / "examples" / file_name
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file_name)
 
 
 def test_BL09I_STEP03_plc12_custom():
@@ -433,9 +411,7 @@ def test_BL09I_STEP03_plc12_custom():
             check_homed()
             post_home()
 
-    this_path = Path(__file__).parent
-    example = this_path / "examples" / file_name
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file_name)
 
 
 def test_any_code():
@@ -450,9 +426,7 @@ def test_any_code():
             command("Any old string will do for this test")
             command(" - multiple commands can be on the same line\n")
 
-    this_path = Path(__file__).parent
-    example = this_path / "examples" / file_name
-    assert cmp(tmp_file, example), f"files {tmp_file} and {example} do not match"
+    verify(file_name)
 
 
 def test_two_plcs():
@@ -474,8 +448,5 @@ def test_two_plcs():
             motor(axis=2)
             home_hsw()
 
-    this_path = Path(__file__).parent
-    example1 = this_path / "examples" / file_name1
-    example2 = this_path / "examples" / file_name2
-    assert cmp(tmp_file1, example1), f"files {tmp_file1} and {example1} do not match"
-    assert cmp(tmp_file2, example2), f"files {tmp_file2} and {example2} do not match"
+    verify(file_name1)
+    verify(file_name2)
