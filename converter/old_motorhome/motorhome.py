@@ -394,7 +394,7 @@ class PLC:
         for m in self.__sel(htypes):
             self.__cmd1.append("I%d97 = 3; in-position trigger on following error\n" % m.ax)
             self.__cmd3.append("I%d97 = 0; in-position trigger on hardware capture\n" % m.ax)
-        self._check_following_error = False
+            self._check_following_error = False
 
     def __jog_until_trig(self, htypes, reverse=False):
         # jog until trigger, go dist past trigger
