@@ -69,10 +69,7 @@ def home_hsw():
     """
 
     # drive in opposite to homing direction until home flag or limit hit
-    drive_to_home(
-        homing_direction=False,
-        # no_following_err=True,
-    )
+    drive_to_home(homing_direction=False)
     drive_to_home(
         with_limits=True,
         homing_direction=True,

@@ -10,9 +10,7 @@ import regex as re
 
 from .shim.plc import PLC
 
-code_import = """from dls_motorhome.sequences import (
-    {names}
-)
+code_import = """from dls_motorhome.sequences import {names}
 """
 
 code_plc = """
@@ -50,6 +48,7 @@ class MotionArea:
     home_plc_include = re.compile(
         r"^#include \"(PLCs\/PLC[\d]+_[^_]+_HM\.pmc)\"", flags=re.M
     )
+    find_auto_home_plcs = "**/*/PLC*_HM.pmc"
 
     def __init__(self, original_path: Path) -> None:
         self.original_path = Path(original_path)
@@ -60,7 +59,7 @@ class MotionArea:
         self.module = None
 
     def _remove_homing_plcs(self, root: Path) -> None:
-        plcs = root.glob("**/*/PLC*_HM.pmc")
+        plcs = root.glob(self.find_auto_home_plcs)
         for plc in plcs:
             plc.unlink()
 
@@ -152,20 +151,29 @@ class MotionArea:
 
     def check_matches(self):
         mismatches = 0
-        # mismatch = "The following PLCs did not match the originals:\n\n"
-        # for new_plc in homing_plcs:
-        #     relative = new_plc.relative_to(test_root)
-        #     original = motion_dir / relative
+        mismatch = "The following PLCs did not match the originals:\n\n"
 
-        #     command = f"diff -b {original} {new_plc}"
-        #     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-        #     process.wait()
+        plcs = self.old_motion.glob(self.find_auto_home_plcs)
+        for old_plc in plcs:
+            relative = old_plc.relative_to(self.old_motion)
+            new_plc = self.new_motion / relative
 
-        #     if process.returncode != 0:
-        #         mismatches += 1
-        #         mismatch += f"{original} {new_plc}\n"
-        # assert mismatches == 0, mismatch
-        print(f"review differences with:\nmeld {self.old_motion} {self.new_motion}")
+            command = f"diff -b {old_plc} {new_plc}"
+            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+            process.wait()
+
+            if process.returncode != 0:
+                mismatches += 1
+                mismatch += f"{old_plc} {new_plc}\n"
+        if mismatches == 0:
+            print("new generated PLCs match old PLCs")
+        else:
+            print(
+                f"{mismatches} PLC files do not match\n"
+                f"review differences with:\n"
+                f"meld {self.old_motion} {self.new_motion}"
+            )
+        assert mismatches == 0, mismatch
 
     def load_shim(self, module: Path, plc_file: Path):
         """
@@ -212,8 +220,8 @@ class MotionArea:
 
         with outpath.open("w") as stream:
             stream.write(
-                "from dls_motorhome.commands import ControllerType, group,"
-                " motor, plc, comment\n"
+                "from dls_motorhome.commands import ControllerType, "
+                "comment, group, motor, plc\n"
             )
 
             # collect all the homing sequences used for the import statement
@@ -222,7 +230,7 @@ class MotionArea:
                 for group in plc.groups.values():
                     imports.add(group.sequence.name)
 
-            imps = ",\n    ".join(sorted(imports))
+            imps = ", ".join(sorted(imports))
             stream.write(code_import.format(names=imps))
 
             for plc in plcs:

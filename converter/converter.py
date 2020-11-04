@@ -1,3 +1,4 @@
+from converter.motionarea import MotionArea
 import re
 import sys
 from importlib import import_module, reload
@@ -37,27 +38,13 @@ def motion(root: str):
     Args:
         root (str): The root folder of the Motion Area to be scanned
     """
-    root_path = Path(root)
-    masters = root_path.glob("*/Master*pmc")
+    root_path = THIS_DIR /
 
-    root_gen = root_path / "configure" / "generate_homing_plcs.py"
-    if not root_gen.exists():
-        click.echo("using per brick generators")
-        for master in masters:
-            gen = master.parent / "configure" / "generate_homing_plcs.py"
-            if not gen.exists():
-                gen = root_gen
-    else:
-        click.echo("using global generate_homing_plcs")
-        outfile = root_path / "generate_homing_plcs2.py"
-        relative_includes = []
-        for master in masters:
-            with master.open("r") as stream:
-                master_text = stream.read()
-            includes = home_include.findall(master_text)
-            master_dir = master.parent.relative_to(root_path)
-            relative_includes += [master_dir / Path(path) for path in includes]
-        file(root_gen, outfile, relative_includes)
+    motionarea = MotionArea(root_path)
+
+    motionarea.make_old_motion()
+    motionarea.make_new_motion()
+    motionarea.check_matches()
 
 
 # TODO I failed to get this to work as a click entrypoint and as a
