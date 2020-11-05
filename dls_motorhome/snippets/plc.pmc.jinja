@@ -103,7 +103,6 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         {{ group.callback(template.function, template.args) -}}
         {% else %}
         {% include template.jinja_file+'.pmc.jinja' %}
-
         {% endif %}
     {% endfor %}
 endif

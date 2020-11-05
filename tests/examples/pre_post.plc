@@ -235,6 +235,24 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingStatus=StatusIncomplete
     endif
 
+    ; Wait for user to tell us to continue if in debug
+    if (HomingStatus = StatusDebugHoming)
+        HomingStatus = StatusPaused
+        while (HomingStatus = StatusPaused)
+        endw
+    endif
+
+    ;---- PostHomeMove State ----
+	if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
+		HomingState=StatePostHomeMove
+		; Execute the move commands
+		if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
+
+after
+
+		endif
+	endif
+
 endif
 
 ;---- Done ----

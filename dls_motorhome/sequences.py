@@ -15,6 +15,7 @@ from .snippets import (
     drive_to_limit,
     home,
     jog_if_on_limit,
+    post_home_action,
     restore_limits,
     store_position_diff,
 )
@@ -51,6 +52,7 @@ def home_rlim():
     home(with_limits=False)
     check_homed()
     post_home()
+    post_home_action()
 
 
 def home_hsw():
@@ -80,6 +82,7 @@ def home_hsw():
     home()
     check_homed()
     post_home()
+    post_home_action()
 
 
 def home_hsw_hstop():
@@ -109,6 +112,8 @@ def home_hsw_hstop():
     drive_off_home(homing_direction=False)
     home(with_limits=True)
     check_homed()
+    post_home()
+    post_home_action()
 
 
 def home_hsw_dir():
@@ -147,6 +152,7 @@ def home_hsw_dir():
     home()
     check_homed()
     post_home()
+    post_home_action()
 
 
 def home_limit():
@@ -171,6 +177,7 @@ def home_limit():
     restore_limits()
     check_homed()
     post_home()
+    post_home_action()
 
 
 def home_hsw_hlim():
@@ -210,6 +217,7 @@ def home_hsw_hlim():
     home()
     check_homed()
     post_home()
+    post_home_action()
 
 
 def home_home():
@@ -220,6 +228,7 @@ def home_home():
     home()
     check_homed()
     post_home()
+    post_home_action()
 
 
 def home_nothing():
@@ -231,6 +240,7 @@ def home_nothing():
     # TODO review why this reference to Group is required
     Group.the_group.htype = "NOTHING"
     post_home()
+    post_home_action()
 
 
 ###############################################################################

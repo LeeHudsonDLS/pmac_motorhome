@@ -293,3 +293,10 @@ def continue_home_maintain_axes_offset(**kwargs):
     same direction as home. This is to avoid tilt on pairs of axes that have
     misaligned home marks.
     """
+
+
+@_snippet_function()
+def post_home_action():
+    """
+    Insert an extra block with the group's post home action in it
+    """

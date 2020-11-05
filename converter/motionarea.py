@@ -103,7 +103,6 @@ class MotionArea:
         homing PLCs using the latest version of motorhome 1.0
         """
         copytree(self.original_path, self.old_motion)
-        self._remove_homing_plcs(self.old_motion)
 
         # either generate from one global generate_homing_plcs.py or from individual
         # generate_homing_plcs.py in each brick's subfolder
