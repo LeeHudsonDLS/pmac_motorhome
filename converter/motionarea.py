@@ -4,7 +4,8 @@ import sys
 from importlib import import_module, reload
 from pathlib import Path
 from shutil import copytree, rmtree
-from typing import List
+from types import ModuleType
+from typing import List, Optional
 
 import regex as re
 
@@ -50,12 +51,12 @@ class MotionArea:
     find_auto_home_plcs = "**/*/PLC*_HM.pmc"
 
     def __init__(self, original_path: Path) -> None:
-        self.original_path = Path(original_path)
+        self.original_path = Path(original_path).absolute()
         if self.root_path.exists():
             rmtree(self.root_path)
 
         # tracks the 'generate_homing_plcs' module loaded by load_shim()
-        self.module = None
+        self.module: Optional[ModuleType] = None
 
     def _remove_homing_plcs(self, root: Path) -> None:
         plcs = root.glob(self.find_auto_home_plcs)
@@ -70,7 +71,7 @@ class MotionArea:
         Args:
             root(Path): The root folder to start the search from
         """
-        masters = root.glob("*/Master*pmc")
+        masters = root.glob("**/Master*pmc")
 
         relative_includes = []
         for master in masters:
@@ -93,7 +94,7 @@ class MotionArea:
             params (str): a space separated arguments list
         """
         os.chdir(str(cwd))
-        command = f"PYTHONPATH={pypath} python {script} {params}"
+        command = f"cd {cwd}; PYTHONPATH={pypath} python {script} {params}"
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
         process.wait()
 
@@ -103,6 +104,7 @@ class MotionArea:
         homing PLCs using the latest version of motorhome 1.0
         """
         copytree(self.original_path, self.old_motion)
+        self._remove_homing_plcs(self.new_motion)
 
         # either generate from one global generate_homing_plcs.py or from individual
         # generate_homing_plcs.py in each brick's subfolder
@@ -117,7 +119,13 @@ class MotionArea:
         else:
             # individual per brick generators
             generators = self.old_motion.glob("*/configure/generate_homing_plcs.py")
-            # TODO handle individual style
+            for gen in generators:
+                brick_folder = gen.parent.parent
+                plc_files = self._parse_masters(brick_folder)
+                for plc_file in plc_files:
+                    self._execute_script(
+                        gen, brick_folder, self.old_motorhome, str(plc_file)
+                    )
 
     def make_new_motion(self):
         """
@@ -145,7 +153,21 @@ class MotionArea:
         else:
             # individual per brick generators
             generators = self.new_motion.glob("*/configure/generate_homing_plcs.py")
-            # TODO handle individual style
+            for gen in generators:
+                # a generator in each brick configure folder
+                brick_folder = gen.parent.parent
+                plc_files = self._parse_masters(brick_folder)
+
+                # clear PLC instances in preparation for loading the next motorhome.py
+                PLC.instances = []
+                new_gen = brick_folder / "generate_homing_plcs2.py"
+                for plc_file in plc_files:
+                    self.load_shim(gen, plc_file)
+                self.make_code(new_gen)
+
+                # use the motorhoming 2.0 definition code created above to generate PLCs
+                for plc_file in plc_files:
+                    self._execute_script(new_gen, brick_folder, Path(), str(plc_file))
 
     def check_matches(self):
         mismatches = 0
@@ -173,7 +195,7 @@ class MotionArea:
             )
         assert mismatches == 0, mismatch
 
-    def load_shim(self, module: Path, plc_file: Path):
+    def load_shim(self, module: Path, plc_file: Path) -> None:
         """
         Loads in an old style motorhome 1.0 definition file (a python script).
         But replaces the classic motorhome.py lirary with a shim from
@@ -189,6 +211,7 @@ class MotionArea:
             module (Path): full or relative path of the python file to load
             plc_file: full or relative path of the plc file to output
         """
+
         # make sure python scripts can import the motorhome.py shim
         sys.path.append(str(self.shim))
         # and make sure the script itself is found by pthon
@@ -263,6 +286,4 @@ class MotionArea:
                     stream.write(f'        comment("{group.sequence.old_name}")\n')
                     stream.write(f"        {group.sequence.name}()\n")
 
-            stream.write("# End of auto converted homing definitions\n")
-
-            print(f"wrote {outpath}")
+            stream.write("\n# End of auto converted homing definitions\n")

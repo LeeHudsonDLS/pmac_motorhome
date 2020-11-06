@@ -2,6 +2,7 @@
 # replaces the original PLC generating code.
 # Instead it generates a new dls_motohome style python file
 
+from converter.shim.functions import parse_args
 from converter.shim.globals import (
     BRICK,
     GEOBRICK,
@@ -38,4 +39,5 @@ __all__ = (
     "NOTHING",
     "PMAC",
     "RLIM",
+    "parse_args",
 )

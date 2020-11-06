@@ -42,15 +42,15 @@ class HomingSequence:
 
 
 HomingSequences = {
-    NO_HOMING_YET: HomingSequence(None, 'NONE'),
-    HOME: HomingSequence(home_home, 'HOME'),
-    LIMIT: HomingSequence(home_limit, 'LIMIT'),
-    HSW: HomingSequence(home_hsw, 'HSW'),
-    HSW_HLIM: HomingSequence(home_hsw_hlim, 'HSW_HLIM'),
-    HSW_DIR: HomingSequence(home_hsw_dir, 'HSW_DIR'),
-    RLIM: HomingSequence(home_rlim, 'RLIM'),
-    NOTHING: HomingSequence(home_nothing, 'NOTHING'),
-    HSW_HSTOP: HomingSequence(home_hsw_hstop, 'HSW_HSTOP'),
+    NO_HOMING_YET: HomingSequence(None, "NONE"),
+    HOME: HomingSequence(home_home, "HOME"),
+    LIMIT: HomingSequence(home_limit, "LIMIT"),
+    HSW: HomingSequence(home_hsw, "HSW"),
+    HSW_HLIM: HomingSequence(home_hsw_hlim, "HSW_HLIM"),
+    HSW_DIR: HomingSequence(home_hsw_dir, "HSW_DIR"),
+    RLIM: HomingSequence(home_rlim, "RLIM"),
+    NOTHING: HomingSequence(home_nothing, "NOTHING"),
+    HSW_HSTOP: HomingSequence(home_hsw_hstop, "HSW_HSTOP"),
 }
 
 

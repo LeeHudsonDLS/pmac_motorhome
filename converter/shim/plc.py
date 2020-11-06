@@ -97,12 +97,16 @@ class PLC:
 
         self.groups[group].motors.append(motor)
 
+        # homing type is specified at the group level but may be requested at
+        # the motor, group or PLC level
+
+        # specifying no homing type in add_motor impliess
+        # using the one already assigned in  group but if group has none set
+        # then also look in PLC
         if htype is not None:
             self.groups[group].set_htype(htype)
-        elif self.groups[group].htype is None and self.htype is not None:
-            # I'm assuming that not specifying homing type in add_motor implies
-            # getting it from group and if not group then PLC
-            self.groups[group].set_htype(htype)
+        elif self.groups[group].htype == NO_HOMING_YET and self.htype != NO_HOMING_YET:
+            self.groups[group].set_htype(self.htype)
 
     def write(self, filename):
         self.filename = filename

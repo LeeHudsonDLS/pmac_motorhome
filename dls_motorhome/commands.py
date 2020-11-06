@@ -22,9 +22,7 @@ from .snippets import (
 
 
 def plc(
-    plc_num: int,
-    controller: Union[ControllerType, str],
-    filepath: Union[Path, str]
+    plc_num: int, controller: Union[ControllerType, str], filepath: Union[Path, str]
 ) -> Plc:
     """
     Define a new PLC. Use this to create a new Plc context using the 'with'

@@ -29,61 +29,7 @@ from dls_motorhome.snippets import (
     home,
 )
 
-# TODO Arvinders original tests could be reinstated but the new Group object
-# must be created with some parameters
 
-# import pytest
-
-# from dls_motorhome._snippets import P_VARIABLE_API
-# from dls_motorhome.group import Group
-
-# def test_Group_class_is_context_manager():
-#     assert hasattr(Group(), "__enter__")
-#     assert hasattr(Group(), "__exit__")
-
-
-# def test_Group_class_has_axes_attr():
-#     assert hasattr(Group(), "axes")
-
-
-# def test_plc_number_set_to_default_if_not_specified():
-#     assert Group().plc_number == 9
-
-
-# def test_plc_number_set_to_argument_parameter():
-#     assert Group(plc_number=10).plc_number == 10
-
-
-# def test_plc_number_must_be_within_range():
-#     plc_number_min = 8
-#     plc_number_max = 32
-#     with pytest.raises(ValueError):
-#         Group(plc_number=plc_number_max + 1)
-#         Group(plc_number=plc_number_min - 1)
-#         Group(plc_number=10.0)
-
-
-# def test_Group_object_has_Pvar_api_in_string_list():
-#     g = Group()
-#     assert P_VARIABLE_API in g.code()
-
-
-# def test_code_starts_with_CLOSE():
-#     g = Group()
-#     assert "CLOSE" in g.code().split("\n")[0]
-
-
-# def test_timer_code_snippet_has_plc_number():
-#     g = Group(plc_number=12)
-#     lines = [line for line in g.code().split("\n") if "#define timer" in line]
-#     assert "i(5111+(12&30)*50+12%2)" in lines[0]
-
-
-# def test_code_has_Milliseconds_defined():
-#     g = Group()
-#     lines = [line for line in g.code().split("\n") if "#define MilliSeconds" in line]
-#     print(lines)
-#     assert "* 8388608/i10" in lines[0]
 def verify(file: str):
     this_path = Path(__file__).parent
 
@@ -456,9 +402,7 @@ def test_pre_post():
     file_name = "pre_post.plc"
     tmp_file = Path("/tmp") / file_name
     with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file):
-        with group(
-            group_num=2, pre="\n\n        >> before move <<\n", post="\nafter\n"
-        ):
+        with group(group_num=2, pre="\n\n        >> before  <<\n", post="\nafter\n"):
             motor(axis=1)
             home_hsw()
     verify(file_name)

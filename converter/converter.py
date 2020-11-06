@@ -1,17 +1,9 @@
-from converter.motionarea import MotionArea
-import re
-import sys
-from importlib import import_module, reload
 from pathlib import Path
 from typing import Sequence
 
 import click
 
-from .shim.plc import PLC
-
-THIS_DIR = Path(__file__).parent
-
-home_include = re.compile(r"^#include \"(PLCs\/PLC[\d]+_[^_]+_HM\.pmc)\"", flags=re.M)
+from converter.motionarea import MotionArea
 
 
 @click.group()
@@ -23,7 +15,7 @@ def homing_convert(ctx, debug: bool):
 
 
 @homing_convert.command()
-@click.argument("root", type=click.Path(file_okay=False), default=".")
+@click.argument("root", type=click.Path(file_okay=False, exists=True), default=".")
 def motion(root: str):
     """
     Scan a DLS Motion Area for homing PLC generating scripts and convert them
@@ -38,28 +30,30 @@ def motion(root: str):
     Args:
         root (str): The root folder of the Motion Area to be scanned
     """
-    root_path = THIS_DIR /
+    root_path = Path(root)
 
     motionarea = MotionArea(root_path)
 
     motionarea.make_old_motion()
     motionarea.make_new_motion()
-    motionarea.check_matches()
+    try:
+        motionarea.check_matches()
+    except AssertionError as e:
+        click.echo(e.args[0])
 
 
-# TODO I failed to get this to work as a click entrypoint and as a
-# function to be called from 'motion' - This could be fixed by
-# having separate functions for the implementation and click entries
-
-# @homing_convert.command()
-# @click.option(
-#     "--infile", type=click.Path(dir_okay=False), default="generate_homing_plcs.py"
-# )
-# @click.option(
-#     "--outfile", type=click.Path(dir_okay=False), default="generate_homing_plcs2.py"
-# )
-# @click.argument("names", nargs=-1)
-def file(infile: Path, outfile: Path, names: Sequence[str]):
+@homing_convert.command()
+@click.argument("root", type=click.Path(file_okay=False, exists=True), default=".")
+@click.argument("plc_file", type=click.Path(dir_okay=False), nargs=-1)
+@click.option(
+    "--infile",
+    type=click.Path(dir_okay=False, exists=True),
+    default="configure/generate_homing_plcs.py",
+)
+@click.option(
+    "--outfile", type=click.Path(dir_okay=False), default="generate_homing_plcs2.py"
+)
+def file(infile: Path, outfile: Path, plc_name: Sequence[str]):
     """
     Convert a single v1.0 homing PLC generator python file to v2.0
 
@@ -72,31 +66,8 @@ def file(infile: Path, outfile: Path, names: Sequence[str]):
         PLCs are generated, they are given sequential PLC numbers from 11
         and a relative folder 'PLCs'
     """
-    inpath = Path(infile)
-    outpath = Path(outfile)
-    module_name = inpath.stem  # the module name is the filename minus .py
+    # in_path = Path(infile)
+    # out_path = Path(outfile)
+    # root_path = Path(root)
 
-    with inpath.open("r") as stream:
-        filetext = stream.read()
-
-    # make sure import_module can find the motorhome_file
-    sys.path.append(str(inpath.parent))
-    # make sure motorhome_file can import the motorhome.py shim
-    sys.path.append(str(THIS_DIR / "shim"))
-
-    if names == ():
-        matches = re.findall('^[^#]*if name == "([^"]*)"', filetext, flags=re.M)
-        names = [f"PLCs/PLC{i+11}_{m}_HM.pmc" for i, m in enumerate(matches)]
-
-    module = None
-    for plc_name in names:
-        sys.argv = ["exename", str(plc_name)]
-        if not module:
-            module = import_module(module_name)
-        else:
-            reload(module)
-
-    plcs = list(PLC.get_instances())
-    # make_code(plcs, outpath)
-
-
+    # motion_area = MotionArea(root_path)

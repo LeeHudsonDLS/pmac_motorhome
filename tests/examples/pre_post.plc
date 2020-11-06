@@ -93,7 +93,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StatePreHomeMove
         ; Execute the move commands
 
-        >> before move <<
+        >> before  <<
 
         m172=100000000*(-i123/ABS(i123))
         cmd "#1J^*^0"
