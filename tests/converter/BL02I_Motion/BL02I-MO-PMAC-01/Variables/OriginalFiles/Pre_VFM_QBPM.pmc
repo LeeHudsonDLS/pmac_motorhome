@@ -1,0 +1,58 @@
+
+; Motion Program 16 - Homing Routine for Pre-VFM QBPM
+
+#define homing_started_prog16           P416
+
+#define acc_time_var_mtr20             I2020
+#define s_curve_time_var_mtr20         I2021
+#define jog_speed_var_mtr20            I2022
+#define home_speed_var_mtr20           I2023
+#define flag_mode_control_mtr20        I2024
+#define rapid_mode_speed_select_mtr20  I2090
+#define trigger_mode_mtr20             I2097
+
+#define neg_limit_bit_mtr20            M2032
+#define amplifier_enabled_mtr20        M2039
+#define in_position_bit_mtr20          M2040
+#define home_complete_mtr20            M2044
+#define commanded_position_mtr20       M2061
+#define actual_position_mtr20          M2062
+#define DacOut_mtr20                   M2068
+#define encoder_capture_position_mtr20 M2073
+#define StartDeact_mtr20               M2082
+#define ElapsedDeact_mtr20             M2083
+#define encoder_loss_reg_mtr20         M2084
+#define encoder_loss_dpram_mtr20       M2085
+#define encoder_stall_mtr20            M2086
+#define Starttime_mtr20                M2087
+#define Elapsedtime_mtr20              M2088
+#define encoder_lost_mtr20             M2089
+
+#define MOVEMENT_RANGE_MTR20   17100
+#define LIMIT_OFFSET_MTR20 1000
+#define HOME_OFFSET_MTR20 -400
+
+open prog 16
+clear
+RAPID
+homing_started_prog16=1
+ta (acc_time_var_mtr20)						  ; acc time
+ts (s_curve_time_var_mtr20)					  ; s-curve time
+f(jog_speed_var_mtr20)						  ; feedrate (velocity)
+home_complete_mtr20=0
+cmd"ms37,mi912=2"	                                          ; capture home on rising edge of a flag
+cmd"ms37,mi913=1"	                                          ; use +limit as a flag
+flag_mode_control_mtr20=LIMITS_OFF		                  ; disable +/- limits
+dwell 10
+INC
+; Ending position should be as large as the whole motor move range to
+; ensure that +limit switch is found
+X(MOVEMENT_RANGE_MTR20)^HOME_OFFSET_MTR20
+dwell 0
+flag_mode_control_mtr20=LIMITS_ON			          ; reenable +/-limits
+HOMEZ 20
+ABS
+dwell 0
+LINEAR
+home_complete_mtr20=1
+close

@@ -1,0 +1,86 @@
+; GONIO_X Brick12 axis 2 - x=2
+
+; Mx62 - pulls in new encoder couts
+#define Gonio_X_Position           M262      
+; Ix08*32 - pulls in scalar factor
+#define Gonio_X_Scalar             (I208*32)
+; P48xx - gets EPICS MRES
+#define Gonio_X_MRES               P4802     
+; P49xx - gets EPICS OFFSET
+#define Gonio_X_OFFSET             P4902    
+; Mx45 - gets homed flag
+#define Gonio_X_HOMED              M245
+; Mx40 - gets in position status
+#define Gonio_X_In_Position        M240
+; User defined varibles P
+#define Gonio_X_Real_Position      P1401
+#define Gonio_X_Safe_Position      P1402
+#define Gonio_X_Tolerance          P1403
+#define Gonio_X_Safe               P1404
+#define Gonio_X_Enc_Protection     P402
+
+; GONIO_Z Brick12 axis 3 - x=3
+; Mx62 - pulls in new encoder couts
+#define Gonio_Z_Position           M362      
+; Ix08*32 - pulls in scalar factor
+#define Gonio_Z_Scalar             (I308*32)
+; P48xx - gets EPICS MRES
+#define Gonio_Z_MRES               P4803     
+; P49xx - gets EPICS OFFSET
+#define Gonio_Z_OFFSET             P4903
+; Mx45 - gets homed flag
+#define Gonio_Z_HOMED              M345
+; Mx40 - gets in position status
+#define Gonio_Z_In_Position        M340
+; User defined varibles P
+#define Gonio_Z_Real_Position      P1405
+#define Gonio_Z_Safe_Position      P1406
+#define Gonio_Z_Tolerance          P1407
+#define Gonio_Z_Safe               P1408
+#define Gonio_Z_Enc_Protection     P403
+
+; Use GPIO OUTPUT 1 for Gonio_XZ_Safe
+#define Gonio_XZ_Safe M(31 + 1)
+
+Gonio_X_Safe_Position = 0
+Gonio_X_Tolerance = 0.5
+Gonio_Z_Safe_Position = 0
+Gonio_Z_Tolerance = 0.5
+
+open plc14
+clear
+
+; convert positions to EGU
+Gonio_X_Real_Position = (Gonio_X_MRES * Gonio_X_Position / Gonio_X_Scalar + Gonio_X_OFFSET)
+Gonio_Z_Real_Position = (Gonio_Z_MRES * Gonio_Z_Position / Gonio_Z_Scalar + Gonio_Z_OFFSET)
+
+; If GONIO_X is within its high and low threshold positions
+if (Gonio_X_Real_Position > (Gonio_X_Safe_Position - Gonio_X_Tolerance)) and (Gonio_X_Real_Position < (Gonio_X_Safe_Position + Gonio_X_Tolerance)) and (Gonio_X_HOMED = 1) and (Gonio_X_In_Position = 1)
+    Gonio_X_Safe = 1
+else
+    Gonio_X_Safe = 0
+endif
+
+; If GONIO_Z is within its high and low threshold positions
+if (Gonio_Z_Real_Position > (Gonio_Z_Safe_Position - Gonio_Z_Tolerance)) and (Gonio_Z_Real_Position < (Gonio_Z_Safe_Position + Gonio_Z_Tolerance)) and (Gonio_Z_HOMED = 1) and (Gonio_Z_In_Position = 1)
+    Gonio_Z_Safe = 1
+else
+    Gonio_Z_Safe = 0
+endif
+
+; If both Gonio_X znd Gonio_Z are safe write to OUT1 and turn off amp loss protection
+; If amp loss protection is enabled, when PLC4 detects amp loss the FFE limit is set to
+; 1 causing any movement to trigger FFE. When XZ is safe, MPS cuts power, so we avoid
+; FFE by disabling amp loss protection
+if (Gonio_X_Safe = 1 and Gonio_Z_Safe = 1)
+    Gonio_XZ_Safe = 1
+    Gonio_X_Enc_Protection = 1
+    Gonio_Z_Enc_Protection = 1
+else
+    Gonio_XZ_Safe =0
+    Gonio_X_Enc_Protection = 3
+    Gonio_Z_Enc_Protection = 3
+endif
+
+close
+

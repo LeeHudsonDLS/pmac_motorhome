@@ -1,0 +1,297 @@
+;####################################################
+; DO NOT MODIFY: File created from src/PLC15_HOME_DCM_PERP.psub
+;####################################################
+
+;****************** PLC 15 DCM Perp Motor Homing Routine ******************
+;
+; Written by:     Andy Foster
+; Date:           08/06/09
+;
+; 14/05/2010 Modified I65 encoding using TDI-CTRL-REP-089 conventions
+
+; Uses the following P-Variables:
+
+; P1501 - Homing Velocity (cnts/msec)
+; P1503 - Servo Interupt Time
+; P1504 - PLC0 Period (To allow for approx time checks)
+; P1505 - Keeping eye on time in seconds
+; P1506 - Keeping eye on time in servo cycles
+; P1507 - Position of perp at start of process
+; P1508 - Position of perp shortly afterwards (so can check behaviour)
+
+; The next 6 values are used to determine which beamline this PLC is running on
+; P1509 - PMAC Number
+; P1512 - Beamline Number
+; P1513 - Software Version
+; P1522 - Sub-Domain A0
+; P1523 - Sub-Domain A1
+; P1524 - Sub-Domain A2
+
+; P1514 - Perp most negative position (in cnts)
+; P1515 - Perp most positive position (in cnts)
+; P1516 - Perp midpoint calculated using positive and negative values (in cnts)
+; P1517 - Store current negative limit (in cnts) so can be restored later
+; P1518 - Negative limit converted into mm's
+; P1519 - Store current positive limit (in cnts) so can be restored later
+; P1520 - Positive limit converted into mm's
+; P1521 - Encoder resolution (in mm/cnt)
+
+; Macros for MSI substitution in motion area:
+; HOME_OFFSET  - home offset
+; KILL_PLC     - PLC to kill motors in place (12 for I04, I3 and 7 for I02)
+
+M1033->X:$000530,13,1 ; Motor 10, Desired-velocity-zero bit
+M1040->Y:$000540,0,1  ; Motor 10, In-position bit
+M1045->Y:$000540,10,1 ; Motor 10, Home-complete bit
+M1061->D:$000508      ; Motor 10, Commanded position (1/[Ixx08*32] cts)
+M1072->L:$000557      ; Motor 10, Variable jog position/distance (cts)
+
+#define PERP_DESIRED_VELOCITY_ZERO M1033
+#define PERP_IN_POSITION_BIT       M1040
+#define PERP_HOME_COMPLETE         M1045
+#define PERP_COMMANDED_POSITION    M1061
+#define PERP_HOME_OFFSET           M1072
+
+; The value of the home offset is stored in the PLCs associated psub file
+; and is substituted below when the PLC is built in the motion area.
+; The value is defined before the PLC is opened so that the option to set
+; the value to zero (to enable the survey calibration) is still available.
+PERP_HOME_OFFSET = 0
+
+; Note: PLC0_PERIOD is not the period of this PLC, we cannot guarantee how often
+; this PLC will run, it depends on the CPU load of the PMAC. But we
+; use it approximately here to give us a measure of time.
+;                               P1501 is the homing velocity in cnts/msec
+#define SERVO_INTERRUPT_TIME    p1503 ;seconds
+#define PLC0_PERIOD             p1504 ;seconds
+#define CHECK_TIME              p1505 ;seconds
+#define CHECK_PERIOD            P1506 ;servo cycles
+#define PERP_POS1               P1507
+#define PERP_POS2               P1508
+
+; Run this PLC with "M1072 = 0" to automatically determine the "home" offset
+; which will put the 0.0 position midway bewteen the crystals. This would
+; only normally be done with the DCM open, during a survey. After doing this,
+; P1518 holds the negative limit in mm and P1520 holds the positive limit in mm.
+; These should be copied to the Perp Motor Record EPICS screen and put in the
+; spreadsheet.
+
+; I65 is a 24-bit word (MSB is leftmost) whose bits contain the following information:
+; Lower 5 bits - PMAC number          (0-31)
+; Bit 6        - A1
+; Bit 7        - A0
+; Bits 8 - 12  - Subdomain number (beamline number) number (0-31)
+; Bit  13      - A2
+; Bits 14 - 20 - Software version   (0-127)
+; Bits 21 - 24 - Domain (0-8 where 0-BL, 1-BR, 2-BS, etc)
+;
+; From this 24-bit word, pick out the relevant information as follows:
+; PMAC number      =  I65 & $1F
+; sub-domain       = (I65 & $F80)    / 128  ; 2^7  shift right  7 places
+; Software version = (I65 & $0FE000) / 8192 ; 2^13 shift right 13 places
+; A0               = (I65 & 0x040)   / 64   ; 2^6  shift right 6 places
+; A1               = (I65 & 0x020)   / 32   ; 2^5  shift right 5 places
+; A2               = (I65 & 0x1000)  / 4096 ; 2^12 shift right 12 places
+
+;
+; Note: There is no bit shifting function in PMAC, so have to divide by powers of 2
+; to shift right
+
+#define PMAC_NUM                P1509
+#define BEAMLINE_NUM            P1512
+#define SOFTWARE_VERSION        P1513
+#define SUBDOMAIN_A0            P1522
+#define SUBDOMAIN_A1            P1523
+#define SUBDOMAIN_A2            P1524
+
+#define PERP_NEG                P1514   ; in cnts
+#define PERP_POS                P1515   ; in cnts
+#define PERP_MIDPOINT           P1516   ; in cnts
+#define PERP_NEG_LIMIT_CNTS     P1517   ; in cnts
+#define PERP_NEG_LIMIT_MM       P1518   ; in mm
+#define PERP_POS_LIMIT_CNTS     P1519   ; in cnts
+#define PERP_POS_LIMIT_MM       P1520   ; in mm
+#define PERP_ENC_RES            P1521   ; in mm/cnt
+
+###################################################
+#
+open plc 15
+clear
+
+SERVO_INTERRUPT_TIME = I10/(8388608 * 1000)             ;seconds
+PLC0_PERIOD          = (I8 + 1) * SERVO_INTERRUPT_TIME  ;seconds
+CHECK_PERIOD         = INT( CHECK_TIME/PLC0_PERIOD )    ;servo cycles
+
+; Decode I65
+PMAC_NUM         = I65 & $1F
+SUBDOMAIN_A0     = (I65 & $40) / 64       ; 2^6  shift right 6 places
+SUBDOMAIN_A1     = (I65 & $20) / 32       ; 2^5  shift right 6 places
+SUBDOMAIN_A2     = (I65 & $1000) / 4096   ; 2^12  shift right 6 places
+BEAMLINE_NUM     = (I65 & $F80) / 128    ; 2^7  shift right 7 places
+SOFTWARE_VERSION = (I65 & $FE000) / 8192 ; 2^13 shift right 13 places
+
+disable plc 7               ; Turn off the PLC which stops overheating of the perp motor
+M654                = 1      ; Make sure the amplifier is enabled
+PERP_HOME_COMPLETE  = 0      ; Turn off the "home complete" bit
+PERP_POS_LIMIT_CNTS = I1013  ; Remember current positive limit
+PERP_NEG_LIMIT_CNTS = I1014  ; Remember current negative limit
+I1013               = 0      ; Set +ve limit to 0 so that it does not prevent homing
+I1014               = 0      ; Set -ve limit to 0 so that it does not prevent homing
+
+; Move the off-axis cam in the same direction all the way around until we locate the turn
+; over point at the bottom of the cam.
+; We rely on the general purpose I-variable, I65, being set according to the format described
+; above. Note that I1069 is the same for I02/3/4 = 16000.
+; All beamlines have the same micro-stepping Maclennan amplifier card.
+; BUT I02 has a gearbox with a ratio of 6:1 whereas I03/4 have gearboxes with a ratio of 16:1.
+; Therefore, we require a smaller percentage open-loop move to move at the same speed on
+; I02 than we do on I03/4. This is important because if we move too fast on I02, we go too
+; far round the bottom of the cam at the bottom and the "home" move which follows goes 
+; immediately into a following error.
+
+if( BEAMLINE_NUM = 2 )
+  cmd "#10o2"                                          ;  2% of I1069 for an open loop move
+else 
+  if( BEAMLINE_NUM = 3 or BEAMLINE_NUM = 4 )
+    cmd "#10o5"                                        ;  5% of I1069 for an open loop move
+  endif
+endif
+
+
+PERP_POS1 = PERP_COMMANDED_POSITION/(I1008*32)
+i5111 = CHECK_PERIOD                                  ; timer, allow some time to move
+while( i5111 > 0 )
+endwhile
+
+PERP_POS2 = PERP_COMMANDED_POSITION/(I1008*32)
+
+; This first section only finishes at the top of the cam, if we start on the side where
+; the encoder is increasing in the same direction as the motor is turning. Otherwise
+; it will finish immediately as PERP_POS2 < PERP_POS1.
+
+while( PERP_POS2 > PERP_POS1 )            ; while position is increasing.
+  PERP_POS1 = PERP_POS2
+  i5111 = CHECK_PERIOD                    ; timer, checking every second
+  while( i5111 > 0 )
+  endwhile
+  PERP_POS2 = PERP_COMMANDED_POSITION/(I1008*32)
+endwhile
+
+; When we get here, we are either at the top of the motion or somewhere on the side where
+; the encoder is decreasing in the same direction as the motor is turning.
+; From whichever side of the cam we started on, we are guaranteed to be at the bottom at
+; the end of this section of code.
+
+while( PERP_POS2 < PERP_POS1 )            ; while position is decreasing.
+  PERP_POS1 = PERP_POS2
+  i5111 = CHECK_PERIOD                    ; timer, checking every second
+  while( i5111 > 0 )
+  endwhile
+  PERP_POS2 = PERP_COMMANDED_POSITION/(I1008*32)
+endwhile
+
+; Do one more small move to get round the bottom of the cam, so that closed-loop
+; moves work
+i5111 = CHECK_PERIOD                      ; timer, checking every second
+while( i5111 > 0 )
+endwhile
+
+cmd"#10j/"                                     ; stop the open loop move
+cmd"ms17,mi912=1"                              ; capture on marker pulse
+cmd"ms17,mi913=0"                              ; use home switch as a flag
+
+i1023 = P1501
+cmd "#10hm"
+while( PERP_HOME_COMPLETE = 0 or PERP_DESIRED_VELOCITY_ZERO = 0 )
+endwhile
+PERP_HOME_COMPLETE = 0
+
+; Move to home offset position
+; This is the offset position which is defined at the top of the file
+; (before the PLC is run)
+cmd "#10j=*"
+
+; The first loop is to allow the in-position bit to go off
+while ( PERP_IN_POSITION_BIT = 1 )
+end while
+while ( PERP_IN_POSITION_BIT = 0 )
+end while
+cmd "#10hmz"
+
+I1013             = PERP_POS_LIMIT_CNTS                 ; Restore current positive limit
+I1014             = PERP_NEG_LIMIT_CNTS                 ; Restore current negative limit
+PERP_POS_LIMIT_MM = PERP_ENC_RES * PERP_POS_LIMIT_CNTS  ; Positive limit in mm
+PERP_NEG_LIMIT_MM = PERP_ENC_RES * PERP_NEG_LIMIT_CNTS  ; Negative limit in mm
+
+; For normal "homing", the routine ends here.
+
+; For "homing" during a survey, the following is also done to calculate the
+; midpoint, PERP_HOME_OFFSET. We set P1525 = 0 (PERP_HOME_OFFSET_SAFE), so that
+; the midpoint between the crystals corresponds to 0.0 in EPICS.
+
+if( PERP_HOME_OFFSET = 0 )
+  ; We want to calculate the midpoint between the crystals.
+  ; Repeat the above open-loop moves and record the positions of turn arounds
+  ; as these will be the top and bottom limits (now that we have homed). Calculate
+  ; the midpoint from these values.
+
+  I1013 = 0      ; Set +ve limit to 0 so that it does not prevent homing
+  I1014 = 0      ; Set -ve limit to 0 so that it does not prevent homing
+  cmd "#10o5"
+  PERP_POS1 = PERP_COMMANDED_POSITION/(I1008*32)
+  i5111 = CHECK_PERIOD                      ; timer, allow some time to move
+  while( i5111 > 0 )
+  endwhile
+
+  PERP_POS2 = PERP_COMMANDED_POSITION/(I1008*32)
+
+  while( PERP_POS2 > PERP_POS1 )            ; while position is increasing. Finishes at the top of the cam.
+    PERP_POS1 = PERP_POS2
+    i5111 = CHECK_PERIOD                    ; timer, checking every second
+    while( i5111 > 0 )
+    endwhile
+    PERP_POS2 = PERP_COMMANDED_POSITION/(I1008*32)
+  endwhile
+
+  PERP_POS = PERP_POS1
+
+  while( PERP_POS2 < PERP_POS1 )            ; while position is decreasing. Finishes at the bottom of the cam.
+    PERP_POS1 = PERP_POS2
+    i5111 = CHECK_PERIOD                    ; timer, checking every second
+    while( i5111 > 0 )
+    endwhile
+    PERP_POS2 = PERP_COMMANDED_POSITION/(I1008*32)
+  endwhile
+
+  PERP_NEG = PERP_POS1
+
+  PERP_MIDPOINT         = 0.5*(PERP_POS + PERP_NEG)
+; The line below is the point where the newly found offset is stored
+  PERP_HOME_OFFSET      = PERP_MIDPOINT
+  i1023                 = P1501
+
+  cmd "#10hm"
+  while( PERP_HOME_COMPLETE = 0 or PERP_DESIRED_VELOCITY_ZERO = 0 )
+  endwhile
+  PERP_HOME_COMPLETE = 0
+
+  ; Move to home offset position (which was defined 8 lines above)
+  cmd "#10j=*"
+  ; The first loop is to allow the in-position bit to go off
+  while ( PERP_IN_POSITION_BIT = 1 )
+  end while
+  while ( PERP_IN_POSITION_BIT = 0 )
+  end while
+  cmd "#10hmz"
+
+  PERP_POS_LIMIT_CNTS = PERP_POS - PERP_MIDPOINT            ; Calculate positive limit (cnts)
+  PERP_NEG_LIMIT_CNTS = PERP_NEG - PERP_MIDPOINT            ; Calculate negative limit (cnts)
+  PERP_POS_LIMIT_MM   = PERP_ENC_RES * PERP_POS_LIMIT_CNTS  ; Positive limit in mm
+  PERP_NEG_LIMIT_MM   = PERP_ENC_RES * PERP_NEG_LIMIT_CNTS  ; Negative limit in mm
+
+  I1013 = PERP_POS_LIMIT_CNTS
+  I1014 = PERP_NEG_LIMIT_CNTS
+endif
+enable plc 7            ; Turn on the PLC which stops overheating of the perp motor
+disable plc 15
+close

@@ -1,0 +1,165 @@
+; The following are associated with PLC 0
+
+#define CAN_MOVE                0
+#define COOLING                 1
+
+#define SERVO_INTERRUPT_TIME P500
+#define PLC0_PERIOD          P501
+#define ENABLED_COUNTER      P502
+#define COOLING_COUNTER      P503
+#define ENABLED_TIME         P504
+#define COOLING_TIME         P505
+
+#define mtr29_state          P529
+#define mtr30_state          P530
+#define mtr31_state          P531
+#define mtr32_state          P532
+
+#define mtr29_enabled        P629
+#define mtr30_enabled        P630
+#define mtr31_enabled        P631
+#define mtr32_enabled        P632
+
+#define mtr29_cooling        P729
+#define mtr30_cooling        P730
+#define mtr31_cooling        P731
+#define mtr32_cooling        P732
+
+#define mtr29_report_state   M2981
+#define mtr30_report_state   M3081
+#define mtr31_report_state   M3181
+#define mtr32_report_state   M3281
+
+M2981->F:$605Ac
+M3081->F:$605Ad
+M3181->F:$605Ae
+M3281->F:$605Af
+
+
+OPEN PLC 0
+clear
+
+; Axis 29 (Z-) Nano-motor on the HFM
+if( mtr29_state = CAN_MOVE )
+  mtr29_report_state = CAN_MOVE
+  if( amplifier_enabled_mtr29 = 1 )
+    mtr29_enabled = mtr29_enabled + 1
+  else
+    if( mtr29_enabled > 0 )
+      mtr29_enabled = mtr29_enabled - 1
+    endif
+  endif
+
+  if( mtr29_enabled = ENABLED_COUNTER )
+    mtr29_state   = COOLING
+    mtr29_enabled = 0
+  endif
+endif
+
+if( mtr29_state = COOLING )
+  mtr29_report_state = COOLING
+  mtr29_cooling = mtr29_cooling + 1
+  if( amplifier_enabled_mtr29 = 1 )
+    cmd"#29k"
+  endif
+
+  if( mtr29_cooling = COOLING_COUNTER )
+    mtr29_state = CAN_MOVE
+    mtr29_cooling = 0
+  endif
+endif
+
+
+; Axis 30 (Z+) Nano-motor on the HFM
+if( mtr30_state = CAN_MOVE )
+  mtr30_report_state = CAN_MOVE
+  if( amplifier_enabled_mtr30 = 1 )
+    mtr30_enabled = mtr30_enabled + 1
+  else
+    if( mtr30_enabled > 0 )
+      mtr30_enabled = mtr30_enabled - 1
+    endif
+  endif
+
+  if( mtr30_enabled = ENABLED_COUNTER )
+    mtr30_state   = COOLING
+    mtr30_enabled = 0
+  endif
+endif
+
+if( mtr30_state = COOLING )
+  mtr30_report_state = COOLING
+  mtr30_cooling = mtr30_cooling + 1
+  if( amplifier_enabled_mtr30 = 1 )
+    cmd"#30k"
+  endif
+
+  if( mtr30_cooling = COOLING_COUNTER )
+    mtr30_state = CAN_MOVE
+    mtr30_cooling = 0
+  endif
+endif
+
+
+; Axis 31 (Z-) Nano-motor on the VFM
+if( mtr31_state = CAN_MOVE )
+  mtr31_report_state = CAN_MOVE
+  if( amplifier_enabled_mtr31 = 1 )
+    mtr31_enabled = mtr31_enabled + 1
+  else
+    if( mtr31_enabled > 0 )
+      mtr31_enabled = mtr31_enabled - 1
+    endif
+  endif
+
+  if( mtr31_enabled = ENABLED_COUNTER )
+    mtr31_state   = COOLING
+    mtr31_enabled = 0
+  endif
+endif
+
+if( mtr31_state = COOLING )
+  mtr31_report_state = COOLING
+  mtr31_cooling = mtr31_cooling + 1
+  if( amplifier_enabled_mtr31 = 1 )
+    cmd"#31k"
+  endif
+
+  if( mtr31_cooling = COOLING_COUNTER )
+    mtr31_state = CAN_MOVE
+    mtr31_cooling = 0
+  endif
+endif
+
+
+; Axis 32 (Z+) Nano-motor on the VFM
+if( mtr32_state = CAN_MOVE )
+  mtr32_report_state = CAN_MOVE
+  if( amplifier_enabled_mtr32 = 1 )
+    mtr32_enabled = mtr32_enabled + 1
+  else
+    if( mtr32_enabled > 0 )
+      mtr32_enabled = mtr32_enabled - 1
+    endif
+  endif
+
+  if( mtr32_enabled = ENABLED_COUNTER )
+    mtr32_state   = COOLING
+    mtr32_enabled = 0
+  endif
+endif
+
+if( mtr32_state = COOLING )
+  mtr32_report_state = COOLING
+  mtr32_cooling = mtr32_cooling + 1
+  if( amplifier_enabled_mtr32 = 1 )
+    cmd"#32k"
+  endif
+
+  if( mtr32_cooling = COOLING_COUNTER )
+    mtr32_state = CAN_MOVE
+    mtr32_cooling = 0
+  endif
+endif
+
+close

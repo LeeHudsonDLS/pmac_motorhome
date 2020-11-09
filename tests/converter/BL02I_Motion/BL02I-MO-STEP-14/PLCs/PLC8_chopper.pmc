@@ -1,0 +1,109 @@
+;; PLC8_chopper.pmc
+;;
+;; Toggle the chopper rotor open and close
+;;
+;; Variables with _REAL suffix have units of
+;; encoder counts, not pmac counts
+;;
+;; Demand values for motor position are in
+;; pmac counts
+
+#define PLC_NO					8
+#define CHOPPER_AXIS			6				
+#define TOGGLE_TRIGGER       	P(100*PLC_NO + 1)       	; p-variable to toggle movement
+#define OPEN_CHOPPER           	P(100*PLC_NO + 2)         	; p-variable to open chopper
+#define CLOSE_CHOPPER          	P(100*PLC_NO + 3)          	; p-variable to close chopper
+#define HOMED                  	P(100*PLC_NO + 4)           ; set to 0 if homed status lost
+#define ALIGNED                	P(100*PLC_NO + 5)           ; if chopper aligned with open/close positions, this is 1
+#define ALIGN_REAL             	P(100*PLC_NO + 6)           ; remainder of chopper position when modulus with step_size
+#define CHOPPER_STATE          	P(100*PLC_NO + 7)           ; chopper open/closed -> (1/0)
+#define POSITION_REAL         	P(100*PLC_NO + 8)           ; axis 6 position in real counts
+#define NEAREST_POS				P(100*PLC_NO + 9)			; nearest open / close position ABS
+
+;Pmac commands
+#define STOP_AXIS				&COMMAND"J/"#
+
+;Timer definition
+#define TIMER 					I(5111+(PLC_NO&30)*50+PLC_NO%2)
+#define MILLISECONDS			* 8388608/i10
+
+#define CHOPPER_HOMED         	M(100*CHOPPER_AXIS + 45)        	; homed status of axis 6
+#define DEMAND_POSITION       	M(100*CHOPPER_AXIS + 61)         	; axis 6 demand position in pmac counts (standard m-variable)
+#define POSITION              	M(100*CHOPPER_AXIS + 62)           	; axis 6 position im pmac counts (standard m-variable)
+#define CHOPPER_SCALAR        	(I(100*CHOPPER_AXIS + 8)*32)      	; scale factor to convert pmac counts to real position
+#define AMP_ENABLED				M(100*CHOPPER_AXIS + 39)		   	; status of amp enable
+#define IN_POS			  		M(100*CHOPPER_AXIS + 40)		   	; In position
+
+#define STEP_SIZE_REAL        	1250             	; counts to move between open and close in real counts
+#define HALF_STEP_REAL         	STEP_SIZE_REAL/2 	; half the step size, saves on needless calculation
+#define ALIGN_TOLERANCE_REAL   	200               	; scaled to real counts
+#define IS_OPEN                	1                	; enumeration of chopper open state
+#define IS_CLOSED              	0                	; enumeration of chopper closed state
+
+
+OPEN PLC PLC_NO                                   	; begin plc buffer
+CLEAR                                              	; clear plc buffer
+
+POSITION_REAL = ABS(POSITION / CHOPPER_SCALAR)
+ALIGN_REAL = HALF_STEP_REAL - ABS((POSITION_REAL % STEP_SIZE_REAL) - HALF_STEP_REAL)
+CHOPPER_STATE = (INT((POSITION_REAL / STEP_SIZE_REAL) + 1.5)) % 2
+NEAREST_POS = ((INT((POSITION_REAL/STEP_SIZE_REAL)+0.5))*STEP_SIZE_REAL)*CHOPPER_SCALAR
+
+IF( CHOPPER_HOMED = 1)                             ; check homed status
+    HOMED = 1
+ELSE
+    HOMED = 0
+ENDIF
+
+IF( ALIGN_REAL > ALIGN_TOLERANCE_REAL )            ; check chopper aligned with open/close positions
+    ALIGNED = 0
+ELSE
+    ALIGNED = 1
+ENDIF
+
+
+IF( TOGGLE_TRIGGER = 1 )
+    TOGGLE_TRIGGER = 0
+    IF( HOMED = 1 )
+	IF(AMP_ENABLED = 0)
+	    ADDRESS#CHOPPER_AXIS
+	    STOP_AXIS
+	    TIMER = 200 MILLISECONDS
+	    WHILE(TIMER > 0)
+	    ENDWHILE
+	ENDIF
+        DEMAND_POSITION = NEAREST_POS + (STEP_SIZE_REAL * CHOPPER_SCALAR)
+    ENDIF
+ENDIF
+
+IF( OPEN_CHOPPER = 1 )
+    OPEN_CHOPPER = 0
+
+    IF( HOMED = 1 )AND ( CHOPPER_STATE = IS_CLOSED ) 
+	IF(AMP_ENABLED = 0)
+	    ADDRESS#CHOPPER_AXIS
+	    STOP_AXIS
+	    TIMER = 200 MILLISECONDS
+	    WHILE(TIMER > 0)
+	    ENDWHILE
+	ENDIF
+        DEMAND_POSITION = NEAREST_POS + (STEP_SIZE_REAL * CHOPPER_SCALAR)
+    ENDIF
+ENDIF
+
+IF( CLOSE_CHOPPER = 1 )
+    CLOSE_CHOPPER = 0
+
+    IF( HOMED = 1 ) AND ( CHOPPER_STATE = IS_OPEN ) 
+	IF(AMP_ENABLED = 0)
+	    ADDRESS#CHOPPER_AXIS
+	    STOP_AXIS
+	    TIMER = 200 MILLISECONDS
+	    WHILE(TIMER > 0)
+	    ENDWHILE
+	ENDIF
+        DEMAND_POSITION = NEAREST_POS + (STEP_SIZE_REAL * CHOPPER_SCALAR)
+    ENDIF
+ENDIF
+
+CLOSE                                              ; close plc buffer

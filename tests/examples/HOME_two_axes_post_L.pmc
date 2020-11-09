@@ -154,6 +154,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
             HomingStatus = StatusTimeout
         endif
     endif
+
 endif
 
 ;---- Done ----

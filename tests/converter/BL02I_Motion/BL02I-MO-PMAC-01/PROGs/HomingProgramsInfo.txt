@@ -1,0 +1,101 @@
+MX Optics Hutch Homing Commands:
+--------------------------------
+
+White Beam Slits:
+  X-axis
+        Start: #1j/ #2j/ &1b1r
+        Stop:  &1a
+
+  Y-axis
+        Start: #3j/ #4j/ &2b2r
+        Stop:  &2a
+---------------------------------------------
+DCM:
+  Bragg
+        Start: #5j/ &7b7r
+        Stop:  &7a
+
+  Pitch
+        Start: enable plc 13
+        Stop:  P1301=2
+
+  Roll
+        Start: enable plc 14
+        Stop:  P1401=2
+
+  Perp
+        Start: enable plc 15
+        Stop:  disable plc 15
+--------------------------------------------
+Pre-HFM QBPM
+        Start: #11j/ &8b8r
+        Stop:  &8a
+--------------------------------------------
+Pre-HFM Slits
+  X-axis
+        Start: #12j/ #13j/ &3b3r
+        Stop:  &3a
+
+  Y-axis
+        Start: #14j/ #15j/ &4b4r
+        Stop:  &4a
+--------------------------------------------
+HFM
+  Jack 1
+        Start: #17j/ #18j/ #19j/ &11b11r
+        Stop:  &11a
+
+  Jack 2
+        Start: #17j/ #18j/ #19j/ &11b11r
+        Stop:  &11a
+
+  Jack 3
+        Start: #17j/ #18j/ #19j/ &11b11r
+        Stop:  &11a
+
+  Translation 1
+        Start: disable plc 0 #29j/ #30j/ &12b12r
+        Stop:  &12a
+
+  Translation 2
+        Start: disable plc 0 #29j/ #30j/ &12b12r
+        Stop:  &12a
+--------------------------------------------
+Pre-VFM QBPM
+        Start: #20j/ &9b9r
+        Stop:  &9a
+--------------------------------------------
+Pre-VFM Slits
+  X-axis
+        Start: #21j/ #22j/ &5b5r
+        Stop:  &5a
+
+  Y-axis
+        Start: #23j/ #24j/ &6b6r
+        Stop:  &6a
+--------------------------------------------
+VFM
+  Jack 1
+        Start: #25j/ #26j/ #27j/ &13b13r
+        Stop:  &13a
+
+  Jack 2
+        Start: #25j/ #26j/ #27j/ &13b13r
+        Stop:  &13a
+
+  Jack 3
+        Start: #25j/ #26j/ #27j/ &13b13r
+        Stop:  &13a
+
+  Translation 1
+        Start: disable plc 0 #31j/ #32j/ &14b14r
+        Stop:  &14a
+
+  Translation 2
+        Start: disable plc 0 #31j/ #32j/ &14b14r
+        Stop:  &14a
+--------------------------------------------
+Post-VFM QBPM
+        Start: #28j/ &10b10r
+        Stop:  &10a
+--------------------------------------------

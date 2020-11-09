@@ -1,0 +1,90 @@
+;####################################################
+; DO NOT MODIFY: File created from /dls_sw/prod/R3.14.12.3/support/mxMasterConfig/2-81/data/MPROG1_HOME_PRE_DCM_SLITS_X.pmc
+;####################################################
+
+; Motion Program 1, Coordinate System 1: Homing Routine for Pre-DCM Slits, X axes
+
+; Uses the following P-Variables:
+
+; P3301 - Homing started
+; P3302 - Movement range of Motor 1
+; P3303 - Move back this far off limit (Motor 1)
+; P3304 - Home offset for Motor 1
+; P3305 - Movement range of Motor 2
+; P3306 - Move back this far off limit (Motor 2)
+; P3307 - Home offset for Motor 2
+
+; The following P-Variables are used internally (not set by user):
+
+; P3308 - Store positive soft limit for Motor 1
+; P3309 - Store negative soft limit for Motor 1
+; P3310 - Store positive soft limit for Motor 2
+; P3311 - Store negative soft limit for Motor 2
+
+M145->Y:$0000C0,10,1 ; Motor 1, Home-complete bit
+M245->Y:$000140,10,1 ; Motor 2, Home-complete bit
+
+#define home_complete_mtr1   M145
+#define home_complete_mtr2   M245
+
+#define homing_started_prog1 P3301
+#define pos_soft_limit_mtr1  P3308
+#define neg_soft_limit_mtr1  P3309
+#define pos_soft_limit_mtr2  P3310
+#define neg_soft_limit_mtr2  P3311
+
+;********** Setting P-Variables **********
+P3301 = 0
+P3302 = 42000
+P3303 = 1000
+P3304 = 13225
+P3305 = 42000
+P3306 = 1000
+P3307 = -5265
+;*****************************************
+
+;CS1 - pre-DCM slits horizontal
+ADDRESS &1
+cmd"#1->X"
+cmd"#2->Y"
+
+cmd"&1a"
+
+open prog 1
+clear
+
+homing_started_prog1 = 1                               ; This program has started
+I190=0                                                 ; Use I122 for RAPID moves
+I290=0                                                 ; Use I222 for RAPID moves
+RAPID                                                  ; Use RAPID moves
+ta(I120)                                               ; acc time
+ts(I121)                                               ; s-curve time
+f(I122)                                                ; feedrate (velocity)
+home_complete_mtr1=0                                   ; set the home complete flag off
+home_complete_mtr2=0                                   ; set the home complete flag off
+cmd "ms0,mi912=2 ms1,mi912=2 ms0,mi913=2 ms1,mi913=2"  ; capture -ve limit on rising edge of flag
+dwell 100                                              ; give the above cmd time to execute
+I124=$260001                                           ; disable +/- limits
+I224=$260001                                           ; disable +/- limits
+pos_soft_limit_mtr1 = I113                             ; Remember current positive limit
+neg_soft_limit_mtr1 = I114                             ; Remember current negative limit
+pos_soft_limit_mtr2 = I213                             ; Remember current positive limit
+neg_soft_limit_mtr2 = I214                             ; Remember current negative limit
+I113 = 0                                               ; Disable positive soft limit
+I114 = 0                                               ; Disable negative soft limit
+I213 = 0                                               ; Disable positive soft limit
+I214 = 0                                               ; Disable negative soft limit
+X(-P3302)^(P3303) Y(-P3305)^(P3306)                    ; Trigger move, looking for -ve limit with offset
+dwell 0                                                ; Make sure this move is not blended with next one
+I124=$240001                                           ; reenable +/-limits
+I224=$240001                                           ; reenable +/-limits
+cmd "ms0,mi912=1 ms1,mi912=1 ms0,mi913=0 ms1,mi913=0"  ; capture home on marker pulse
+dwell 100                                              ; give the above cmd time to execute
+X(P3302)^(P3304) Y(P3305)^(P3307)                      ; Trigger move, looking for home switch with offset
+HOMEZ 1,2                                              ; Set this position to 0 counts
+I113 = pos_soft_limit_mtr1                             ; Set positive soft limit
+I114 = neg_soft_limit_mtr1                             ; Set negative soft limit
+I213 = pos_soft_limit_mtr2                             ; Set positive soft limit
+I214 = neg_soft_limit_mtr2                             ; Set negative soft limit
+homing_started_prog1 = 0                               ; This program has finished
+close

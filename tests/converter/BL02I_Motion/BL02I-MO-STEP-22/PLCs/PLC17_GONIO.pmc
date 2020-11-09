@@ -1,0 +1,133 @@
+;####################################################
+; DO NOT MODIFY: File created from src/PLC17_GONIO.psub
+;####################################################
+
+CLOSE
+
+;##############################################################################
+;
+; Control Y by the X Positions of the Bases of a Scissor Jack
+;
+; Original Author: James O'Hea
+;
+; Defined axes:
+;        Y (Addr 7) = Y in mm
+;
+; Macros (and example values):
+;       COORD = 2       CS number (only works for CS 1..9), e.g. 2
+;       PLC = 17           PLC number, should be CS number+15, e.g. 17
+;       X1 = 2             Axis Number for Inboard X, e.g. 1 	X2
+;       X2 = 1             Axis Number for Outboard X, e.g. 2 	X1
+;
+;       LEG_LENGTH = 183              Length of jack leg in mm
+;       PLATFORM_WIDTH = 105      Width of top platform in mm
+;       E1 = 33   			                Width of Inboard X Base in mm  X2
+;       E2 = 41   		        	        Width of Outboard X Base in mm X1
+;	    X_OFFSET	= 27.5               X offset
+;	    Y_OFFSET	= 30               Y offset
+;##############################################################################
+
+; Set trig calculations to be performed in degrees
+i15 = 0
+
+; Change to CS2
+&2
+
+; Set relevant axes to use kinematics
+&2#2->I
+&2#1->I
+
+; Define resolution, offset, and move flag variables
+; These are set by motor_in_cs.template (from spreadsheet)
+#define X1MOVE P(4700+2)
+#define X1MRES P(4800+2)
+#define X1OFF  P(4900+2)
+#define X2MOVE P(4700+1)
+#define X2MRES P(4800+1)
+#define X2OFF  P(4900+1)
+
+; Q1-9 Kinematic Positions (Temporary variables used in kinematic calculations by PMAC)
+
+
+
+; Q128-199 Forward Kinematic Temporary Variables
+
+; None needed
+
+; Q228-299 Inverse Kinematic Temporary Variables
+
+; None needed
+
+; Q20-70 EPICS Variables
+
+#define X1		P2		                ; X1 Calculation
+#define X1_DVEL	P102					; X1 velocity calculation result
+#define X2		P1		                ; X2 Calculation
+#define X2_DVEL	P101					; X2 velocity calculation result
+#define LEG_LENGTH	183		    ; Length of jack leg in mm
+#define PLATFORM_WIDTH	105   ; Width of top platform in mm
+#define E1		33   	                ; Width of Inboard X Base in mm  X2
+#define E2		41   	                ; Width of Outboard X Base in mm X1
+#define X_OFFSET	27.5   		    ; X offset
+#define Y_OFFSET	30   		    ; Y offset
+
+; Forward Kinematics - Calculate Y from X1, X2
+#define X1POS (X1MRES*X1+X1OFF)
+#define X2POS (X2MRES*X2+X2OFF)
+#define X           Q6        ; Desired X
+#define XDT			Q16		  ; X Velocity from PVT statement
+#define Y           Q7        ; Desired Y 
+#define YDT			Q17		  ; Y Velocity from PVT statement
+OPEN FORWARD
+CLEAR
+        
+	X = 0.5*(X1POS + X2POS - E1 - E2 - 2 * X_OFFSET + PLATFORM_WIDTH)
+	Y = SQRT((LEG_LENGTH * LEG_LENGTH) - ((0.5 * (X2POS - X1POS + E1 - E2 + PLATFORM_WIDTH)) * (0.5 * (X2POS - X1POS + E1 - E2 + PLATFORM_WIDTH)))) + Y_OFFSET
+CLOSE
+
+; Inverse Kinematics - Calculate X1 and X2 from energy, grating, and diffraction order
+#define X1POS		Q232
+#define X2POS		Q233
+
+OPEN INVERSE
+CLEAR
+	
+	; X1 and X2 calculated in mm's
+	X1POS = X + X_OFFSET - SQRT((LEG_LENGTH * LEG_LENGTH) - ((Y-Y_OFFSET) * (Y-Y_OFFSET))) + E1 
+	X2POS = X - (PLATFORM_WIDTH - X_OFFSET) + SQRT((LEG_LENGTH * LEG_LENGTH) - ((Y-Y_OFFSET) * (Y-Y_OFFSET))) + E2
+
+	; X1 and X2 calculated in motor counts
+    P2  = ((X1POS - X1OFF) / X1MRES)
+    P1 = ((X2POS - X2OFF) / X2MRES)
+	
+    ;X1 and X2 velocities in motor counts / second
+	X1_DVEL = (XDT/X1MRES) + ((Y-Y_OFFSET)/SQRT((LEG_LENGTH * LEG_LENGTH)-((Y-Y_OFFSET) * (Y-Y_OFFSET))) * YDT)/X1MRES
+	X2_DVEL = (XDT/X2MRES) - ((Y-Y_OFFSET)/SQRT((LEG_LENGTH * LEG_LENGTH)-((Y-Y_OFFSET) * (Y-Y_OFFSET))) * YDT)/X2MRES
+
+
+CLOSE
+
+; A PLC for position reporting
+#define X           Q86     ; Desired Y
+#define Y           Q87     ; Desired Y
+#define X1POS		(X1MRES*(m262/(I208*32))+X1OFF)
+#define X2POS		(X2MRES*(m162/(I108*32))+X2OFF)
+
+OPEN PLC 17
+CLEAR
+    ADDRESS&2
+    
+    X = 0.5*(X1POS + X2POS - E1 - E2 - 2 * X_OFFSET + PLATFORM_WIDTH)
+    Y = SQRT((LEG_LENGTH * LEG_LENGTH) - ((0.5 * (X2POS - X1POS + E1 - E2 + PLATFORM_WIDTH)) * (0.5 * (X2POS - X1POS + E1 - E2 + PLATFORM_WIDTH)))) + Y_OFFSET
+
+    ; If X1 or X2 motor records did the last move, set demands = readbacks
+    if (X1MOVE = 1)
+    or (X2MOVE = 1)
+        X1MOVE = 0
+        X2MOVE = 0
+        Q76 = Q86
+        Q77 = Q87
+    endif
+CLOSE
+
+ENABLE PLC 17

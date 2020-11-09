@@ -1,0 +1,102 @@
+;####################################################
+; DO NOT MODIFY: File created from /dls_sw/prod/R3.14.12.3/support/mxMasterConfig/2-81/data/MPROG12_HOME_HFM_TRANS.pmc
+;####################################################
+
+; Motion Program 12, Coordinate System 12: Homing Routine for HFM translations
+
+; Uses the following P-Variables:
+
+; P4401 - Homing started
+; P4402 - Movement range of Motor 29
+; P4403 - Move back this far off limit (Motor 29)
+; P4404 - Home offset of Motor 29
+; P4405 - Warning following error of Motor 29
+; P4406 - Movement range of Motor 30
+; P4407 - Move back this far off limit (Motor 30)
+; P4408 - Home offset of Motor 30
+; P4409 - Warning following error of Motor 30
+
+; The following P-Variables are used internally (not set by user):
+
+; P4410 - Store positive soft limit for Motor 29
+; P4411 - Store negative soft limit for Motor 29
+; P4412 - Store positive soft limit for Motor 30
+; P4413 - Store negative soft limit for Motor 30
+
+M2940->Y:$000EC0,0,1  ; Motor 29, In-position bit
+M2945->Y:$000EC0,10,1 ; Motor 29, Home-complete bit
+M3040->Y:$000F40,0,1  ; Motor 30, In-position bit
+M3045->Y:$000F40,10,1 ; Motor 30, Home-complete bit
+
+#define in_position_mtr29     M2940
+#define home_complete_mtr29   M2945
+#define in_position_mtr30     M3040
+#define home_complete_mtr30   M3045
+
+#define homing_started_prog12 P4401
+#define pos_soft_limit_mtr29  P4410
+#define neg_soft_limit_mtr29  P4411
+#define pos_soft_limit_mtr30  P4412
+#define neg_soft_limit_mtr30  P4413
+
+;********** Setting P-Variables **********
+P4401 = 0
+P4402 = 1440000
+P4403 = 10000
+P4404 = -42008
+P4405 = 16000
+P4406 = 1440000
+P4407 = 10000
+P4408 = 172593
+P4409 = 16000
+;*****************************************
+
+;CS12 - HFM trans
+ADDRESS &12
+cmd"#29->X"
+cmd"#30->Y"
+
+cmd"&12a"
+
+open prog 12
+clear
+
+homing_started_prog12=1                                    ; This program has started
+I2990=0                                                    ; use I2922 for RAPID moves
+I3090=0                                                    ; use I3022 for RAPID moves
+RAPID                                                      ; Use RAPID moves
+ta(I2920)                                                  ; acc time
+ts(I2921)                                                  ; s-curve time
+f(I2922)                                                   ; feedrate (velocity)
+home_complete_mtr29=0                                      ; set the home complete flag off
+home_complete_mtr30=0                                      ; set the home complete flag off
+I2912=P4405                                                ; Set the "warning following error"
+I3012=P4409                                                ; Set the "warning following error"
+I2997=3                                                    ; Use "warning following error" as a trigger
+I3097=3                                                    ; Use "warning following error" as a trigger
+pos_soft_limit_mtr29 = I2913                               ; Remember current positive limit
+neg_soft_limit_mtr29 = I2914                               ; Remember current negative limit
+pos_soft_limit_mtr30 = I3013                               ; Remember current positive limit
+neg_soft_limit_mtr30 = I3014                               ; Remember current negative limit
+I2913 = 0                                                  ; Disable positive soft limit
+I2914 = 0                                                  ; Disable negative soft limit
+I3013 = 0                                                  ; Disable positive soft limit
+I3014 = 0                                                  ; Disable negative soft limit
+X(-P4402)^(P4403) Y(-P4406)^(P4407)                        ; Trigger move, looking for "warning following error", with offset
+dwell 0                                                    ; Make sure this move is not blended with next one
+I2997=0                                                    ; Input trigger, hardware position capture
+I3097=0                                                    ; Input trigger, hardware position capture
+cmd "ms56,mi912=1 ms56,mi913=0 ms57,mi912=1 ms57,mi913=0"  ; capture home on marker pulse
+dwell 100                                                  ; give the above cmd time to execute
+X(P4402)^(P4404) Y(P4406)^(P4408)                          ; Trigger move, looking for home switch with offset
+HOMEZ 29,30                                                ; Set this position to 0 counts
+I2913 = pos_soft_limit_mtr29                               ; Set positive soft limit
+I2914 = neg_soft_limit_mtr29                               ; Set negative soft limit
+I3013 = pos_soft_limit_mtr30                               ; Set positive soft limit
+I3014 = neg_soft_limit_mtr30                               ; Set negative soft limit
+cmd "enable plc 0"                                         ; Start nano-motor protection PLC
+dwell 100                                                  ; give the above cmd time to execute
+in_position_mtr29=1                                        ; Signal back to EPICS that the motor is in position
+in_position_mtr30=1                                        ; Signal back to EPICS that the motor is in position
+homing_started_prog12=0                                    ; This program has finished
+close

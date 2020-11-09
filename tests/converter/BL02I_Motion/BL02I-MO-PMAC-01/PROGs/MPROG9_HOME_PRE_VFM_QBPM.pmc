@@ -1,0 +1,61 @@
+;####################################################
+; DO NOT MODIFY: File created from /dls_sw/prod/R3.14.12.3/support/mxMasterConfig/2-81/data/MPROG9_HOME_PRE_VFM_QBPM.pmc
+;####################################################
+
+; Motion Program 9, Coordinate System 9: Homing Routine for pre-VFM QBPM
+
+; Uses the following P-Variables:
+
+; P4101 - Homing started
+; P4102 - Movement range of Motor 20
+; P4103 - Home offset of Motor 20
+
+; The following P-Variables are used internally (not set by user):
+
+; P4104 - Store positive soft limit for Motor 20
+; P4105 - Store negative soft limit for Motor 20
+
+M2045->Y:$000A40,10,1 ; Motor 20, Home-complete bit
+
+#define home_complete_mtr20   M2045
+
+#define homing_started_prog9  P4101
+#define pos_soft_limit_mtr20  P4104
+#define neg_soft_limit_mtr20  P4105
+
+;********** Setting P-Variables **********
+P4101 = 0
+P4102 = 17100
+P4103 = -400
+;*****************************************
+
+;CS9 - pre VFM QBPM
+ADDRESS &9
+cmd"#20->X"
+
+cmd"&9a"
+
+open prog 9
+clear
+
+homing_started_prog9=1                    ; This program has started
+I2090=0                                   ; Use I2022 for RAPID moves
+RAPID                                     ; Use RAPID moves
+ta(I2020)                                 ; acc time
+ts(I2021)                                 ; s-curve time
+f(I2022)                                  ; feedrate (velocity)
+home_complete_mtr20=0                     ; set the home complete flag off
+cmd "ms37,mi912=2 ms37,mi913=1"           ; capture +ve limit on rising edge of flag
+dwell 100                                 ; give the above cmd time to execute
+I2024=$260001                             ; disable +/- limits
+pos_soft_limit_mtr20 = I2013              ; Remember current positive limit
+neg_soft_limit_mtr20 = I2014              ; Remember current negative limit
+I2013 = 0                                 ; Disable positive soft limit
+I2014 = 0                                 ; Disable negative soft limit
+X(P4102)^(P4103)                          ; Trigger move, looking for +ve limit with offset
+I2024=$240001                             ; reenable +/-limits
+HOMEZ 20                                  ; Set this position to 0 counts
+I2013 = pos_soft_limit_mtr20              ; Set positive soft limit
+I2014 = neg_soft_limit_mtr20              ; Set negative soft limit
+homing_started_prog9=0                    ; This program has finished
+close

@@ -1,0 +1,174 @@
+
+; Motion Program 12 - Homing Routine for HFM Jacks
+
+#define homing_started_prog12    P412
+#define acc_time_var_mtr17      I1720
+#define s_curve_time_var_mtr17  I1721
+#define jog_speed_var_mtr17     I1722
+#define flag_mode_control_mtr17 I1724
+#define home_complete_mtr17     M1744
+#define home_complete_mtr18     M1844
+#define home_complete_mtr19     M1944
+#define MOVEMENT_RANGE_MTR17   950000
+#define MOVEMENT_RANGE_MTR18   950000
+#define MOVEMENT_RANGE_MTR19   950000
+#define LIMIT_OFFSET_MTR17        -50
+#define LIMIT_OFFSET_MTR18        -50
+#define LIMIT_OFFSET_MTR19        -50
+#define HOME_OFFSET_MTR17      201464
+#define HOME_OFFSET_MTR18      207312
+#define HOME_OFFSET_MTR19      199359
+#define HFM_ROLL_LIMIT_CORR     40000
+#define LIMITS_ON             $240001
+#define LIMITS_OFF            $260001
+
+#define home_speed_var_mtr17           I1723
+#define rapid_mode_speed_select_mtr17  I1790
+#define trigger_mode_mtr17             I1797
+
+#define neg_limit_bit_mtr17            M1732
+#define amplifier_enabled_mtr17        M1739
+#define in_position_bit_mtr17          M1740
+#define commanded_position_mtr17       M1761
+#define actual_position_mtr17          M1762
+#define DacOut_mtr17                   M1768
+#define encoder_capture_position_mtr17 M1773
+#define StartDeact_mtr17               M1782
+#define ElapsedDeact_mtr17             M1783
+#define encoder_loss_reg_mtr17         M1784
+#define encoder_loss_dpram_mtr17       M1785
+#define encoder_stall_mtr17            M1786
+#define Starttime_mtr17                M1787
+#define Elapsedtime_mtr17              M1788
+#define encoder_lost_mtr17             M1789
+
+
+#define acc_time_var_mtr18             I1820
+#define s_curve_time_var_mtr18         I1821
+#define jog_speed_var_mtr18            I1822
+#define home_speed_var_mtr18           I1823
+#define flag_mode_control_mtr18        I1824
+#define rapid_mode_speed_select_mtr18  I1890
+#define trigger_mode_mtr18             I1897
+
+#define neg_limit_bit_mtr18            M1832
+#define amplifier_enabled_mtr18        M1839
+#define in_position_bit_mtr18          M1840
+#define home_complete_mtr18            M1844
+#define commanded_position_mtr18       M1861
+#define actual_position_mtr18          M1862
+#define DacOut_mtr18                   M1868
+#define encoder_capture_position_mtr18 M1873
+#define StartDeact_mtr18               M1882
+#define ElapsedDeact_mtr18             M1883
+#define encoder_loss_reg_mtr18         M1884
+#define encoder_loss_dpram_mtr18       M1885
+#define encoder_stall_mtr18            M1886
+#define Starttime_mtr18                M1887
+#define Elapsedtime_mtr18              M1888
+#define encoder_lost_mtr18             M1889
+
+
+#define acc_time_var_mtr19             I1920
+#define s_curve_time_var_mtr19         I1921
+#define jog_speed_var_mtr19            I1922
+#define home_speed_var_mtr19           I1923
+#define flag_mode_control_mtr19        I1924
+#define rapid_mode_speed_select_mtr19  I1990
+#define trigger_mode_mtr19             I1997
+
+#define neg_limit_bit_mtr19            M1932
+#define amplifier_enabled_mtr19        M1939
+#define in_position_bit_mtr19          M1940
+#define home_complete_mtr19            M1944
+#define commanded_position_mtr19       M1961
+#define actual_position_mtr19          M1962
+#define DacOut_mtr19                   M1968
+#define encoder_capture_position_mtr19 M1973
+#define StartDeact_mtr19               M1982
+#define ElapsedDeact_mtr19             M1983
+#define encoder_loss_reg_mtr19         M1984
+#define encoder_loss_dpram_mtr19       M1985
+#define encoder_stall_mtr19            M1986
+#define Starttime_mtr19                M1987
+#define Elapsedtime_mtr19              M1988
+#define encoder_lost_mtr19             M1989
+
+
+open prog 12
+clear
+RAPID
+homing_started_prog12=1
+ta(acc_time_var_mtr17)						  ; acc time
+ts(s_curve_time_var_mtr17)					  ; s-curve time
+f(jog_speed_var_mtr17)						  ; feedrate (velocity)
+home_complete_mtr17=0
+home_complete_mtr18=0
+home_complete_mtr19=0
+cmd"ms32,mi912=2"	                                          ; capture home on rising edge of a flag
+cmd"ms33,mi912=2"	                                          ; capture home on rising edge of a flag
+cmd"ms36,mi912=2"	                                          ; capture home on rising edge of a flag
+cmd"ms32,mi913=2"	                                          ; use -limit as a flag
+cmd"ms33,mi913=2"	                                          ; use -limit as a flag
+cmd"ms36,mi913=2"	                                          ; use -limit as a flag
+flag_mode_control_mtr17=LIMITS_OFF		                  ; disable +/- limits
+flag_mode_control_mtr18=LIMITS_OFF		                  ; disable +/- limits
+flag_mode_control_mtr19=LIMITS_OFF		                  ; disable +/- limits
+dwell 10
+INC
+;ending position should be as large as the whole motor move range to
+;ensure that -limit switch is found
+X(-MOVEMENT_RANGE_MTR17)^LIMIT_OFFSET_MTR17 Y(-MOVEMENT_RANGE_MTR18)^LIMIT_OFFSET_MTR18 Z(-MOVEMENT_RANGE_MTR19)^LIMIT_OFFSET_MTR19
+dwell 0
+
+;enable limits to check the roll limit presence
+flag_mode_control_mtr17=LIMITS_ON			          ; reenable +/-limits
+flag_mode_control_mtr18=LIMITS_ON			          ; reenable +/-limits
+flag_mode_control_mtr19=LIMITS_ON			          ; reenable +/-limits
+dwell 0
+
+; Check for the Roll limit and correct the position if present
+if( neg_limit_bit_mtr18 = 0 and neg_limit_bit_mtr19 = 1 )
+  INC
+  Y(-HFM_ROLL_LIMIT_CORR)
+  dwell 0
+  flag_mode_control_mtr17=LIMITS_OFF		                  ; disable +/- limits
+  flag_mode_control_mtr18=LIMITS_OFF		                  ; disable +/- limits
+  flag_mode_control_mtr19=LIMITS_OFF		                  ; disable +/- limits
+  dwell 0
+  Y(-MOVEMENT_RANGE_MTR18)^LIMIT_OFFSET_MTR18 Z(-MOVEMENT_RANGE_MTR19)^LIMIT_OFFSET_MTR19
+  dwell 0
+endif
+
+if( neg_limit_bit_mtr19 = 0 and neg_limit_bit_mtr18 = 1 )
+  INC
+  Z(-HFM_ROLL_LIMIT_CORR)
+  dwell 0
+  flag_mode_control_mtr17=LIMITS_OFF		                  ; disable +/- limits
+  flag_mode_control_mtr18=LIMITS_OFF		                  ; disable +/- limits
+  flag_mode_control_mtr19=LIMITS_OFF		                  ; disable +/- limits
+  dwell 0 
+  Y(-MOVEMENT_RANGE_MTR18)^LIMIT_OFFSET_MTR18 Z(-MOVEMENT_RANGE_MTR19)^LIMIT_OFFSET_MTR19
+  dwell 0
+endif
+
+flag_mode_control_mtr17=LIMITS_ON			          ; reenable +/-limits
+flag_mode_control_mtr18=LIMITS_ON			          ; reenable +/-limits
+flag_mode_control_mtr19=LIMITS_ON			          ; reenable +/-limits
+cmd"ms32,mi912=1"	                                          ; capture on marker pulse
+cmd"ms33,mi912=1"	                                          ; capture on marker pulse
+cmd"ms36,mi912=1"	                                          ; capture on marker pulse
+cmd"ms32,mi913=0"	                                          ; use home switch as a flag
+cmd"ms33,mi913=0"	                                          ; use home switch as a flag
+cmd"ms36,mi913=0"	                                          ; use home switch as a flag
+dwell 10
+X(MOVEMENT_RANGE_MTR17)^HOME_OFFSET_MTR17 Y(MOVEMENT_RANGE_MTR18)^HOME_OFFSET_MTR18 Z(MOVEMENT_RANGE_MTR19)^HOME_OFFSET_MTR19
+dwell 10000                                ; changed from 1000 after Iain moved limit switch-up by 3mm on axis 19 on 14/11/07
+HOMEZ 17,18,19
+ABS
+dwell 0
+LINEAR
+home_complete_mtr17=1
+home_complete_mtr18=1
+home_complete_mtr19=1
+close

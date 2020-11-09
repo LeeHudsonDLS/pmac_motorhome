@@ -1,0 +1,29 @@
+;VMXi OAV clash prevention PLC
+;This PLC helps to avoid OAV collisions by only allowing the X to move if scatter tube is OUT.
+
+#DEFINE PLC_NO	20
+#DEFINE OAV_X 5
+
+;FLAGS
+#DEFINE X_FFE_LIM I(100 * OAV_X + 11)
+#DEFINE X_FFE_STORE P(100 * PLC_NO + 1)
+#DEFINE DISABLED P(100 * PLC_NO + 2)
+#DEFINE TUBE_OUT P(100 * PLC_NO + 3)
+
+OPEN PLC PLC_NO
+CLEAR
+
+IF(TUBE_OUT = 0)
+	IF(DISABLED = 0)
+		X_FFE_STORE = X_FFE_LIM
+		DISABLED = 1
+	ENDIF
+	X_FFE_LIM = 1
+ENDIF
+
+IF(TUBE_OUT = 1) AND (DISABLED = 1)
+	X_FFE_LIM = X_FFE_STORE
+	DISABLED = 0
+ENDIF
+
+CLOSE

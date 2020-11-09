@@ -1,286 +1,152 @@
+"""
+The commands module contains functions that can be called directly
+from the `PlcDefinition`.
+
+These functions are used to define PLCs, axes and axis groupings.
+"""
+
 from pathlib import Path
-from typing import List, cast
+from typing import Union
 
 from dls_motorhome.onlyaxes import OnlyAxes
 
 from .constants import ControllerType, PostHomeMove
 from .group import Group
 from .plc import Plc
+from .snippets import (
+    drive_relative,
+    drive_to_hard_limit,
+    drive_to_initial_pos,
+    drive_to_soft_limit,
+)
 
 
-"""
-The commands module  contains all of the methods that can be called directly
-from the homing PLC definition file.
+def plc(
+    plc_num: int, controller: Union[ControllerType, str], filepath: Union[Path, str]
+) -> Plc:
+    """
+    Define a new PLC. Use this to create a new Plc context using the 'with'
+    keyword.
 
-The intention of using global methods is so that the PLC definition can be
-relatively terse and the author does not need to worry about classes and
-objects.
+    Must be called in the global context.
 
-e.g.
+    Args:
+        plc_num (int): Number of the generated homing PLC
+        controller (ControllerType): Determines the class of controller Pmac or
+            Geobrick
+        filepath (pathlib.Path): The output file where the PLC will be written
+        pre (str): some raw PLC code to insert at the start of a group
+        post(str): some raw PLC code to insert at the end of a group
 
-from commands import plc, group, motor, only_axes, home_rlim
+    Returns:
+        Plc: the Plc object for use in the context
+    """
 
-with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file):
-    motor(axis=1)
-    motor(axis=2)
-
-    with group(group_num=2, axes=[1, 2]):
-        home_rlim()
-        with only_axes(axes=[1]):
-            drive__to_limit(negative=True)
-"""
-
-
-###############################################################################
-# functions to declare motors, groups, plcs
-###############################################################################
-def plc(plc_num: int, controller: ControllerType, filepath: Path) -> Plc:
-    return Plc(plc_num, controller, filepath)
+    return Plc(plc_num, ControllerType(controller), Path(filepath))
 
 
 def group(
-    group_num: int, axes: List[int], post_home: PostHomeMove = PostHomeMove.none,
+    group_num: int,
+    post_home: Union[PostHomeMove, str] = PostHomeMove.none,
+    post_distance: int = 0,
+    comment: str = None,
+    pre: str = "",
+    post: str = "",
 ) -> Group:
-    return Plc.add_group(group_num, axes, post_home)
+    """
+    Define a new group of axes within a PLC that should be homed simultaneously.
+    Use this to create a new context using the 'with' keyword from within a Plc
+    context.
+
+    Must be called in a Plc context.
+
+    Args:
+        group_num (int): an identifying number note that group 1 is reserved for
+            homing all groups
+        axes (List[int]): a list of axis numbers to include in the group
+        post_home (PostHomeMove): action to perform on all axes after the
+            home sequence completes
+
+    Returns:
+        Group: The Group object for use in the context
+    """
+    return Plc.add_group(
+        group_num, PostHomeMove(post_home), post_distance, comment, pre, post
+    )
 
 
 def comment(htype: str, post: str = "None") -> None:
     Group.add_comment(htype, post)
 
 
-def motor(axis: int, jdist: int = 0):
-    Plc.add_motor(axis, jdist)
+def motor(axis: int, jdist: int = 0, index: int = -1) -> None:
+    """
+    Declare a motor for use in the current group.
+
+    Must be called in a group context.
+
+    Args:
+        axis (int): axis number
+        jdist (int): number of counts to jog after reaching a home mark. Required
+            to far enough to move off of the home mark.
+        index (int): for internal use in conversion of old scripts sets
+            the index of this motor to a different value than the order of
+            declaration. -1 means use the order that motors were added.
+    """
+    motor = Group.add_motor(axis, jdist, index)
+    Plc.add_motor(axis, motor)
 
 
-def only_axes(axes: List[int]) -> OnlyAxes:
-    group = cast("Group", Group.the_group)
-    return OnlyAxes(group, axes)
+def only_axes(*axes: int) -> OnlyAxes:
+    """
+    Creates a context in which actions are performed on a subset of the groups axes
 
+    Must be called in a group context.
 
-###############################################################################
-# individual PLC action functions
-###############################################################################
+    For an example of the use of this, see :doc:`../tutorials/custom`
 
+    Args:
+        axes int: List of axis numbers
 
-def command(cmd):
-    Group.add_action(Group.command, cmd=cmd)
-
-
-def drive_to_limit(negative=True, with_limits=False, state="PreHomeMove"):
-    Group.add_snippet("drive_to_limit", **locals())
-
-
-def drive_off_home(with_limits=True, negative=True, state="FastRetrace"):
-    Group.add_snippet("drive_off_home", **locals())
-
-
-def store_position_diff(**args):
-    Group.add_snippet("store_position_diff", **args)
-
-
-def drive_to_home(
-    with_limits=False,
-    negative=True,
-    no_following_err=False,
-    state="PreHomeMove",
-    restore_homed_flags=False,
-):
-    Group.add_snippet("drive_to_home", **locals())
-
-
-def home(with_limits=True):
-    Group.add_snippet("home", **locals())
-
-
-def debug_pause():
-    Group.add_snippet("debug_pause")
-
-
-def drive_to_initial_pos(with_limits=True):
-    Group.add_snippet("drive_to_initial_pos", **locals())
-
-
-def drive_to_soft_limit(negative=False, with_limits=True):
-    Group.add_snippet("drive_to_soft_limit", **locals())
-
-
-def drive_relative(with_limits=True, distance="123456", set_home=False):
-    Group.add_snippet("drive_relative", **locals())
-
-
-def check_homed():
-    Group.add_snippet("check_homed")
-
-
-def drive_to_home_if_on_limit(negative=True):
-    Group.add_snippet("drive_to_home_if_on_limit")
-
-
-def disable_limits():
-    Group.add_snippet("disable_limits")
-
-
-def restore_limits():
-    Group.add_snippet("restore_limits")
-
-
-def drive_to_hard_limit(**args):
-    Group.add_snippet("drive_to_hard_limit", **args)
-
-
-def jog_if_on_limit(negative=True):
-    Group.add_snippet("jog_if_on_limit", **locals())
+    Returns:
+        OnlyAxes: an OnlyAxes object for use in the context
+    """
+    return OnlyAxes(*axes)
 
 
 ###############################################################################
 # post_home actions to recreate post= from the original motorhome.py
 ###############################################################################
-def post_home(**args):
-    group = Group.the_group
+def post_home(**args) -> None:
+    """
+    Perform one of the predefined post homing actions on all axes in the
+    current group.
+
+    Must be called in a Group context.
+
+    This function is called as the last step in all of the :doc:`sequences`
+    functions
+    """
+    group = Group.instance()
+
     if group.post_home == PostHomeMove.none:
         pass
     elif group.post_home == PostHomeMove.initial_position:
         drive_to_initial_pos(**args)
     elif group.post_home == PostHomeMove.high_limit:
-        drive_to_soft_limit(negative=False)
+        drive_to_soft_limit(homing_direction=True)
     elif group.post_home == PostHomeMove.low_limit:
-        drive_to_soft_limit(negative=True)
+        drive_to_soft_limit(homing_direction=False)
     elif group.post_home == PostHomeMove.hard_hi_limit:
-        drive_to_hard_limit(state="PostHomeMove", negative=False)
+        drive_to_hard_limit(homing_direction=True)
     elif group.post_home == PostHomeMove.hard_lo_limit:
-        drive_to_hard_limit(state="PostHomeMove", negative=True)
-    elif type(group.post_home) == str and group.post_home.startswith("r"):
-        distance = group.post_home.strip("r")
-        drive_relative(distance=distance)
-    elif type(group.post_home) == str and group.post_home.startswith("z"):
-        distance = group.post_home.strip("z")
-        drive_relative(distance=distance, set_home=True)
-    elif group.post_home not in (None, 0, "0"):
-        drive_relative(distance=group.post_home)
+        drive_to_hard_limit(homing_direction=False)
+    elif group.post_home == PostHomeMove.relative_move:
+        drive_relative(distance=group.post_distance)
+    elif group.post_home == PostHomeMove.move_and_hmz:
+        drive_relative(distance=group.post_distance, set_home=True)
+    elif group.post_home == PostHomeMove.move_absolute:
+        # TODO this is wrong - we need a jog absolute snippet
+        drive_relative(distance=group.post_distance)
     else:
         pass
-
-
-###############################################################################
-# common action sequences to recreate htypes= from the original motorhome.py
-###############################################################################
-def home_rlim():
-    """
-    RLIM the axis must be configured to trigger on release of limit
-    """
-    # drive in opposite to homing direction until limit hit
-    drive_to_limit(negative=True)
-    drive_to_home(
-        with_limits=False, negative=False, state="FastSearch"
-    )  # drive away from limit until it releases
-    store_position_diff()
-    drive_off_home(with_limits=False)  # drive back onto limit switch
-    home(with_limits=False)
-    check_homed()
-    post_home()
-
-
-def home_hsw():
-    """
-    HSW the axis must be configured to trigger on home index or home flag
-    """
-    # drive in opposite to homing direction until home flag or limit hit
-    drive_to_home(negative=True)
-    drive_to_home(with_limits=True, negative=False, state="FastSearch")
-    store_position_diff()
-    drive_off_home()
-    home()
-    check_homed()
-    post_home()
-
-
-def home_hsw_hstop():
-    """
-    HSW_STOP the axis must be configured to trigger on home index or home flag
-    this is used when there are hard stops instead of limit switches
-    e.g. piezo walker
-    """
-    # drive in opposite to homing direction until home flag or following error
-    drive_to_home(no_following_err=True, negative=True)
-    drive_to_home(with_limits=True, negative=False, state="FastSearch")
-    store_position_diff()
-    drive_off_home(negative=True)
-    home(with_limits=True)
-    check_homed()
-
-
-def home_hsw_dir():
-    """
-    HSW_DIR home on a directional home switch
-    """
-    drive_off_home(state="PreHomeMove")
-    drive_to_home(
-        negative=False, with_limits=True, state="FastSearch", restore_homed_flags=True
-    )
-    store_position_diff()
-    drive_off_home(negative=True, state="FastRetrace")
-    home()
-    check_homed()
-    post_home()
-
-
-def home_limit():
-    """
-    LIMIT
-    """
-    drive_to_home(negative=False, state="FastSearch")
-    store_position_diff()
-    drive_off_home(with_limits=False)
-    disable_limits()
-    home()
-    restore_limits()
-    check_homed()
-    post_home()
-
-
-def home_hsw_hlim():
-    """
-    HSW_HLIM
-    """
-    drive_to_home(negative=False)
-    jog_if_on_limit()
-    drive_to_home(negative=False, state="FastSearch", with_limits=True)
-    store_position_diff()
-    drive_off_home(negative=True, state="FastRetrace")
-    home()
-    check_homed()
-    post_home()
-
-
-def home_home():
-    """
-    HOME
-    """
-    home()
-    check_homed()
-    post_home()
-
-
-def home_nothing():
-    """
-    NOTHING
-    In original code, this required a homing type other than NOTHING used
-    in the same group otherwise compilation would fail.
-    Simply goes through to post home move without homing or changing home status.
-    """
-    Group.the_group.htype = "NOTHING"
-    post_home()
-
-
-###############################################################################
-# functions for some common motor combinations
-###############################################################################
-
-
-def home_slits_hsw(posx: int, negx: int, posy: int, negy: int):
-    drive_to_limit(negative=True)
-
-    with only_axes([posx, negx]):
-        home_hsw()
-    with only_axes([posy, negy]):
-        home_hsw()

@@ -1,0 +1,1338 @@
+
+;*************** Axis 1 - White Beam Slits (S1) *******************
+;
+; Horizontal Slit Negative Motor (X-)
+
+ms0,i910=7              ;Closed Loop CCW
+ms0,i912=1      	;Home Capture on Reference Mark
+ms0,i913=0              ;Home on Home Flag
+ms0,i918=0              ;Non-Inverted Motor Direction
+
+I100=1                  ;Motor 1 Activate
+ 
+I111=1600               ;Motor 1 Fatal Following Error Limit
+I112=800               	;Motor 1 Warning Following Error Limit
+I113=9000             	;Motor 1 + Software Position Limit
+I114=-37000             ;Motor 1 - Software Position Limit
+I115=0.25               ;Motor 1 Abort/Lim Decel Rate
+I116=1                	;Motor 1 Maximum Velocity
+I117=0.1                ;Motor 1 Maximum Acceleration
+I118=0                  ;(Reserved)
+I119=0.01               ;Motor 1 Maximum Jog Acceleration
+I120=111               	;Motor 1 Jog/Home Acceleration Time
+I121=0                 	;Motor 1 Jog/Home S-Curve Time
+I122=1                 	;Motor 1 Jog Speed
+I123=1                 	;Motor 1 Homing Speed And Direction
+I124=$240001            ;Motor 1 Flag Mode Control
+I125=$3440              ;Motor 1 Flag Address
+I126=0                  ;Motor 1 Home Offset
+I127=0                  ;Motor 1 Position Rollover Range
+I128=160                ;Motor 1 In-Position Band
+I129=0                  ;Motor 1 Output/1st Phase Offset
+I130=16000              ;Motor 1 PID Proportional Gain
+I131=0                  ;Motor 1 PID Derivative Gain
+I132=21000              ;Motor 1 PID Velocity Feed Forward Gain
+I133=0                  ;Motor 1 PID Integral Gain
+I134=1                  ;Motor 1 PID Integration Mode
+I135=0             	;Motor 1 PID Acceleration Feed Forward Gain
+I164=-16                ;Motor 1 'Deadband Gain'
+I165=16                 ;Motor 1 Deadband Size
+I168=0                  ;Motor 1 Friction Feedforward
+I169=1200               ;Motor 1 Output Command Limit/Scale
+
+;*************** Axis 2 - White Beam Slits (S1) *******************
+;
+; Horizontal Slit Positive Motor (X+)
+
+ms1,i910=7      	;Closed Loop CCW
+ms1,i912=1		;Home Capture on Reference Mark
+ms1,i913=0      	;Home on Home Flag
+ms1,i918=0      	;Non-Inverted Motor Direction
+
+I200=1          	;Motor 2 Activate
+ 	
+I211=1600      		;Motor 2 Fatal Following Error Limit
+I212=800      		;Motor 2 Warning Following Error Limit
+I213=27000          	;Motor 2 + Software Position Limit
+I214=-19000          	;Motor 2 - Software Position Limit
+I215=0.25       	;Motor 2 Abort/Lim Decel Rate
+I216=1         		;Motor 2 Maximum Velocity
+I217=0.1   		;Motor 2 Maximum Acceleration
+I218=0          	;(Reserved)
+I219=0.01   		;Motor 2 Maximum Jog Acceleration
+I220=111        	;Motor 2 Jog/Home Acceleration Time
+I221=0         		;Motor 2 Jog/Home S-Curve Time
+I222=1         		;Motor 2 Jog Speed
+I223=1         		;Motor 2 Homing Speed And Direction
+I224=$240001    	;Motor 2 Flag Mode Control
+I225=$3441      	;Motor 2 Flag Address
+I226=0          	;Motor 2 Home Offset
+I227=0          	;Motor 2 Position Rollover Range
+I228=160        	;Motor 2 In-Position Band 
+I229=0          	;Motor 2 Output/1st Phase Offset
+I230=16000      	;Motor 2 PID Proportional Gain
+I231=0          	;Motor 2 PID Derivative Gain
+I232=21000      	;Motor 2 PID Velocity Feed Forward Gain
+I233=10         	;Motor 2 PID Integral Gain
+I234=1          	;Motor 2 PID Integration Mode
+I235=0          	;Motor 2 PID Acceleration Feed Forward Gain
+I264=-16        	;Motor 2 'Deadband Gain'
+I265=16         	;Motor 2 Deadband Size
+I266=6527       	;Motor 2 PWM Scale Factor (PMAC2 Only)
+I267=4194304    	;Motor 2 Position Error Limit
+I268=0          	;Motor 2 Friction Feedforward
+I269=1200       	;Motor 2 Output Command Limit/Scale
+
+;*************** Axis 3 - White Beam Slits (S1) *******************
+;
+; Vertical Slit Positive Motor (Y+)
+
+ms4,i910=7      	;Closed Loop CCW
+ms4,i912=1      	;Home Capture on Reference Mark
+ms4,i913=0      	;Home on Home Flag
+ms4,i918=0      	;Non-Inverted Motor Direction
+
+I300=0          	;Motor 3 Activate
+ 
+I311=1600      		;Motor 3 Fatal Following Error Limit
+I312=800      		;Motor 3 Warning Following Error Limit
+I313=27000          	;Motor 3 + Software Position Limit
+I314=-19000          	;Motor 3 - Software Position Limit
+I315=0.25       	;Motor 3 Abort/Lim Decel Rate
+I316=1         		;Motor 3 Maximum Velocity
+I317=0.1   		;Motor 3 Maximum Acceleration
+I318=0          	;(Reserved)
+I319=0.01   		;Motor 3 Maximum Jog Acceleration
+I320=111        	;Motor 3 Jog/Home Acceleration Time
+I321=0         		;Motor 3 Jog/Home S-Curve Time
+I322=1         		;Motor 3 Jog Speed
+I323=1         		;Motor 3 Homing Speed And Direction
+I324=$240001    	;Motor 3 Flag Mode Control
+I325=$3444      	;Motor 3 Flag Address
+I326=0          	;Motor 3 Home Offset
+I327=0          	;Motor 3 Position Rollover Range
+I328=160        	;Motor 3 In-Position Band
+I329=0          	;Motor 3 Output/1st Phase Offset
+I330=16000      	;Motor 3 PID Proportional Gain
+I331=0          	;Motor 3 PID Derivative Gain
+I332=21000      	;Motor 3 PID Velocity Feed Forward Gain
+I333=10         	;Motor 3 PID Integral Gain
+I334=1          	;Motor 3 PID Integration Mode
+I335=0          	;Motor 3 PID Acceleration Feed Forward Gain
+I364=-16        	;Motor 3 'Deadband Gain'
+I365=16       		;Motor 3 Deadband Size
+I368=0          	;Motor 3 Friction Feedforward
+I369=1200 	    	;Motor 3 Output Command Limit/Scale
+
+;*************** Axis 4 - White Beam Slits (S1) *******************
+;
+; Vertical Slit Negative Motor (Y-)
+
+ms5,i910=7      	;Closed Loop CCW
+ms5,i912=1		;Home Capture on Reference Mark
+ms5,i913=0      	;Home on Home Flag
+ms5,i918=0      	;Non-Inverted Motor Direction
+
+I400=1   		;Motor 4 Activate
+
+I411=1600       	;Motor 4 Fatal Following Error Limit
+I412=800       		;Motor 4 Warning Following Error Limit
+I413=9000      		;Motor 4 + Software Position Limit
+I414=-27000     	;Motor 4 - Software Position Limit
+I415=0.25       	;Motor 4 Abort/Lim Decel Rate
+I416=1         		;Motor 4 Maximum Velocity
+I417=0.1        	;Motor 4 Maximum Acceleration
+I418=0          	;(Reserved)
+I419=0.01       	;Motor 4 Maximum Jog Acceleration
+I420=111       		;Motor 4 Jog/Home Acceleration Time
+I421=0         		;Motor 4 Jog/Home S-Curve Time
+I422=1          	;Motor 4 Jog Speed
+I423=1          	;Motor 4 Homing Speed And Direction
+I424=$240001    	;Motor 4 Flag Mode Control
+I425=$3445      	;Motor 4 Flag Address
+I426=0     		;Motor 4 Home Offset
+I427=0          	;Motor 4 Position Rollover Range
+I428=160        	;Motor 4 In-Position Band
+I429=0          	;Motor 4 Output/1st Phase Offset
+I430=16000      	;Motor 4 PID Proportional Gain
+I431=0       		;Motor 4 PID Derivative Gain
+I432=21000      	;Motor 4 PID Velocity Feed Forward Gain
+I433=50         	;Motor 4 PID Integral Gain
+I434=1          	;Motor 4 PID Integration Mode
+I435=0     		;Motor 4 PID Acceleration Feed Forward Gain
+I464=-16        	;Motor 4 'Deadband Gain'
+I465=16         	;Motor 4 Deadband Size
+I468=0          	;Motor 4 Friction Feedforward
+I469=1200      		;Motor 4 Output Command Limit/Scale
+
+;*************** Axis 5 - DCM *******************
+;
+; Bragg
+
+ms8,i910=3      	;Closed Loop CW
+ms8,i912=1		;Home Capture on Reference Mark
+ms8,i913=0      	;Home on Home Flag
+ms8,i918=0      	;Non-Inverted Motor Direction
+
+I500=1          	;Motor 5 Activate
+
+I511=100000       	;Motor 5 Fatal Following Error Limit
+I512=250000       	;Motor 5 Warning Following Error Limit
+I513=5600000      	;Motor 5 + Software Position Limit
+I514=-4400000      	;Motor 5 - Software Position Limit
+I515=0.25       	;Motor 5 Abort/Lim Decel Rate
+I516=100         	;Motor 5 Maximum Velocity
+I517=10        		;Motor 5 Maximum Acceleration
+I518=0          	;(Reserved)
+I519=0.06        	;Motor 5 Maximum Jog Acceleration
+I520=600         	;Motor 5 Jog/Home Acceleration Time
+I521=20         	;Motor 5 Jog/Home S-Curve Time
+I522=30          	;Motor 5 Jog Speed
+I523=50         	;Motor 5 Homing Speed And Direction
+I524=$240001     	;Motor 5 Flag Mode Control
+I525=$3448      	;Motor 5 Flag Address
+I526=0          	;Motor 5 Home Offset
+I527=0          	;Motor 5 Position Rollover Range
+I528=480        	;Motor 5 In-Position Band
+I529=-95          	;Motor 5 Output/1st Phase Offset
+I530=44000      	;Motor 5 PID Proportional Gain
+I531=4000       	;Motor 5 PID Derivative Gain
+I532=6400      		;Motor 5 PID Velocity Feed Forward Gain
+I533=3000          	;Motor 5 PID Integral Gain
+I534=1          	;Motor 5 PID Integration Mode
+I535=0     		;Motor 5 PID Acceleration Feed Forward Gain
+I564=-16        	;Motor 5 'Deadband Gain'
+I565=160         	;Motor 5 Deadband Size
+I568=0          	;Motor 5 Friction Feedforward
+I569=16000       	;Motor 5 Output Command Limit/Scale
+
+;*************** Axis 6 - DCM *******************
+;
+; Bragg Encoder Feedback
+;
+; This is not used to drive a motor, but the encoder 
+; feedback is used for the Bragg velocity encoder
+
+ms9,i910=3      	;Closed Loop CW
+ms9,i912=9		;Home Capture on Reference Mark
+ms9,i913=2      	;Home on Negative Limit
+ms9,i918=0      	;Non-Inverted Motor Direction
+
+I600=1          	;Motor 6 Activate
+
+I611=1     		;Motor 6 Fatal Following Error Limit
+I612=0                  ;Motor 6 Warning Following Error Limit
+I613=0                  ;Motor 6 + Software Position Limit
+I614=0                  ;Motor 6 - Software Position Limit
+I615=0.25               ;Motor 6 Abort/Lim Decel Rate
+I616=32                 ;Motor 6 Maximum Velocity
+I617=0.015625           ;Motor 6 Maximum Acceleration
+I618=0                  ;(Reserved)
+I619=0.015625           ;Motor 6 Maximum Jog Acceleration
+I620=1                  ;Motor 6 Jog/Home Acceleration Time
+I621=0                  ;Motor 6 Jog/Home S-Curve Time
+I622=32                 ;Motor 6 Jog Speed
+I623=32                 ;Motor 6 Homing Speed And Direction
+I624=$260001            ;Motor 6 Flag Mode Control
+I625=$3449              ;Motor 6 Flag Address
+I626=0                  ;Motor 6 Home Offset
+I627=0                  ;Motor 6 Position Rollover Range
+I628=160                ;Motor 6 In-Position Band
+I629=0                  ;Motor 6 Output/1st Phase Offset
+I630=5461               ;Motor 6 PID Proportional Gain
+I631=0                  ;Motor 6 PID Derivative Gain
+I632=0                  ;Motor 6 PID Velocity Feed Forward Gain
+I633=0                  ;Motor 6 PID Integral Gain
+I634=1                  ;Motor 6 PID Integration Mode
+I635=0                  ;Motor 6 PID Acceleration Feed Forward Gain
+I664=0                  ;Motor 6 'Deadband Gain'
+I665=16                 ;Motor 6 Deadband Size
+I668=0                  ;Motor 6 Friction Feedforward
+I669=32767              ;Motor 6 Output Command Limit/Scale
+
+;*************** Axis 7- NOT USED *******************
+
+ms12,i910=7     	;Closed Loop CCW
+ms12,i912=9		;Home Capture on Reference Mark
+ms12,i913=2	     	;Home on Negative Limit
+ms12,i918=0     	;Non-Inverted Motor Direction
+
+I700=0                  ;Motor 7 Activate
+
+I711=0                  ;Motor 7 Fatal Following Error Limit
+I712=16000              ;Motor 7 Warning Following Error Limit
+I713=0                  ;Motor 7 + Software Position Limit
+I714=-1                 ;Motor 7 - Software Position Limit
+I715=0.25               ;Motor 7 Abort/Lim Decel Rate
+I716=32                 ;Motor 7 Maximum Velocity
+I717=0.015625           ;Motor 7 Maximum Acceleration
+I718=0                  ;(Reserved)
+I719=0.4                ;Motor 7 Maximum Jog Acceleration
+I720=1                  ;Motor 7 Jog/Home Acceleration Time
+I721=0                  ;Motor 7 Jog/Home S-Curve Time
+I722=32                 ;Motor 7 Jog Speed
+I723=32                 ;Motor 7 Homing Speed And Direction
+I724=$260001            ;Motor 7 Flag Mode Control
+I725=$344C              ;Motor 7 Flag Address
+I726=0                  ;Motor 7 Home Offset
+I727=0                  ;Motor 7 Position Rollover Range
+I728=160                ;Motor 7 In-Position Band
+I729=0                  ;Motor 7 Output/1st Phase Offset
+I730=5461               ;Motor 7 PID Proportional Gain
+I731=0                  ;Motor 7 PID Derivative Gain
+I732=0                  ;Motor 7 PID Velocity Feed Forward Gain
+I733=0                  ;Motor 7 PID Integral Gain
+I734=1                  ;Motor 7 PID Integration Mode
+I735=0                  ;Motor 7 PID Acceleration Feed Forward Gain
+I764=0                  ;Motor 7 'Deadband Gain'
+I765=16                 ;Motor 7 Deadband Size
+I768=0                  ;Motor 7 Friction Feedforward
+I769=32767              ;Motor 7 Output Command Limit/Scale
+
+;*************** Axis 8 - DCM *******************
+;
+; Coarse Pitch
+
+ms13,i910=7     	;Closed Loop CCW
+ms13,i912=1		;Home Capture on Reference Mark
+ms13,i913=2     	;Home on Negative Limit
+ms13,i918=1     	;Inverted Motor Direction
+
+I800=1                  ;Motor 8 Activate
+
+I811=5000               ;Motor 8 Fatal Following Error Limit
+I812=2500               ;Motor 8 Warning Following Error Limit
+I813=26800              ;Motor 8 + Software Position Limit
+I814=-48240             ;Motor 8 - Software Position Limit
+I815=0.25               ;Motor 8 Abort/Lim Decel Rate
+I816=0.5                ;Motor 8 Maximum Velocity
+I817=0.015625           ;Motor 8 Maximum Acceleration
+I818=0                  ;(Reserved)
+I819=0.0015            	;Motor 8 Maximum Jog Acceleration
+I820=75                 ;Motor 8 Jog/Home Acceleration Time
+I821=0                  ;Motor 8 Jog/Home S-Curve Time
+I822=0.268            	;Motor 8 Jog Speed
+I823=0.1                ;Motor 8 Homing Speed And Direction
+I824=$240001            ;Motor 8 Flag Mode Control
+I825=$344D              ;Motor 8 Flag Address
+I826=0              	;Motor 8 Home Offset
+I827=0                  ;Motor 8 Position Rollover Range
+I828=32                 ;Motor 8 In-Position Band
+I829=0                  ;Motor 8 Output/1st Phase Offset
+I830=6000               ;Motor 8 PID Proportional Gain
+I831=0                  ;Motor 8 PID Derivative Gain
+I832=5000               ;Motor 8 PID Velocity Feed Forward Gain
+I833=0                  ;Motor 8 PID Integral Gain
+I834=1                  ;Motor 8 PID Integration Mode
+I835=0                  ;Motor 8 PID Acceleration Feed Forward Gain
+I864=-16                ;Motor 8 'Deadband Gain'
+I865=8                  ;Motor 8 Deadband Size
+I868=0                  ;Motor 8 Friction Feedforward
+I869=100                ;Motor 8 Output Command Limit/Scale
+
+;*************** Axis 9 - DCM *******************
+;
+; Coarse Roll
+
+ms16,i910=7     	;Closed Loop CCW
+ms16,i912=1		;Home Capture on Reference Mark
+ms16,i913=2     	;Home on Negative Limit
+ms16,i918=1     	;Inverted Motor Direction
+
+I900=1                  ;Motor 9 Activate
+
+I911=5000               ;Motor 9 Fatal Following Error Limit
+I912=2500               ;Motor 9 Warning Following Error Limit
+I913=16000              ;Motor 9 + Software Position Limit
+I914=-24000             ;Motor 9 - Software Position Limit
+I915=0.25               ;Motor 9 Abort/Lim Decel Rate
+I916=0.5                ;Motor 9 Maximum Velocity
+I917=0.015625           ;Motor 9 Maximum Acceleration
+I918=0                  ;(Reserved)
+I919=0.0015    		;Motor 9 Maximum Jog Acceleration
+I920=75                 ;Motor 9 Jog/Home Acceleration Time
+I921=0                  ;Motor 9 Jog/Home S-Curve Time
+I922=0.16           	;Motor 9 Jog Speed
+I923=0.1                ;Motor 9 Homing Speed And Direction
+I924=$240001            ;Motor 9 Flag Mode Control
+I925=$3450              ;Motor 9 Flag Address
+I926=0             	;Motor 9 Home Offset
+I927=0                  ;Motor 9 Position Rollover Range
+I928=160                ;Motor 9 In-Position Band
+I929=0                  ;Motor 9 Output/1st Phase Offset
+I930=6000               ;Motor 9 PID Proportional Gain
+I931=0                  ;Motor 9 PID Derivative Gain
+I932=5000               ;Motor 9 PID Velocity Feed Forward Gain
+I933=0                  ;Motor 9 PID Integral Gain
+I934=1                  ;Motor 9 PID Integration Mode
+I935=0                  ;Motor 9 PID Acceleration Feed Forward Gain
+I964=-16                ;Motor 9 'Deadband Gain'
+I965=8                  ;Motor 9 Deadband Size
+I968=0                  ;Motor 9 Friction Feedforward
+I969=100                ;Motor 9 Output Command Limit/Scale
+
+;*************** Axis 10 - DCM *******************
+;
+; Perpendicular Translation
+
+ms17,i910=7     	;Closed Loop CCW
+ms17,i912=1		;Home Capture on Reference Mark
+ms17,i913=0     	;Home on Home Flag
+ms17,i914=0     	;Non-Inverted Motor Direction
+
+I1000=1                 ;Motor 10 Activate
+
+I1011=16000             ;Motor 10 Fatal Following Error Limit
+I1012=1600      	;Motor 10 Warning Following Error Limit
+I1013=50000             ;Motor 10 + Software Position Limit
+I1014=-50000            ;Motor 10 - Software Position Limit
+I1015=0.25              ;Motor 10 Abort/Lim Decel Rate
+I1016=32                ;Motor 10 Maximum Velocity
+I1017=0.015625          ;Motor 10 Maximum Acceleration
+I1018=0                 ;(Reserved)
+I1019=0.004             ;Motor 10 Maximum Jog Acceleration
+I1020=50                ;Motor 10 Jog/Home Acceleration Time
+I1021=0                 ;Motor 10 Jog/Home S-Curve Time
+I1022=0.5               ;Motor 10 Jog Speed
+I1023=2                 ;Motor 10 Homing Speed And Direction
+I1024=$240001           ;Motor 10 Flag Mode Control
+I1025=$3451             ;Motor 10 Flag Address
+I1026=-14960            ;Motor 10 Home Offset
+I1027=0                 ;Motor 10 Position Rollover Range
+I1028=96                ;Motor 10 In-Position Band
+I1029=0                 ;Motor 10 Output/1st Phase Offset
+I1030=6000              ;Motor 10 PID Proportional Gain
+I1031=0                 ;Motor 10 PID Derivative Gain
+I1032=4000              ;Motor 10 PID Velocity Feed Forward Gain
+I1033=10000             ;Motor 10 PID Integral Gain
+I1034=1                 ;Motor 10 PID Integration Mode
+I1035=0                 ;Motor 10 PID Acceleration Feed Forward Gain
+I1064=-16               ;Motor 10 'Deadband Gain'
+I1065=64                ;Motor 10 Deadband Size
+I1068=0                 ;Motor 10 Friction Feedforward
+I1069=16000             ;Motor 10 Output Command Limit/Scale
+
+;*************** Axis 11 - Pre-HFM QBPM (QBPM1) *******************
+;
+; Y-Translation
+
+ms20,i910=8     	;Step & Direction (Open Loop)
+ms20,i912=2		;Home Capture on Flag
+ms20,i913=1     	;Home on Positive Limit
+ms20,i918=0     	;Non-Inverted Motor Direction
+
+I1100=1                 ;Motor 11 Activate
+
+I1111=640               ;Motor 11 Fatal Following Error Limit
+I1112=320               ;Motor 11 Warning Following Error Limit
+I1113=24000             ;Motor 11 + Software Position Limit
+I1114=-24000            ;Motor 11 - Software Position Limit
+I1115=2                 ;Motor 11 Abort/Lim Decel Rate
+I1116=3.1496            ;Motor 11 Maximum Velocity
+I1117=100               ;Motor 11 Maximum Acceleration
+I1118=0                 ;(Reserved)
+I1119=0.01              ;Motor 11 Maximum Jog Acceleration
+I1120=109               ;Motor 11 Jog/Home Acceleration Time
+I1121=0                 ;Motor 11 Jog/Home S-Curve Time
+I1122=1                 ;Motor 11 Jog Speed
+I1123=1.5748            ;Motor 11 Homing Speed And Direction
+I1124=$240001           ;Motor 11 Flag Mode Control
+I1125=$3454             ;Motor 11 Flag Address
+I1126=0                 ;Motor 11 Home Offset
+I1127=0                 ;Motor 11 Position Rollover Range
+I1128=160               ;Motor 11 In-Position Band
+I1129=0                 ;Motor 11 Output/1st Phase Offset
+I1130=10000             ;Motor 11 PID Proportional Gain
+I1131=0                 ;Motor 11 PID Derivative Gain
+I1132=16800             ;Motor 11 PID Velocity Feed Forward Gain
+I1133=0                 ;Motor 11 PID Integral Gain
+I1134=1                 ;Motor 11 PID Integration Mode
+I1135=0                 ;Motor 11 PID Acceleration Feed Forward Gain
+I1164=-16               ;Motor 11 'Deadband Gain'
+I1165=16                ;Motor 11 Deadband Size
+I1168=0                 ;Motor 11 Friction Feedforward
+I1169=30000             ;Motor 11 Output Command Limit/Scale
+
+;*************** Axis 12 - Pre HFM Slits (S2) *******************
+;
+; Horizontal Slit Negative Motor (X-)
+
+ms21,i910=7     	;Closed Loop CCW
+ms21,i912=1		;Home Capture on Reference Mark
+ms21,i913=0     	;Home on Home Flag
+ms21,i918=0     	;Non-Inverted Motor Direction
+
+I1200=1                 ;Motor 12 Activate
+
+I1211=3200              ;Motor 12 Fatal Following Error Limit
+I1212=1600              ;Motor 12 Warning Following Error Limit
+I1213=9000              ;Motor 12 + Software Position Limit
+I1214=-37000            ;Motor 12 - Software Position Limit
+I1215=0.25              ;Motor 12 Abort/Lim Decel Rate
+I1216=1                 ;Motor 12 Maximum Velocity
+I1217=0.1               ;Motor 12 Maximum Acceleration
+I1218=0                 ;(Reserved)
+I1219=0.01              ;Motor 12 Maximum Jog Acceleration
+I1220=111               ;Motor 12 Jog/Home Acceleration Time
+I1221=0                 ;Motor 12 Jog/Home S-Curve Time
+I1222=1                 ;Motor 12 Jog Speed
+I1223=1                 ;Motor 12 Homing Speed And Direction
+I1224=$240001           ;Motor 12 Flag Mode Control
+I1225=$3455             ;Motor 12 Flag Address
+I1226=0                 ;Motor 12 Home Offset
+I1227=0                 ;Motor 12 Position Rollover Range
+I1228=160               ;Motor 12 In-Position Band
+I1229=0                 ;Motor 12 Output/1st Phase Offset
+I1230=16000             ;Motor 12 PID Proportional Gain
+I1231=0                 ;Motor 12 PID Derivative Gain
+I1232=21000             ;Motor 12 PID Velocity Feed Forward Gain
+I1233=0                 ;Motor 12 PID Integral Gain
+I1234=1                 ;Motor 12 PID Integration Mode
+I1235=0                 ;Motor 12 PID Acceleration Feed Forward Gain
+I1264=-16               ;Motor 12 'Deadband Gain'
+I1265=16                ;Motor 12 Deadband Size
+I1268=0                 ;Motor 12 Friction Feedforward
+I1269=1200              ;Motor 12 Output Command Limit/Scale
+
+;*************** Axis 13 - Pre HFM Slits (S2) *******************
+;
+; Horizontal Slit Positive Motor (X+)
+
+ms24,i910=7  		;Closed Loop CCW
+ms24,i912=1		;Home Capture on Reference Mark
+ms24,i913=0     	;Home on Home Flag
+ms24,i918=0     	;Non-Inverted Motor Direction
+
+I1300=1                 ;Motor 13 Activate
+
+I1311=3200              ;Motor 13 Fatal Following Error Limit
+I1312=1600              ;Motor 13 Warning Following Error Limit
+I1313=27000             ;Motor 13 + Software Position Limit
+I1314=-9000             ;Motor 13 - Software Position Limit
+I1315=0.25              ;Motor 13 Abort/Lim Decel Rate
+I1316=1                 ;Motor 13 Maximum Velocity
+I1317=0.1               ;Motor 13 Maximum Acceleration
+I1318=0                 ;(Reserved)
+I1319=0.01              ;Motor 13 Maximum Jog Acceleration
+I1320=111               ;Motor 13 Jog/Home Acceleration Time
+I1321=0                 ;Motor 13 Jog/Home S-Curve Time
+I1322=1                 ;Motor 13 Jog Speed
+I1323=1                 ;Motor 13 Homing Speed And Direction
+I1324=$240001           ;Motor 13 Flag Mode Control
+I1325=$3458             ;Motor 13 Flag Address
+I1326=0                 ;Motor 13 Home Offset
+I1327=0                 ;Motor 13 Position Rollover Range
+I1328=160               ;Motor 13 In-Position Band
+I1329=0                 ;Motor 13 Output/1st Phase Offset
+I1330=16000             ;Motor 13 PID Proportional Gain
+I1331=0                 ;Motor 13 PID Derivative Gain
+I1332=21000             ;Motor 13 PID Velocity Feed Forward Gain
+I1333=100               ;Motor 13 PID Integral Gain
+I1334=1                 ;Motor 13 PID Integration Mode
+I1335=0                 ;Motor 13 PID Acceleration Feed Forward Gain
+I1364=-16               ;Motor 13 'Deadband Gain'
+I1365=16                ;Motor 13 Deadband Size
+I1368=0                 ;Motor 13 Friction Feedforward
+I1369=1200              ;Motor 13 Output Command Limit/Scale
+
+;*************** Axis 13 - Pre HFM Slits (S2) *******************
+;
+; Vertical Slit Positive Motor (Y+)
+
+ms25,i910=7     	;Closed Loop CCW
+ms25,i912=1 		;Home Capture on Reference Mark
+ms25,i913=0  		;Home on Home Flag
+ms25,i918=0  		;Non-Inverted Motor Direction
+
+I1400=1                 ;Motor 14 Activate
+
+I1411=1600              ;Motor 14 Fatal Following Error Limit
+I1412=800               ;Motor 14 Warning Following Error Limit
+I1413=0                 ;Motor 14 + Software Position Limit
+I1414=0                 ;Motor 14 - Software Position Limit
+I1415=0.25              ;Motor 14 Abort/Lim Decel Rate
+I1416=1                 ;Motor 14 Maximum Velocity
+I1417=0.1               ;Motor 14 Maximum Acceleration
+I1418=0                 ;(Reserved)
+I1419=0.01              ;Motor 14 Maximum Jog Acceleration
+I1420=1                 ;Motor 14 Jog/Home Acceleration Time
+I1421=0                 ;Motor 14 Jog/Home S-Curve Time
+I1422=1                 ;Motor 14 Jog Speed
+I1423=1                 ;Motor 14 Homing Speed And Direction
+I1424=$240001           ;Motor 14 Flag Mode Control
+I1425=$3459             ;Motor 14 Flag Address
+I1426=0                 ;Motor 14 Home Offset
+I1427=0                 ;Motor 14 Position Rollover Range
+I1428=160               ;Motor 14 In-Position Band
+I1429=0                 ;Motor 14 Output/1st Phase Offset
+I1430=16000             ;Motor 14 PID Proportional Gain
+I1431=0                 ;Motor 14 PID Derivative Gain
+I1432=21000             ;Motor 14 PID Velocity Feed Forward Gain
+I1433=0                 ;Motor 14 PID Integral Gain
+I1434=1                 ;Motor 14 PID Integration Mode
+I1435=0                 ;Motor 14 PID Acceleration Feed Forward Gain
+I1464=-16               ;Motor 14 'Deadband Gain'
+I1465=16                ;Motor 14 Deadband Size
+I1468=0                 ;Motor 14 Friction Feedforward
+I1469=1200              ;Motor 14 Output Command Limit/Scale
+
+;*************** Axis 15 - Pre HFM Slits (S2) *******************
+;
+; Vertical Slit Negative Motor (Y-)
+
+ms28,i910=7     	;Closed Loop CCW
+ms28,i912=1	    	;Home Capture on Reference Mark
+ms28,i913=0     	;Home on Home Flag
+ms28,i918=0     	;Non-Inverted Motor Direction
+
+I1500=1                 ;Motor 15 Activate
+
+I1511=1600              ;Motor 15 Fatal Following Error Limit
+I1512=800               ;Motor 15 Warning Following Error Limit
+I1513=9000              ;Motor 15 + Software Position Limit
+I1514=-37000            ;Motor 15 - Software Position Limit
+I1515=0.25              ;Motor 15 Abort/Lim Decel Rate
+I1516=1                 ;Motor 15 Maximum Velocity
+I1517=0.1               ;Motor 15 Maximum Acceleration
+I1518=0                 ;(Reserved)
+I1519=0.01              ;Motor 15 Maximum Jog Acceleration
+I1520=111               ;Motor 15 Jog/Home Acceleration Time
+I1521=0                 ;Motor 15 Jog/Home S-Curve Time
+I1522=1                 ;Motor 15 Jog Speed
+I1523=1                 ;Motor 15 Homing Speed And Direction
+I1524=$240001           ;Motor 15 Flag Mode Control
+I1525=$345C             ;Motor 15 Flag Address
+I1526=0                 ;Motor 15 Home Offset
+I1527=0                 ;Motor 15 Position Rollover Range
+I1528=160               ;Motor 15 In-Position Band
+I1529=0                 ;Motor 15 Output/1st Phase Offset
+I1530=16000             ;Motor 15 PID Proportional Gain
+I1531=0                 ;Motor 15 PID Derivative Gain
+I1532=21000             ;Motor 15 PID Velocity Feed Forward Gain
+I1533=0                 ;Motor 15 PID Integral Gain
+I1534=1                 ;Motor 15 PID Integration Mode
+I1535=0                 ;Motor 15 PID Acceleration Feed Forward Gain
+I1564=-16               ;Motor 15 'Deadband Gain'
+I1565=16                ;Motor 15 Deadband Size
+I1568=0                 ;Motor 15 Friction Feedforward
+I1569=30000             ;Motor 15 Output Command Limit/Scale
+
+;*************** Axis 16 - NOT USED *******************
+
+ms29,i910=7             ;Closed Loop CCW
+ms29,i912=2             ;Home Capture on Flag
+ms29,i913=2             ;Home on Negative Limit
+ms29,i918=0             ;Non-Inverted Motor Direction
+
+I1600=0                 ;Motor 16 Activate
+
+I1611=32000             ;Motor 16 Fatal Following Error Limit
+I1612=16000             ;Motor 16 Warning Following Error Limit
+I1613=0                 ;Motor 16 + Software Position Limit
+I1614=0                 ;Motor 16 - Software Position Limit
+I1615=0.25              ;Motor 16 Abort/Lim Decel Rate
+I1616=32                ;Motor 16 Maximum Velocity
+I1617=10                ;Motor 16 Maximum Acceleration
+I1618=0                 ;(Reserved)
+I1619=10                ;Motor 16 Maximum Jog Acceleration
+I1620=1                 ;Motor 16 Jog/Home Acceleration Time
+I1621=0                 ;Motor 16 Jog/Home S-Curve Time
+I1622=10                ;Motor 16 Jog Speed
+I1623=32                ;Motor 16 Homing Speed And Direction
+I1624=$240001           ;Motor 16 Flag Mode Control
+I1625=$345D             ;Motor 16 Flag Address
+I1626=0                 ;Motor 16 Home Offset
+I1627=0                 ;Motor 16 Position Rollover Range
+I1628=160               ;Motor 16 In-Position Band
+I1629=0                 ;Motor 16 Output/1st Phase Offset
+I1630=11200             ;Motor 16 PID Proportional Gain
+I1631=0                 ;Motor 16 PID Derivative Gain
+I1632=0                 ;Motor 16 PID Velocity Feed Forward Gain
+I1633=10000             ;Motor 16 PID Integral Gain
+I1634=1                 ;Motor 16 PID Integration Mode
+I1635=0                 ;Motor 16 PID Acceleration Feed Forward Gain
+I1664=0                 ;Motor 16 'Deadband Gain'
+I1665=16                ;Motor 16 Deadband Size
+I1668=0                 ;Motor 16 Friction Feedforward
+I1669=100               ;Motor 16 Output Command Limit/Scale
+
+;*************** Axis 17 - HFM *******************
+;
+; Vertical Jack 1
+
+ms32,i910=7             ;Closed Loop CCW
+ms32,i912=1             ;Home Capture on Reference Mark
+ms32,i913=0             ;Home on Home Flag
+ms32,i918=0             ;Non-Inverted Motor Direction
+
+I1700=1                 ;Motor 17 Activate
+
+I1711=2000              ;Motor 17 Fatal Following Error Limit
+I1712=1000              ;Motor 17 Warning Following Error Limit
+I1713=360000            ;Motor 17 + Software Position Limit
+I1714=-500000           ;Motor 17 - Software Position Limit
+I1715=0.25              ;Motor 17 Abort/Lim Decel Rate
+I1716=7                 ;Motor 17 Maximum Velocity
+I1717=1                 ;Motor 17 Maximum Acceleration
+I1718=0                 ;(Reserved)
+I1719=0.02              ;Motor 17 Maximum Jog Acceleration
+I1720=101               ;Motor 17 Jog/Home Acceleration Time
+I1721=0                 ;Motor 17 Jog/Home S-Curve Time
+I1722=2                 ;Motor 17 Jog Speed
+I1723=5                 ;Motor 17 Homing Speed And Direction
+I1724=$240001           ;Motor 17 Flag Mode Control
+I1725=$3460             ;Motor 17 Flag Address
+I1726=0                 ;Motor 17 Home Offset
+I1727=0                 ;Motor 17 Position Rollover Range
+I1728=160               ;Motor 17 In-Position Band
+I1729=0                 ;Motor 17 Output/1st Phase Offset
+I1730=12000             ;Motor 17 PID Proportional Gain
+I1731=0                 ;Motor 17 PID Derivative Gain
+I1732=7000              ;Motor 17 PID Velocity Feed Forward Gain
+I1733=2000              ;Motor 17 PID Integral Gain
+I1734=1                 ;Motor 17 PID Integration Mode
+I1735=0                 ;Motor 17 PID Acceleration Feed Forward Gain
+I1764=-16               ;Motor 17 'Deadband Gain'
+I1765=64                ;Motor 17 Deadband Size
+I1768=0                 ;Motor 17 Friction Feedforward
+I1769=32767             ;Motor 17 Output Command Limit/Scale
+
+;*************** Axis 18 - HFM *******************
+;
+; Vertical Jack 2
+
+ms33,i910=7             ;Closed Loop CCW
+ms33,i912=1             ;Home Capture on Reference Mark
+ms33,i913=0             ;Home on Home Flag
+ms33,i918=0             ;Non-Inverted Motor Direction
+
+I1800=1                 ;Motor 18 Activate
+
+I1811=2000              ;Motor 18 Fatal Following Error Limit
+I1812=1000              ;Motor 18 Warning Following Error Limit
+I1813=360000            ;Motor 18 + Software Position Limit
+I1814=-500000           ;Motor 18 - Software Position Limit
+I1815=0.25              ;Motor 18 Abort/Lim Decel Rate
+I1816=7                 ;Motor 18 Maximum Velocity
+I1817=1                 ;Motor 18 Maximum Acceleration
+I1818=0                 ;(Reserved)
+I1819=0.02              ;Motor 18 Maximum Jog Acceleration
+I1820=101               ;Motor 18 Jog/Home Acceleration Time
+I1821=0                 ;Motor 18 Jog/Home S-Curve Time
+I1822=2                 ;Motor 18 Jog Speed
+I1823=5                 ;Motor 18 Homing Speed And Direction
+I1824=$240001           ;Motor 18 Flag Mode Control
+I1825=$3461             ;Motor 18 Flag Address
+I1826=0                 ;Motor 18 Home Offset
+I1827=0                 ;Motor 18 Position Rollover Range
+I1828=160               ;Motor 18 In-Position Band
+I1829=0                 ;Motor 18 Output/1st Phase Offset
+I1830=12000             ;Motor 18 PID Proportional Gain
+I1831=0                 ;Motor 18 PID Derivative Gain
+I1832=7000              ;Motor 18 PID Velocity Feed Forward Gain
+I1833=2000              ;Motor 18 PID Integral Gain
+I1834=1                 ;Motor 18 PID Integration Mode
+I1835=0                 ;Motor 18 PID Acceleration Feed Forward Gain
+I1864=-16               ;Motor 18 'Deadband Gain'
+I1865=64                ;Motor 18 Deadband Size
+I1868=0                 ;Motor 18 Friction Feedforward
+I1869=32767             ;Motor 18 Output Command Limit/Scale
+
+;*************** Axis 19 - HFM *******************
+;
+; Vertical Jack 3
+
+ms36,i910=7             ;Closed Loop CCW
+ms36,i912=1             ;Home Capture on Reference Mark
+ms36,i913=0             ;Home on Home Flag
+ms36,i918=0             ;Non-Inverted Motor Direction
+
+I1900=1                 ;Motor 19 Activate
+
+I1911=2000              ;Motor 19 Fatal Following Error Limit
+I1912=1000              ;Motor 19 Warning Following Error Limit
+I1913=360000            ;Motor 19 + Software Position Limit
+I1914=-500000           ;Motor 19 - Software Position Limit
+I1915=0.25              ;Motor 19 Abort/Lim Decel Rate
+I1916=7                 ;Motor 19 Maximum Velocity
+I1917=1                 ;Motor 19 Maximum Acceleration
+I1918=0                 ;(Reserved)
+I1919=0.02              ;Motor 19 Maximum Jog Acceleration
+I1920=101               ;Motor 19 Jog/Home Acceleration Time
+I1921=0                 ;Motor 19 Jog/Home S-Curve Time
+I1922=2                 ;Motor 19 Jog Speed
+I1923=5                 ;Motor 19 Homing Speed And Direction
+I1924=$240001           ;Motor 19 Flag Mode Control
+I1925=$3464             ;Motor 19 Flag Address
+I1926=0                 ;Motor 19 Home Offset
+I1927=0                 ;Motor 19 Position Rollover Range
+I1928=160               ;Motor 19 In-Position Band
+I1929=0                 ;Motor 19 Output/1st Phase Offset
+I1930=12000             ;Motor 19 PID Proportional Gain
+I1931=0                 ;Motor 19 PID Derivative Gain
+I1932=7000              ;Motor 19 PID Velocity Feed Forward Gain
+I1933=2000              ;Motor 19 PID Integral Gain
+I1934=1                 ;Motor 19 PID Integration Mode
+I1935=0                 ;Motor 19 PID Acceleration Feed Forward Gain
+I1964=-16               ;Motor 19 'Deadband Gain'
+I1965=64                ;Motor 19 Deadband Size
+I1968=0                 ;Motor 19 Friction Feedforward
+I1969=32767             ;Motor 19 Output Command Limit/Scale
+
+;*************** Axis 20 - Pre-VFM QBPM (QBPM2) *******************
+;
+; Y-Translation
+
+ms37,i910=8             ;Step & Direction (Open Loop)
+ms37,i912=2             ;Home Capture on Flag
+ms37,i913=1             ;Home on Positive Limit
+ms37,i918=0             ;Non-Inverted Motor Direction
+
+I2000=1                 ;Motor 20 Activate
+
+I2011=640               ;Motor 20 Fatal Following Error Limit
+I2012=320               ;Motor 20 Warning Following Error Limit
+I2013=440               ;Motor 20 + Software Position Limit
+I2014=-16400            ;Motor 20 - Software Position Limit
+I2015=2                 ;Motor 20 Abort/Lim Decel Rate
+I2016=3.1496            ;Motor 20 Maximum Velocity
+I2017=100               ;Motor 20 Maximum Acceleration
+I2018=0                 ;(Reserved)
+I2019=0.01              ;Motor 20 Maximum Jog Acceleration
+I2020=109               ;Motor 20 Jog/Home Acceleration Time
+I2021=0                 ;Motor 20 Jog/Home S-Curve Time
+I2022=1                 ;Motor 20 Jog Speed
+I2023=1.5748            ;Motor 20 Homing Speed And Direction
+I2024=$240001           ;Motor 20 Flag Mode Control
+I2025=$3465             ;Motor 20 Flag Address
+I2026=0                 ;Motor 20 Home Offset
+I2027=0                 ;Motor 20 Position Rollover Range
+I2028=160               ;Motor 20 In-Position Band
+I2029=0                 ;Motor 20 Output/1st Phase Offset
+I2030=10000             ;Motor 20 PID Proportional Gain
+I2031=0                 ;Motor 20 PID Derivative Gain
+I2032=16800             ;Motor 20 PID Velocity Feed Forward Gain
+I2033=0                 ;Motor 20 PID Integral Gain
+I2034=1                 ;Motor 20 PID Integration Mode
+I2035=0                 ;Motor 20 PID Acceleration Feed Forward Gain
+I2064=-16               ;Motor 20 'Deadband Gain'
+I2065=16                ;Motor 20 Deadband Size
+I2068=0                 ;Motor 20 Friction Feedforward
+I2069=30000             ;Motor 20 Output Command Limit/Scale
+
+;*************** Axis 21 - Pre VFM Slits (S3) *******************
+;
+; Horizontal Slit Negative Motor (X-)
+
+ms40,i910=7             ;Closed Loop CCW
+ms40,i912=1             ;Home Capture on Reference Mark
+ms40,i913=0             ;Home on Home Flag
+ms40,i918=0             ;Non-Inverted Motor Direction
+
+I2100=1                 ;Motor 21 Activate
+
+I2111=32000             ;Motor 21 Fatal Following Error Limit
+I2112=16000             ;Motor 21 Warning Following Error Limit
+I2113=9000              ;Motor 21 + Software Position Limit
+I2114=-37000            ;Motor 21 - Software Position Limit
+I2115=0.25              ;Motor 21 Abort/Lim Decel Rate
+I2116=32                ;Motor 21 Maximum Velocity
+I2117=10                ;Motor 21 Maximum Acceleration
+I2118=0                 ;(Reserved)
+I2119=0.01              ;Motor 21 Maximum Jog Acceleration
+I2120=111               ;Motor 21 Jog/Home Acceleration Time
+I2121=0                 ;Motor 21 Jog/Home S-Curve Time
+I2122=1                 ;Motor 21 Jog Speed
+I2123=1                 ;Motor 21 Homing Speed And Direction
+I2124=$240001           ;Motor 21 Flag Mode Control
+I2125=$3468             ;Motor 21 Flag Address
+I2126=0                 ;Motor 21 Home Offset
+I2127=0                 ;Motor 21 Position Rollover Range
+I2128=160               ;Motor 21 In-Position Band
+I2129=0                 ;Motor 21 Output/1st Phase Offset
+I2130=20000             ;Motor 21 PID Proportional Gain
+I2131=0                 ;Motor 21 PID Derivative Gain
+I2132=12000             ;Motor 21 PID Velocity Feed Forward Gain
+I2133=100               ;Motor 21 PID Integral Gain
+I2134=1                 ;Motor 21 PID Integration Mode
+I2135=0                 ;Motor 21 PID Acceleration Feed Forward Gain
+I2164=-16               ;Motor 21 'Deadband Gain'
+I2165=16                ;Motor 21 Deadband Size
+I2168=0                 ;Motor 21 Friction Feedforward
+I2169=1200              ;Motor 21 Output Command Limit/Scale
+
+;*************** Axis 22 - Pre VFM Slits (S3) *******************
+;
+; Horizontal Slit Positive Motor (X+)
+
+ms41,i910=7             ;Closed Loop CCW
+ms41,i912=1             ;Home Capture on Reference Mark
+ms41,i913=0             ;Home on Home Flag
+ms41,i918=0             ;Non-Inverted Motor Direction
+
+I2200=1                 ;Motor 22 Activate
+
+I2211=32000             ;Motor 22 Fatal Following Error Limit
+I2212=16000             ;Motor 22 Warning Following Error Limit
+I2213=27000             ;Motor 22 + Software Position Limit
+I2214=-29000            ;Motor 22 - Software Position Limit
+I2215=0.25              ;Motor 22 Abort/Lim Decel Rate
+I2216=32                ;Motor 22 Maximum Velocity
+I2217=10                ;Motor 22 Maximum Acceleration
+I2218=0                 ;(Reserved)
+I2219=0.005             ;Motor 22 Maximum Jog Acceleration
+I2220=111               ;Motor 22 Jog/Home Acceleration Time
+I2221=0                 ;Motor 22 Jog/Home S-Curve Time
+I2222=1                 ;Motor 22 Jog Speed
+I2223=1                 ;Motor 22 Homing Speed And Direction
+I2224=$240001           ;Motor 22 Flag Mode Control
+I2225=$3469             ;Motor 22 Flag Address
+I2226=0                 ;Motor 22 Home Offset
+I2227=0                 ;Motor 22 Position Rollover Range
+I2228=160               ;Motor 22 In-Position Band
+I2229=0                 ;Motor 22 Output/1st Phase Offset
+I2230=20000             ;Motor 22 PID Proportional Gain
+I2231=0                 ;Motor 22 PID Derivative Gain
+I2232=12000             ;Motor 22 PID Velocity Feed Forward Gain
+I2233=0                 ;Motor 22 PID Integral Gain
+I2234=1                 ;Motor 22 PID Integration Mode
+I2235=0                 ;Motor 22 PID Acceleration Feed Forward Gain
+I2264=-16               ;Motor 22 'Deadband Gain'
+I2265=16                ;Motor 22 Deadband Size
+I2268=0                 ;Motor 22 Friction Feedforward
+I2269=1200              ;Motor 22 Output Command Limit/Scale
+
+;*************** Axis 23 - Pre VFM Slits (S3) *******************
+;
+; Vertical Slit Positive Motor (Y+)
+
+ms44,i910=7             ;Closed Loop CCW
+ms44,i912=1             ;Home Capture on Reference Mark
+ms44,i913=0             ;Home on Home Flag
+ms44,i918=0             ;Non-Inverted Motor Direction
+
+I2300=1                 ;Motor 23 Activate
+
+I2311=1600              ;Motor 23 Fatal Following Error Limit
+I2312=800               ;Motor 23 Warning Following Error Limit
+I2313=27000             ;Motor 23 + Software Position Limit
+I2314=-29000            ;Motor 23 - Software Position Limit
+I2315=0.25              ;Motor 23 Abort/Lim Decel Rate
+I2316=1                 ;Motor 23 Maximum Velocity
+I2317=100               ;Motor 23 Maximum Acceleration
+I2318=0                 ;(Reserved)
+I2319=0.01              ;Motor 23 Maximum Jog Acceleration
+I2320=111               ;Motor 23 Jog/Home Acceleration Time
+I2321=0                 ;Motor 23 Jog/Home S-Curve Time
+I2322=1                 ;Motor 23 Jog Speed
+I2323=1                 ;Motor 23 Homing Speed And Direction
+I2324=$240001           ;Motor 23 Flag Mode Control
+I2325=$346C             ;Motor 23 Flag Address
+I2326=0                 ;Motor 23 Home Offset
+I2327=0                 ;Motor 23 Position Rollover Range
+I2328=160               ;Motor 23 In-Position Band
+I2329=0                 ;Motor 23 Output/1st Phase Offset
+I2330=16000             ;Motor 23 PID Proportional Gain
+I2331=0                 ;Motor 23 PID Derivative Gain
+I2332=21000             ;Motor 23 PID Velocity Feed Forward Gain
+I2333=0                 ;Motor 23 PID Integral Gain
+I2334=1                 ;Motor 23 PID Integration Mode
+I2335=0                 ;Motor 23 PID Acceleration Feed Forward Gain
+I2364=-16               ;Motor 23 'Deadband Gain'
+I2365=16                ;Motor 23 Deadband Size
+I2368=0                 ;Motor 23 Friction Feedforward
+I2369=1200              ;Motor 23 Output Command Limit/Scale
+
+;*************** Axis 24 - Pre VFM Slits (S3) *******************
+;
+; Vertical Slit Negative Motor (Y-)
+
+ms45,i910=7             ;Closed Loop CCW
+ms45,i912=1             ;Home Capture on Reference Mark
+ms45,i913=0             ;Home on Home Flag
+ms45,i918=0             ;Non-Inverted Motor Direction
+
+I2400=1                 ;Motor 24 Activate
+
+I2411=1600              ;Motor 24 Fatal Following Error Limit
+I2412=800               ;Motor 24 Warning Following Error Limit
+I2413=9000              ;Motor 24 + Software Position Limit
+I2414=-37000            ;Motor 24 - Software Position Limit
+I2415=0.25              ;Motor 24 Abort/Lim Decel Rate
+I2416=1                 ;Motor 24 Maximum Velocity
+I2417=100               ;Motor 24 Maximum Acceleration
+I2418=0                 ;(Reserved)
+I2419=0.01              ;Motor 24 Maximum Jog Acceleration
+I2420=111               ;Motor 24 Jog/Home Acceleration Time
+I2421=0                 ;Motor 24 Jog/Home S-Curve Time
+I2422=1                 ;Motor 24 Jog Speed
+I2423=1                 ;Motor 24 Homing Speed And Direction
+I2424=$240001           ;Motor 24 Flag Mode Control
+I2425=$346D             ;Motor 24 Flag Address
+I2426=0                 ;Motor 24 Home Offset
+I2427=0                 ;Motor 24 Position Rollover Range
+I2428=160               ;Motor 24 In-Position Band
+I2429=0                 ;Motor 24 Output/1st Phase Offset
+I2430=16000             ;Motor 24 PID Proportional Gain
+I2431=0                 ;Motor 24 PID Derivative Gain
+I2432=21000             ;Motor 24 PID Velocity Feed Forward Gain
+I2433=0                 ;Motor 24 PID Integral Gain
+I2434=1                 ;Motor 24 PID Integration Mode
+I2435=0                 ;Motor 24 PID Acceleration Feed Forward Gain
+I2464=-16               ;Motor 24 'Deadband Gain'
+I2465=16                ;Motor 24 Deadband Size
+I2468=0                 ;Motor 24 Friction Feedforward
+I2469=1200              ;Motor 24 Output Command Limit/Scale
+
+;*************** Axis 25 - VFM *******************
+;
+; Vertical Jack 1
+
+ms48,i910=7             ;Closed Loop CCW
+ms48,i912=1             ;Home Capture on Reference Mark
+ms48,i913=0             ;Home on Home Flag
+ms48,i918=0             ;Non-Inverted Motor Direction
+
+I2500=1                 ;Motor 25 Activate
+
+I2511=2000              ;Motor 25 Fatal Following Error Limit
+I2512=1000              ;Motor 25 Warning Following Error Limit
+I2513=360000            ;Motor 25 + Software Position Limit
+I2514=-500000           ;Motor 25 - Software Position Limit
+I2515=0.25              ;Motor 25 Abort/Lim Decel Rate
+I2516=7                 ;Motor 25 Maximum Velocity
+I2517=1                 ;Motor 25 Maximum Acceleration
+I2518=0                 ;(Reserved)
+I2519=0.02              ;Motor 25 Maximum Jog Acceleration
+I2520=101               ;Motor 25 Jog/Home Acceleration Time
+I2521=0                 ;Motor 25 Jog/Home S-Curve Time
+I2522=2                 ;Motor 25 Jog Speed
+I2523=5                 ;Motor 25 Homing Speed And Direction
+I2524=$240001           ;Motor 25 Flag Mode Control
+I2525=$3470             ;Motor 25 Flag Address
+I2526=0                 ;Motor 25 Home Offset
+I2527=0                 ;Motor 25 Position Rollover Range
+I2528=160               ;Motor 25 In-Position Band
+I2529=0                 ;Motor 25 Output/1st Phase Offset
+I2530=12000             ;Motor 25 PID Proportional Gain
+I2531=0                 ;Motor 25 PID Derivative Gain
+I2532=7000              ;Motor 25 PID Velocity Feed Forward Gain
+I2533=2000              ;Motor 25 PID Integral Gain
+I2534=1                 ;Motor 25 PID Integration Mode
+I2535=0                 ;Motor 25 PID Acceleration Feed Forward Gain
+I2564=-16               ;Motor 25 'Deadband Gain'
+I2565=80                ;Motor 25 Deadband Size
+I2568=0                 ;Motor 25 Friction Feedforward
+I2569=32767             ;Motor 25 Output Command Limit/Scale
+
+;*************** Axis 26 - VFM *******************
+;
+; Vertical Jack 2
+
+ms49,i910=7             ;Closed Loop CCW
+ms49,i912=1             ;Home Capture on Reference Mark
+ms49,i913=0             ;Home on Home Flag
+ms49,i918=0             ;Non-Inverted Motor Direction
+
+I2600=1                 ;Motor 26 Activate
+
+I2611=2000              ;Motor 26 Fatal Following Error Limit
+I2612=1000              ;Motor 26 Warning Following Error Limit
+I2613=382600            ;Motor 26 + Software Position Limit
+I2614=-500000           ;Motor 26 - Software Position Limit
+I2615=0.25              ;Motor 26 Abort/Lim Decel Rate
+I2616=7                 ;Motor 26 Maximum Velocity
+I2617=1                 ;Motor 26 Maximum Acceleration
+I2618=0                 ;(Reserved)
+I2619=0.02              ;Motor 26 Maximum Jog Acceleration
+I2620=101               ;Motor 26 Jog/Home Acceleration Time
+I2621=0                 ;Motor 26 Jog/Home S-Curve Time
+I2622=2                 ;Motor 26 Jog Speed
+I2623=5                 ;Motor 26 Homing Speed And Direction
+I2624=$240001           ;Motor 26 Flag Mode Control
+I2625=$3471             ;Motor 26 Flag Address
+I2626=0                 ;Motor 26 Home Offset
+I2627=0                 ;Motor 26 Position Rollover Range
+I2628=160               ;Motor 26 In-Position Band
+I2629=0                 ;Motor 26 Output/1st Phase Offset
+I2630=12000             ;Motor 26 PID Proportional Gain
+I2631=0                 ;Motor 26 PID Derivative Gain
+I2632=7000              ;Motor 26 PID Velocity Feed Forward Gain
+I2633=2000              ;Motor 26 PID Integral Gain
+I2634=1                 ;Motor 26 PID Integration Mode
+I2635=0                 ;Motor 26 PID Acceleration Feed Forward Gain
+I2664=-16               ;Motor 26 'Deadband Gain'
+I2665=32                ;Motor 26 Deadband Size
+I2668=0                 ;Motor 26 Friction Feedforward
+I2669=32767             ;Motor 26 Output Command Limit/Scale
+
+;*************** Axis 27 - VFM *******************
+;
+; Vertical Jack 3
+
+ms52,i910=7             ;Closed Loop CCW
+ms52,i912=1             ;Home Capture on Reference Mark
+ms52,i913=0             ;Home on Home Flag
+ms52,i918=0             ;Non-Inverted Motor Direction
+
+I2700=1                 ;Motor 27 Activate
+
+I2711=2000              ;Motor 27 Fatal Following Error Limit
+I2712=1000              ;Motor 27 Warning Following Error Limit
+I2713=402600            ;Motor 27 + Software Position Limit
+I2714=-500000           ;Motor 27 - Software Position Limit
+I2715=0.25              ;Motor 27 Abort/Lim Decel Rate
+I2716=7                 ;Motor 27 Maximum Velocity
+I2717=1                 ;Motor 27 Maximum Acceleration
+I2718=0                 ;(Reserved)
+I2719=0.02              ;Motor 27 Maximum Jog Acceleration
+I2720=101               ;Motor 27 Jog/Home Acceleration Time
+I2721=0                 ;Motor 27 Jog/Home S-Curve Time
+I2722=2                 ;Motor 27 Jog Speed
+I2723=5                 ;Motor 27 Homing Speed And Direction
+I2724=$240001           ;Motor 27 Flag Mode Control
+I2725=$3474             ;Motor 27 Flag Address
+I2726=0                 ;Motor 27 Home Offset
+I2727=0                 ;Motor 27 Position Rollover Range
+I2728=160               ;Motor 27 In-Position Band
+I2729=0                 ;Motor 27 Output/1st Phase Offset
+I2730=12000             ;Motor 27 PID Proportional Gain
+I2731=0                 ;Motor 27 PID Derivative Gain
+I2732=7000              ;Motor 27 PID Velocity Feed Forward Gain
+I2733=2000              ;Motor 27 PID Integral Gain
+I2734=1                 ;Motor 27 PID Integration Mode
+I2735=0                 ;Motor 27 PID Acceleration Feed Forward Gain
+I2764=-16               ;Motor 27 'Deadband Gain'
+I2765=32                ;Motor 27 Deadband Size
+I2768=0                 ;Motor 27 Friction Feedforward
+I2769=32767             ;Motor 27 Output Command Limit/Scale
+
+;*************** Axis 28 - Post-VFM QBPM (QBPM 3) *******************
+;
+; Y-Translation
+
+ms53,i910=8             ;Step & Direction (Open Loop)
+ms53,i912=2             ;Home Capture on Flag
+ms53,i913=1             ;Home on Positive Limit
+ms53,i918=0             ;Non-Inverted Motor Direction
+
+I2800=1                 ;Motor 28 Activate
+
+I2811=640               ;Motor 28 Fatal Following Error Limit
+I2812=320               ;Motor 28 Warning Following Error Limit
+I2813=440               ;Motor 28 + Software Position Limit
+I2814=-16400            ;Motor 28 - Software Position Limit
+I2815=2                 ;Motor 28 Abort/Lim Decel Rate
+I2816=3.1496            ;Motor 28 Maximum Velocity
+I2817=100               ;Motor 28 Maximum Acceleration
+I2818=0                 ;(Reserved)
+I2819=0.01              ;Motor 28 Maximum Jog Acceleration
+I2820=109               ;Motor 28 Jog/Home Acceleration Time
+I2821=0                 ;Motor 28 Jog/Home S-Curve Time
+I2822=1                 ;Motor 28 Jog Speed
+I2823=1.5748            ;Motor 28 Homing Speed And Direction
+I2824=$240001           ;Motor 28 Flag Mode Control
+I2825=$3475             ;Motor 28 Flag Address
+I2826=0                 ;Motor 28 Home Offset
+I2827=0                 ;Motor 28 Position Rollover Range
+I2828=160               ;Motor 28 In-Position Band
+I2829=0                 ;Motor 28 Output/1st Phase Offset
+I2830=10000             ;Motor 28 PID Proportional Gain
+I2831=0                 ;Motor 28 PID Derivative Gain
+I2832=16800             ;Motor 28 PID Velocity Feed Forward Gain
+I2833=0                 ;Motor 28 PID Integral Gain
+I2834=1                 ;Motor 28 PID Integration Mode
+I2835=0                 ;Motor 28 PID Acceleration Feed Forward Gain
+I2864=-16               ;Motor 28 'Deadband Gain'
+I2865=16                ;Motor 28 Deadband Size
+I2868=0                 ;Motor 28 Friction Feedforward
+I2869=30000             ;Motor 28 Output Command Limit/Scale
+
+;*************** Axis 29 - HFM *******************
+;
+; X Translation Nano Motor (Upstream)
+
+ms56,i910=7             ;Closed Loop CCW
+ms56,i912=1             ;Home Capture on Reference Mark
+ms56,i913=0             ;Home on Home Flag
+ms56,i918=0             ;Non-Inverted Motor Direction
+
+I2900=1                 ;Motor 29 Activate
+
+I2911=32000             ;Motor 29 Fatal Following Error Limit
+I2912=16000             ;Motor 29 Warning Following Error Limit
+I2913=1000000           ;Motor 29 + Software Position Limit
+I2914=-1000000          ;Motor 29 - Software Position Limit
+I2915=0.25              ;Motor 29 Abort/Lim Decel Rate
+I2916=32                ;Motor 29 Maximum Velocity
+I2917=0.01              ;Motor 29 Maximum Acceleration
+I2918=0                 ;(Reserved)
+I2919=0.3125            ;Motor 29 Maximum Jog Acceleration
+I2920=100               ;Motor 29 Jog/Home Acceleration Time
+I2921=0                 ;Motor 29 Jog/Home S-Curve Time
+I2922=12.746            ;Motor 29 Jog Speed
+I2923=20                ;Motor 29 Homing Speed And Direction
+I2924=$260001           ;Motor 29 Flag Mode Control
+I2925=$3478             ;Motor 29 Flag Address
+I2926=0                 ;Motor 29 Home Offset
+I2927=0                 ;Motor 29 Position Rollover Range
+I2928=160               ;Motor 29 In-Position Band
+I2929=0                 ;Motor 29 Output/1st Phase Offset
+I2930=15000             ;Motor 29 PID Proportional Gain
+I2931=1000              ;Motor 29 PID Derivative Gain
+I2932=1400              ;Motor 29 PID Velocity Feed Forward Gain
+I2933=5000              ;Motor 29 PID Integral Gain
+I2934=1                 ;Motor 29 PID Integration Mode
+I2935=12000             ;Motor 29 PID Acceleration Feed Forward Gain
+I2964=0                 ;Motor 29 'Deadband Gain'
+I2965=16                ;Motor 29 Deadband Size
+I2968=100               ;Motor 29 Friction Feedforward
+I2969=15000             ;Motor 29 Output Command Limit/Scale
+
+;*************** Axis 30 - HFM *******************
+;
+; X Translation Nano Motor (Downstream)
+
+ms57,i910=3             ;Closed Loop CW
+ms57,i912=1             ;Home Capture on Reference Mark
+ms57,i913=0             ;Home on Home Flag
+ms57,i918=0             ;Non-Inverted Motor Direction
+
+I3000=1                 ;Motor 30 Activate
+
+I3011=32000             ;Motor 30 Fatal Following Error Limit
+I3012=16000             ;Motor 30 Warning Following Error Limit
+I3013=1000000           ;Motor 30 + Software Position Limit
+I3014=-1000000          ;Motor 30 - Software Position Limit
+I3015=0.25              ;Motor 30 Abort/Lim Decel Rate
+I3016=32                ;Motor 30 Maximum Velocity
+I3017=0.01              ;Motor 30 Maximum Acceleration
+I3018=0                 ;(Reserved)
+I3019=0.3125            ;Motor 30 Maximum Jog Acceleration
+I3020=100               ;Motor 30 Jog/Home Acceleration Time
+I3021=0                 ;Motor 30 Jog/Home S-Curve Time
+I3022=13         	;Motor 30 Jog Speed
+I3023=20                ;Motor 30 Homing Speed And Direction
+I3024=$260001           ;Motor 30 Flag Mode Control
+I3025=$3479             ;Motor 30 Flag Address
+I3026=0                 ;Motor 30 Home Offset
+I3027=0                 ;Motor 30 Position Rollover Range
+I3028=160               ;Motor 30 In-Position Band
+I3029=0                 ;Motor 30 Output/1st Phase Offset
+I3030=20000             ;Motor 30 PID Proportional Gain
+I3031=1000              ;Motor 30 PID Derivative Gain
+I3032=1400              ;Motor 30 PID Velocity Feed Forward Gain
+I3033=5000              ;Motor 30 PID Integral Gain
+I3034=1                 ;Motor 30 PID Integration Mode
+I3035=20000             ;Motor 30 PID Acceleration Feed Forward Gain
+I3064=0                 ;Motor 30 'Deadband Gain'
+I3065=16                ;Motor 30 Deadband Size
+I3068=100               ;Motor 30 Friction Feedforward
+I3069=15000             ;Motor 30 Output Command Limit/Scale
+
+;*************** Axis 31 - VFM *******************
+;
+; X Translation Nano Motor (Downstream)
+
+ms60,i910=7             ;Closed Loop CCW
+ms60,i912=1             ;Home Capture on Reference Mark
+ms60,i913=0             ;Home on Home Flag
+ms60,i918=0             ;Non-Inverted Motor Direction
+
+I3100=1                 ;Motor 31 Activate
+
+I3111=32000             ;Motor 31 Fatal Following Error Limit
+I3112=16000             ;Motor 31 Warning Following Error Limit
+I3113=1000000           ;Motor 31 + Software Position Limit
+I3114=-1000000          ;Motor 31 - Software Position Limit
+I3115=0.25              ;Motor 31 Abort/Lim Decel Rate
+I3116=32                ;Motor 31 Maximum Velocity
+I3117=0.01              ;Motor 31 Maximum Acceleration
+I3118=0                 ;(Reserved)
+I3119=0.3125            ;Motor 31 Maximum Jog Acceleration
+I3120=100               ;Motor 31 Jog/Home Acceleration Time
+I3121=0                 ;Motor 31 Jog/Home S-Curve Time
+I3122=8            	;Motor 31 Jog Speed
+I3123=20                ;Motor 31 Homing Speed And Direction
+I3124=$260001           ;Motor 31 Flag Mode Control
+I3125=$347C             ;Motor 31 Flag Address
+I3126=0                 ;Motor 31 Home Offset
+I3127=0                 ;Motor 31 Position Rollover Range
+I3128=160               ;Motor 31 In-Position Band
+I3129=0                 ;Motor 31 Output/1st Phase Offset
+I3130=20000             ;Motor 31 PID Proportional Gain
+I3131=1000              ;Motor 31 PID Derivative Gain
+I3132=1400              ;Motor 31 PID Velocity Feed Forward Gain
+I3133=5000              ;Motor 31 PID Integral Gain
+I3134=1                 ;Motor 31 PID Integration Mode
+I3135=10000             ;Motor 31 PID Acceleration Feed Forward Gain
+I3164=0                 ;Motor 31 'Deadband Gain'
+I3165=16                ;Motor 31 Deadband Size
+I3168=100               ;Motor 31 Friction Feedforward
+I3169=15000             ;Motor 31 Output Command Limit/Scale
+
+;*************** Axis 32 - VFM *******************
+;
+; X Translation Nano Motor (Downstream)
+
+ms61,i910=3             ;Closed Loop CW
+ms61,i912=1             ;Home Capture on Reference Mark
+ms61,i913=0             ;Home on Home Flag
+ms61,i918=0             ;Non-Inverted Motor Direction
+
+I3200=1                 ;Motor 32 Activate
+
+I3211=32000             ;Motor 32 Fatal Following Error Limit
+I3212=16000             ;Motor 32 Warning Following Error Limit
+I3213=1000000           ;Motor 32 + Software Position Limit
+I3214=-1000000          ;Motor 32 - Software Position Limit
+I3215=0.25              ;Motor 32 Abort/Lim Decel Rate
+I3216=32                ;Motor 32 Maximum Velocity
+I3217=0.01              ;Motor 32 Maximum Acceleration
+I3218=0                 ;(Reserved)
+I3219=0.3125            ;Motor 32 Maximum Jog Acceleration
+I3220=100               ;Motor 32 Jog/Home Acceleration Time
+I3221=0                 ;Motor 32 Jog/Home S-Curve Time
+I3222=8          	;Motor 32 Jog Speed
+I3223=20                ;Motor 32 Homing Speed And Direction
+I3224=$260001           ;Motor 32 Flag Mode Control
+I3225=$347D             ;Motor 32 Flag Address
+I3226=0                 ;Motor 32 Home Offset
+I3227=0                 ;Motor 32 Position Rollover Range
+I3228=160               ;Motor 32 In-Position Band
+I3229=0                 ;Motor 32 Output/1st Phase Offset
+I3230=20000             ;Motor 32 PID Proportional Gain
+I3231=1000              ;Motor 32 PID Derivative Gain 
+I3232=1400              ;Motor 32 PID Velocity Feed Forward Gain
+I3233=5000              ;Motor 32 PID Integral Gain
+I3234=1                 ;Motor 32 PID Integration Mode
+I3235=10000             ;Motor 32 PID Acceleration Feed Forward Gain
+I3264=0                 ;Motor 32 'Deadband Gain'
+I3265=16                ;Motor 32 Deadband Size 
+I3268=100               ;Motor 32 Friction Feedforward
+I3269=15000             ;Motor 32 Output Command Limit/Scale
+
+;************** Set up i65 to specify the PMAC Name *******************
+
+I65=8449
+
+;**********************************************************************
+
+;set CS time units to mseconds
+
+I5190=1 ;CS1
+I5290=1 ;CS2
+I5390=1 ;CS3
+I5490=1 ;CS4
+I5590=1 ;CS5
+I5690=1 ;CS6
+I5790=1 ;CS7
+I5890=1 ;CS8
+I5990=1 ;CS9
+I6090=1 ;CS10
+I6190=1 ;CS11
+I6290=1 ;CS12
+I6390=1 ;CS13
+I6490=1 ;CS14
+
+

@@ -1,0 +1,99 @@
+
+; Motion Program 8 - Homing Routine for Pre-VFM Slits: Y Negative, Y Positive
+
+#define homing_started_prog8            P408
+
+#define acc_time_var_mtr23             I2320
+#define s_curve_time_var_mtr23         I2321
+#define jog_speed_var_mtr23            I2322
+#define home_speed_var_mtr23           I2323
+#define flag_mode_control_mtr23        I2324
+#define rapid_mode_speed_select_mtr23  I2390
+#define trigger_mode_mtr23             I2397
+
+#define neg_limit_bit_mtr23            M2332
+#define amplifier_enabled_mtr23        M2339
+#define in_position_bit_mtr23          M2340
+#define home_complete_mtr23            M2344
+#define commanded_position_mtr23       M2361
+#define actual_position_mtr23          M2362
+#define DacOut_mtr23                   M2368
+#define encoder_capture_position_mtr23 M2373
+#define StartDeact_mtr23               M2382
+#define ElapsedDeact_mtr23             M2383
+#define encoder_loss_reg_mtr23         M2384
+#define encoder_loss_dpram_mtr23       M2385
+#define encoder_stall_mtr23            M2386
+#define Starttime_mtr23                M2387
+#define Elapsedtime_mtr23              M2388
+#define encoder_lost_mtr23             M2389
+
+#define acc_time_var_mtr24             I2420
+#define s_curve_time_var_mtr24         I2421
+#define jog_speed_var_mtr24            I2422
+#define home_speed_var_mtr24           I2423
+#define flag_mode_control_mtr24        I2424
+#define rapid_mode_speed_select_mtr24  I2490
+#define trigger_mode_mtr24             I2497
+
+#define neg_limit_bit_mtr24            M2432
+#define amplifier_enabled_mtr24        M2439
+#define in_position_bit_mtr24          M2440
+#define home_complete_mtr24            M2444
+#define commanded_position_mtr24       M2461
+#define actual_position_mtr24          M2462
+#define DacOut_mtr24                   M2468
+#define encoder_capture_position_mtr24 M2473
+#define StartDeact_mtr24               M2482
+#define ElapsedDeact_mtr24             M2483
+#define encoder_loss_reg_mtr24         M2484
+#define encoder_loss_dpram_mtr24       M2485
+#define encoder_stall_mtr24            M2486
+#define Starttime_mtr24                M2487
+#define Elapsedtime_mtr24              M2488
+#define encoder_lost_mtr24             M2489
+
+#define MOVEMENT_RANGE_MTR23   42000
+#define MOVEMENT_RANGE_MTR24   42000
+#define LIMIT_OFFSET_MTR23 1000
+#define LIMIT_OFFSET_MTR24 1000
+#define HOME_OFFSET_MTR23 -6005
+#define HOME_OFFSET_MTR24 13890
+
+open prog 8
+clear
+RAPID
+homing_started_prog8 =1
+ta(acc_time_var_mtr23)						  ; acc time
+ts(s_curve_time_var_mtr23)					  ; s-curve time
+f(jog_speed_var_mtr23)						  ; feedrate (velocity)
+home_complete_mtr23=0
+home_complete_mtr24=0
+cmd"ms44,mi912=2"	                                          ; capture home on rising edge of a flag
+cmd"ms45,mi912=2"	                                          ; capture home on rising edge of a flag
+cmd"ms44,mi913=2"	                                          ; use -limit as a flag
+cmd"ms45,mi913=2"	                                          ; use -limit as a flag
+flag_mode_control_mtr23=LIMITS_OFF		                  ; disable +/- limits
+flag_mode_control_mtr24=LIMITS_OFF		                  ; disable +/- limits
+dwell 10
+INC
+; Ending position should be as large as the whole motor move range to
+; ensure that -limit switch is found
+X(-MOVEMENT_RANGE_MTR23)^LIMIT_OFFSET_MTR23 Y(-MOVEMENT_RANGE_MTR24)^LIMIT_OFFSET_MTR24
+dwell 0
+flag_mode_control_mtr23=LIMITS_ON			          ; reenable +/-limits
+flag_mode_control_mtr24=LIMITS_ON			          ; reenable +/-limits
+cmd"ms44,mi912=1"	                                          ; capture on marker pulse
+cmd"ms45,mi912=1"	                                          ; capture on marker pulse
+cmd"ms44,mi913=0"	                                          ; use home switch as a flag
+cmd"ms45,mi913=0"	                                          ; use home switch as a flag
+dwell 10
+X(MOVEMENT_RANGE_MTR23)^HOME_OFFSET_MTR23 Y(MOVEMENT_RANGE_MTR24)^HOME_OFFSET_MTR24
+dwell 1000
+HOMEZ 23,24
+ABS
+dwell 0
+LINEAR
+home_complete_mtr23=1
+home_complete_mtr24=1
+close

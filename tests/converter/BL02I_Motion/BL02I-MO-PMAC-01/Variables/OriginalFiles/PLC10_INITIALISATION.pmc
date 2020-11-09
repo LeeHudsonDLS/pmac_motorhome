@@ -1,0 +1,138 @@
+;*****************************************************************************
+; Initialisation. Executed once at startup and disables itself.
+;   - assigns the motors to their CS (used for homing)
+;   - clears possible MACRO station faults
+;   - enable relevant PLC's
+;*****************************************************************************
+
+
+open plc 10
+clear
+
+; disable all plc's, except this one, to begin with
+disable plc 0..9
+disable plc 11..31
+
+cmd"UNDEFINE ALL" ; erase all CS definitions
+
+; clear possible Macro station faults
+cmd"msclrf0"
+cmd"msclrf32"
+
+; but "msclrf0" resets "ms0,i996" (plc 4) to the wrong value for encoder loss!
+; Therefore, reset it here.
+cmd "ms0,i996=$FBFFF"
+cmd "ms32,i996=$2FBFFF"
+
+;CS1 - pre-DCM slits horizontal
+ADDRESS &1
+cmd"#1->X"
+cmd"#2->Y"
+
+;CS2 - pre-DCM slits vertical
+ADDRESS &2
+cmd"#3->X"
+cmd"#4->Y"
+
+;CS3 - pre-HFM slits horizontal
+ADDRESS &3
+cmd"#12->X"
+cmd"#13->Y"
+
+;CS4 - pre-HFM slits vertical
+ADDRESS &4
+cmd"#14->X"
+cmd"#15->Y"
+
+;CS5 - pre-VFM slits horizontal
+ADDRESS &5
+cmd"#21->X"
+cmd"#22->Y"
+
+;CS6 - pre-VFM slits vertical
+ADDRESS &6
+cmd"#23->X"
+cmd"#24->Y"
+
+;CS8 - pre HFM QBPM
+ADDRESS &8
+cmd"#11->X"
+
+;CS9 - pre VFM QBPM
+ADDRESS &9
+cmd"#20->X"
+
+;CS10 - post VFM QBPM
+ADDRESS &10
+cmd"#28->X"
+
+;CS11 - HFM jacks
+ADDRESS &11
+cmd"#17->X"
+cmd"#18->Y"
+cmd"#19->Z"
+
+;CS12 - HFM trans
+ADDRESS &12
+cmd"#29->X"
+cmd"#30->Y"
+
+;CS13 - VFM jacks
+ADDRESS &13
+cmd"#25->X"
+cmd"#26->Y"
+cmd"#27->Z"
+
+;CS14 - VFM trans
+ADDRESS &14
+cmd"#31->X"
+cmd"#32->Y"
+
+; Abort all coordinate systems
+cmd"&1a"
+cmd"&2a"
+cmd"&3a"
+cmd"&4a"
+cmd"&5a"
+cmd"&6a"
+cmd"&7a"
+cmd"&8a"
+cmd"&9a"
+cmd"&10a"
+cmd"&11a"
+cmd"&12a"
+cmd"&13a"
+cmd"&14a"
+cmd"&15a"
+
+;set CS time units to mseconds
+I5190=1 ;CS1
+I5290=1 ;CS2
+I5390=1 ;CS3
+I5490=1 ;CS4
+I5590=1 ;CS5
+I5690=1 ;CS6
+I5790=1 ;CS7
+I5890=1 ;CS8
+I5990=1 ;CS9
+I6090=1 ;CS10
+I6190=1 ;CS11
+I6290=1 ;CS12
+I6390=1 ;CS13
+I6490=1 ;CS14
+I6590=1 ;CS15
+
+; Enable necessary plc's
+enable plc 0   ; Mirror nano-motor overheat protection
+enable plc 4   ; Encoder loss
+enable plc 5   ; CPU load cpu for pmacStatus
+disable plc 9  ; Recover following error settings after encoder loss
+enable plc 11  ; Limits housekeeping
+enable plc 12  ; Kills perp and mirror nano-motors, once in-position
+disable plc 13 ; Homes Pitch motor on enable
+disable plc 14 ; Homes Roll motor on enable
+disable plc 15 ; Homes Perp motor on enable
+disable plc 16 ; Kills pitch once in-position
+
+disable plc 10 ; This plc
+close

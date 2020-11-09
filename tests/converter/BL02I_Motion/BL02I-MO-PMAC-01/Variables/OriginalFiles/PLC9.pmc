@@ -1,0 +1,52 @@
+;************* PLC 9 Perpendicular Motor Overheat Protection - VITAL! *************
+;
+; Andy Foster 14/05/08
+; When the Perpendicular motor has been in-position for 2 seconds, kill it
+; and switch off the amplifier (M654 = 0).
+; This PLC is absolutely vital to the correct operation of the DCM. Without it,
+; the amplifier stays on and the motor heats up to 62 C (with 0.5A supplied current).
+; This heat source causes long term beam instability in the Y-direction.
+; This can be seen as the intensity falling off much faster than the natural decay
+; time of the beam current in the machine.
+; It is presumably caused by the thermal expansion of the cam which the motor drives.
+; The beam intensity and Y-position can be seen (correlated) on the QBPM's following the DCM.
+; 
+; The waterflow, alone, is nowhere near sufficient to cool this motor
+; if the amplifier is left switched-on.
+;
+; Note: We use the amplifier enable output from motor 6, which is unused.
+; This is because we are using the Z-channel on the Perp motor (axis 10) to home against.
+; The Z-channel and the amplifier enable output share the same output and so both
+; cannot be used on the same axis.
+
+#define amplifier_enable_mtr6         M654
+#define amplifier_enabled_mtr10       M1039
+#define in_position_bit_mtr10         M1040
+#define timer_set_mtr10               P510
+#define coordsystem15_countdown_timer I6511  ; see Turbo SRM, page 216
+#define SERVO_INTERRUPT_TIME          I10/(8388608 * 1000) ;seconds
+
+
+open plc 9
+clear
+
+if( in_position_bit_mtr10 = 0 and amplifier_enabled_mtr10 = 1 and amplifier_enable_mtr6 = 0 )
+  amplifier_enable_mtr6 = 1  ; Turn on the amplifier at the beginning of a move
+endif
+
+if( in_position_bit_mtr10 = 1 and amplifier_enabled_mtr10 = 1 and timer_set_mtr10 = 0 )
+  coordsystem15_countdown_timer = 2 * SERVO_INTERRUPT_TIME;  Number of servo cycles in 2 seconds
+  timer_set_mtr10 = 1
+endIf
+
+if( in_position_bit_mtr10 = 1 and amplifier_enabled_mtr10 = 1 and timer_set_mtr10 = 1 and coordsystem15_countdown_timer < 0 )
+  cmd"#10k"
+  amplifier_enable_mtr6 = 0  ; Turn off the amplifier at the end of a move
+  timer_set_mtr10 = 0
+else
+  if( coordsystem15_countdown_timer < 0 )
+    timer_set_mtr10 = 0
+  endif
+endif
+
+close

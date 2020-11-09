@@ -1,0 +1,130 @@
+;####################################################
+; DO NOT MODIFY: File created from src/PLC16_HOME_DCM_BRAGG.psub
+;####################################################
+
+; This value was calculated at survey in June 2014
+;*****************************************************************************************************
+; PLC 16 - PLC for homing DCM Bragg
+; Run from "home" on EPICS screen and then disable
+;
+; Circular encoder:  200,000 cnts/deg
+; Axis number 5, macro station number 8 (ms8)
+; Method:
+; This axis homes by capturing the index channel (encoder-Z, CHC5 input) when it goes high (1).
+; First drive to the low limit and then issue the "home" command.
+;
+; Note: M572, the home offset can only be determined during a survey of the DCM.
+;       The offset should make the second crystal flat after homing.
+;       When doing the survey, make sure M572 is set to 0 before homing!
+;       (I526 could also be used but typically can't hold a large enough number
+;	to be useful.  This i-variable would also need to be set to 0 if a 
+;	survey was being carried out)
+;
+; To start homing: "enable plc 16"
+; To stop homing:  "P1601 = 2"
+;
+; This PLC uses the following P-variables:
+; P1600 - Homing State  (interface to autohome.template - pmacUtils)
+; P1601 - Homing Status (interface to autohome.template - pmacUtils)
+; P1602 - Homing Group  (interface to autohome.template - pmacUtils)
+; P1605 - Homing velocity (cnts/msec)
+; P1606 - Homing offset safe - keeps M572 when power goes out
+;
+;*****************************************************************************************************
+
+M532->X:$0002B0,22,1 ; Axis 5, Negative-end-limit-set bit
+M533->X:$0002B0,13,1 ; Axis 5, Desired-velocity-zero bit
+M540->Y:$0002C0,0,1  ; Axis 5, In-position bit
+M542->Y:$0002C0,2,1  ; Axis 5, Fatal-following-error bit
+M545->Y:$0002C0,10,1 ; Axis 5, Home-complete bit
+M572->L:$0002D7      ; Axis 5, Variable jog position/distance (cnts)
+
+#define DCM_BRAGG_NEGATIVE_END_LIMIT_SET     M532
+#define DCM_BRAGG_DESIRED_VELOCITY_ZERO      M533
+#define DCM_BRAGG_IN_POSITION_BIT            M540
+#define DCM_BRAGG_FFE                        M542
+#define DCM_BRAGG_HOME_COMPLETE              M545
+#define DCM_BRAGG_HOME_OFFSET                M572
+
+#define DCM_BRAGG_HOMING_STATE              P1600
+#define DCM_BRAGG_HOMING_STATUS             P1601
+#define DCM_BRAGG_HOMING_GROUP              P1602
+
+
+open plc 16
+clear
+
+; Tell the DCM Bragg to capture on index high (encoder Z-channel)
+; Set the homing velocity
+ms8,i912  = 1     ; Capture on index high
+I522      = P1605 ; Set jog velocity for pre-home move
+I523      = P1605 ; Set home velocity
+
+DCM_BRAGG_HOME_COMPLETE = 0 ; Turn off the "home complete" bit
+
+; Pre-home move, first drive to the low limit
+DCM_BRAGG_HOMING_STATUS = 1
+cmd "#5j-"
+while ( DCM_BRAGG_NEGATIVE_END_LIMIT_SET = 0 AND DCM_BRAGG_HOMING_STATUS = 1 )
+  ; Check for a Fatal Following Error limit
+  if( DCM_BRAGG_FFE = 1 )
+    DCM_BRAGG_HOMING_STATUS = 4
+  endif
+end while
+
+if( DCM_BRAGG_HOMING_STATUS = 2 )
+  cmd "#5j/"
+endif
+
+if( DCM_BRAGG_HOMING_STATUS = 1 )
+  ; The pre-home move finished ok, now do the "home"
+  ; Home search in progress
+  DCM_BRAGG_HOMING_STATE = 4
+  while( DCM_BRAGG_IN_POSITION_BIT = 0 )
+  end while
+  cmd "#5hm"
+  ; Give "homing" time to start
+  while( DCM_BRAGG_DESIRED_VELOCITY_ZERO = 1 )
+  end while
+  while ( DCM_BRAGG_HOME_COMPLETE = 0 OR DCM_BRAGG_DESIRED_VELOCITY_ZERO = 0 )
+    AND ( DCM_BRAGG_HOMING_STATUS = 1 )
+    ; Check for a Fatal Following Error limit
+    if( DCM_BRAGG_FFE = 1 )
+      DCM_BRAGG_HOMING_STATUS = 4
+    endif
+  end while
+  DCM_BRAGG_HOME_COMPLETE = 0
+endif
+
+if( DCM_BRAGG_HOMING_STATUS = 2 )
+  cmd "#5j/"
+endif
+
+if( DCM_BRAGG_HOMING_STATUS = 1 )
+  ; Now do the offset for a flat second crystal
+  ; This offset value is substituted in when the PLC 
+  ; is built in the motion area.
+  DCM_BRAGG_HOME_OFFSET = 0
+  cmd "#5j=*"
+  ; The first loop is to allow the in-position bit to go off
+  while ( DCM_BRAGG_IN_POSITION_BIT = 1 )
+  end while
+  while ( DCM_BRAGG_IN_POSITION_BIT = 0 )
+  end while
+  cmd "#5hmz"
+endif
+
+if( DCM_BRAGG_HOMING_STATUS = 1 )
+  ; Homing finished successfully
+  DCM_BRAGG_HOMING_STATE = 7
+  ; PLC status - no error
+  DCM_BRAGG_HOMING_STATUS = 0
+else
+  ; Homing finished unsuccessfully
+  DCM_BRAGG_HOMING_STATE = 11
+  ; PLC status - as set in while loop above
+endif
+
+disable plc 16
+
+close

@@ -1,0 +1,108 @@
+;####################################################
+; DO NOT MODIFY: File created from /dls_sw/prod/R3.14.12.3/support/mxMasterConfig/2-81/data/PLC14_HOME_DCM_ROLL.pmc
+;####################################################
+
+;*****************************************************************************************************
+; PLC 14 - PLC for homing DCM Roll
+; Run from "home" on EPICS screen and then disable
+;
+; Linear encoder:  20,000 cnts/mm
+; Method:
+; Axis number 9, macro station number 16 (ms16)
+; This axis homes by capturing the index channel (encoder-Z, CHC1 input) when it goes high (1).
+; First drive to the low limit and then issue the "home" command.
+;
+; Note: I926, the home offset can only be determined during a survey of the DCM.
+;       The offset should make the second crystal flat after homing.
+;       When doing the survey, make sure I926 is set to 0 before homing!
+;
+; To start homing: "enable plc 14"
+; To stop homing:  "P1401 = 2"
+;
+; This PLC uses the following P-variables:
+; P1400 - Homing State  (interface to autohome.template - pmacUtils)
+; P1401 - Homing Status (interface to autohome.template - pmacUtils)
+; P1402 - Homing Group  (interface to autohome.template - pmacUtils)
+; P1403 - To hold current positive limit
+; P1404 - To hold current negative limit
+; P1405 - Homing velocity (cnts/msec)
+;
+;*****************************************************************************************************
+
+M932->X:$0004B0,22,1 ; Axis 9, Negative-end-limit-set bit
+M933->X:$0004B0,13,1 ; Axis 9, Desired-velocity-zero bit
+M942->Y:$0004C0,2,1  ; Axis 9, Fatal-following-error bit
+M945->Y:$0004C0,10,1 ; Axis 9, Home-complete bit
+
+#define DCM_ROLL_NEGATIVE_END_LIMIT_SET     M932
+#define DCM_ROLL_DESIRED_VELOCITY_ZERO      M933
+#define DCM_ROLL_FFE                        M942
+#define DCM_ROLL_HOME_COMPLETE              M945
+
+#define DCM_ROLL_HOMING_STATE               P1400
+#define DCM_ROLL_HOMING_STATUS              P1401
+#define DCM_ROLL_HOMING_GROUP               P1402
+
+P1405 = 0.1  ; cnts/msec = 0.005 mm/s
+
+
+open plc 14
+clear
+
+; Tell the DCM Roll to capture on index high (encoder Z-channel)
+; Set the homing velocity
+ms16,i912 = 1     ; Capture on index, CHC7 high
+I922      = P1405 ; Set jog velocity for pre-home move
+I923      = P1405 ; Set home velocity
+
+DCM_ROLL_HOME_COMPLETE = 0 ; Turn off the "home complete" bit
+
+; Pre-home move, first drive to the low limit
+DCM_ROLL_HOMING_STATUS = 1
+cmd "#9j-"
+while ( DCM_ROLL_NEGATIVE_END_LIMIT_SET = 0 AND DCM_ROLL_HOMING_STATUS = 1 )
+  ; Check for a Fatal Following Error limit
+  if( DCM_ROLL_FFE = 1 )
+    DCM_ROLL_HOMING_STATUS = 4
+  endif
+end while
+
+if( DCM_ROLL_HOMING_STATUS = 2 )
+  cmd "#9j/"
+endif
+
+if( DCM_ROLL_HOMING_STATUS = 1 )
+  ; The pre-home move finished ok, now do the "home"
+  ; Home search in progress
+  DCM_ROLL_HOMING_STATE = 4
+  cmd "#9hm"
+  ; Give "homing" time to start
+  while( DCM_ROLL_DESIRED_VELOCITY_ZERO = 1 )
+  end while
+  while ( DCM_ROLL_HOME_COMPLETE = 0 OR DCM_ROLL_DESIRED_VELOCITY_ZERO = 0 )
+    AND ( DCM_ROLL_HOMING_STATUS = 1 )
+    ; Check for a Fatal Following Error limit
+    if( DCM_ROLL_FFE = 1 )
+      DCM_ROLL_HOMING_STATUS = 4
+    endif
+  end while
+endif
+
+if( DCM_ROLL_HOMING_STATUS = 2 )
+  cmd "#9j/"
+endif
+
+if( DCM_ROLL_HOMING_STATUS = 1 )
+  ; Homing finished successfully
+  DCM_ROLL_HOMING_STATE = 7
+  ; PLC status - no error
+  DCM_ROLL_HOMING_STATUS = 0
+else
+  ; Homing finished unsuccessfully
+  DCM_ROLL_HOMING_STATE = 11
+  ; PLC status - as set in while loop above
+endif
+
+disable plc 14
+
+close

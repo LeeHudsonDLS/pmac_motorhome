@@ -67,6 +67,9 @@ autoclass_content = "both"
 # Order the members by the order they appear in the source code
 autodoc_member_order = "bysource"
 
+# Don't inherit docstrings from baseclasses
+autodoc_inherit_docstrings = False
+
 # Output graphviz directive produced images in a scalable format
 graphviz_output_format = "svg"
 
@@ -81,7 +84,7 @@ templates_path = ["_templates"]
 source_suffix = ".rst"
 
 # The master toctree document.
-master_doc = "contents"
+master_doc = "index"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

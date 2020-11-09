@@ -1,0 +1,102 @@
+
+; Motion Program 3 - Homing Routine for Pre-DCM Slits: X Negative, X Positive
+
+#define homing_started_prog3            P403
+
+#define acc_time_var_mtr1               I120
+#define s_curve_time_var_mtr1           I121
+#define jog_speed_var_mtr1              I122
+#define home_speed_var_mtr1             I123
+#define flag_mode_control_mtr1          I124
+#define rapid_mode_speed_select_mtr1    I190
+#define trigger_mode_mtr1               I197
+
+#define neg_limit_bit_mtr1              M132
+#define amplifier_enabled_mtr1          M139
+#define in_position_bit_mtr1            M140
+#define home_complete_mtr1              M144
+#define commanded_position_mtr1         M161
+#define actual_position_mtr1            M162
+#define DacOut_mtr1                     M168
+#define encoder_capture_position_mtr1   M173
+#define StartDeact_mtr1                 M182
+#define ElapsedDeact_mtr1               M183
+#define encoder_loss_reg_mtr1           M184
+#define encoder_loss_dpram_mtr1         M185
+#define encoder_stall_mtr1              M186
+#define Starttime_mtr1                  M187
+#define Elapsedtime_mtr1                M188
+#define encoder_lost_mtr1               M189
+
+
+#define acc_time_var_mtr2               I220
+#define s_curve_time_var_mtr2           I221
+#define jog_speed_var_mtr2              I222
+#define home_speed_var_mtr2             I223
+#define flag_mode_control_mtr2          I224
+#define rapid_mode_speed_select_mtr2    I290
+#define trigger_mode_mtr2               I297
+
+#define neg_limit_bit_mtr2              M232
+#define amplifier_enabled_mtr2          M239
+#define in_position_bit_mtr2            M240
+#define home_complete_mtr2              M244
+#define commanded_position_mtr2         M261
+#define actual_position_mtr2            M262
+#define DacOut_mtr2                     M268
+#define encoder_capture_position_mtr2   M273
+#define StartDeact_mtr2                 M282
+#define ElapsedDeact_mtr2               M283
+#define encoder_loss_reg_mtr2           M284
+#define encoder_loss_dpram_mtr2         M285
+#define encoder_stall_mtr2              M286
+#define Starttime_mtr2                  M287
+#define Elapsedtime_mtr2                M288
+#define encoder_lost_mtr2               M289
+
+#define MOVEMENT_RANGE_MTR1    42000
+#define MOVEMENT_RANGE_MTR2    42000
+
+#define LIMIT_OFFSET_MTR1 1000
+#define LIMIT_OFFSET_MTR2 1000
+
+#define HOME_OFFSET_MTR1 13225
+#define HOME_OFFSET_MTR2 -5265
+
+open prog 3
+clear
+RAPID
+homing_started_prog3 = 1
+ta(acc_time_var_mtr1)                                              ; acc time
+ts(s_curve_time_var_mtr1)                                          ; s-curve time
+f(jog_speed_var_mtr1)                                              ; feedrate (velocity)
+home_complete_mtr1=0
+home_complete_mtr2=0
+cmd"ms0,mi912=2"	                                           ; capture home on rising edge of a flag
+cmd"ms1,mi912=2"	                                           ; capture home on rising edge of a flag
+cmd"ms0,mi913=2"	                                           ; use -limit as a flag
+cmd"ms1,mi913=2"	                                           ; use -limit as a flag
+flag_mode_control_mtr1=LIMITS_OFF                                  ; disable +/- limits
+flag_mode_control_mtr2=LIMITS_OFF                                  ; disable +/- limits
+dwell 10
+INC
+; Ending position should be as large as the whole motor move range to
+; ensure that -limit switch is found
+X(-MOVEMENT_RANGE_MTR1)^LIMIT_OFFSET_MTR1 Y(-MOVEMENT_RANGE_MTR2)^LIMIT_OFFSET_MTR2
+dwell 0
+flag_mode_control_mtr1=LIMITS_ON                                   ; reenable +/-limits
+flag_mode_control_mtr2=LIMITS_ON                                   ; reenable +/-limits
+cmd"ms0,mi912=1"                                                   ; capture on marker pulse
+cmd"ms1,mi912=1"                                                   ; capture on marker pulse
+cmd"ms0,mi913=0"                                                   ; use home switch as a flag
+cmd"ms1,mi913=0"                                                   ; use home switch as a flag
+dwell 10
+X(MOVEMENT_RANGE_MTR1)^HOME_OFFSET_MTR1 Y(MOVEMENT_RANGE_MTR2)^HOME_OFFSET_MTR2
+dwell 1000
+HOMEZ 1,2
+ABS
+dwell 0
+LINEAR
+home_complete_mtr1=1
+home_complete_mtr2=1
+close

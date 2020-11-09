@@ -1,0 +1,171 @@
+; Encoder loss bit mapping (Channel registers).
+; Pick up the bits from macro station I/O nodes 6,18,19,22,23,26,34,35,38,39,42,43
+; (i.e. IC0 node 6, IC1 nodes 2,3,6,7,10, and IC2 nodes 2,3,6,7,10,11)
+;
+#define EncLossDetect_mtr1             P1104
+#define EncLossDetect_mtr2             P1204
+#define EncLossDetect_mtr3             P1304
+#define EncLossDetect_mtr4             P1404
+#define EncLossDetect_mtr5             P1504
+#define EncLossDetect_mtr6             P1604
+# Axis 7 not used
+#define EncLossDetect_mtr8             P1804
+#define EncLossDetect_mtr9             P1904
+#define EncLossDetect_mtr10            P2004
+#define EncLossDetect_mtr11            P2104
+#define EncLossDetect_mtr12            P2204
+#define EncLossDetect_mtr13            P2304
+#define EncLossDetect_mtr14            P2404
+#define EncLossDetect_mtr15            P2504
+# Axis 16 not used
+#define EncLossDetect_mtr17            P2704
+#define EncLossDetect_mtr18            P2804
+#define EncLossDetect_mtr19            P2904
+#define EncLossDetect_mtr20            P3004
+#define EncLossDetect_mtr21            P3104
+#define EncLossDetect_mtr22            P3204
+#define EncLossDetect_mtr23            P3304
+#define EncLossDetect_mtr24            P3404
+#define EncLossDetect_mtr25            P3504
+#define EncLossDetect_mtr26            P3604
+#define EncLossDetect_mtr27            P3704
+#define EncLossDetect_mtr28            P3804
+#define EncLossDetect_mtr29            P3904
+#define EncLossDetect_mtr30            P4004
+#define EncLossDetect_mtr31            P4104
+#define EncLossDetect_mtr32            P4204
+
+M184->X:$78429,13
+M284->X:$7842a,13
+M384->X:$79421,13
+M484->X:$79422,13
+M584->X:$79423,13
+M684->X:$79425,13
+M784->X:$79426,13
+M884->X:$79427,13
+M984->X:$79429,13
+M1084->X:$7942a,13
+M1184->X:$7942b,13
+M1284->X:$7942d,13
+M1384->X:$7942e,13
+M1484->X:$7942f,13
+M1584->X:$79431,13
+M1684->X:$79432,13
+M1784->X:$7a421,13
+M1884->X:$7a422,13
+M1984->X:$7a423,13
+M2084->X:$7a425,13
+M2184->X:$7a426,13
+M2284->X:$7a427,13
+M2384->X:$7a429,13
+M2484->X:$7a42a,13
+M2584->X:$7a42b,13
+M2684->X:$7a42d,13
+M2784->X:$7a42e,13
+M2884->X:$7a42f,13
+M2984->X:$7a431,13
+M3084->X:$7a432,13
+M3184->X:$7a433,13
+M3284->X:$7a435,13
+
+;Encoder loss bit mapping (DPRAM)
+M185->F:$60450
+M285->F:$60451
+M385->F:$60452
+M485->F:$60453
+M585->F:$60454
+M685->F:$60455
+M785->F:$60456
+M885->F:$60457
+M985->F:$60458
+M1085->F:$60459
+M1185->F:$6045a
+M1285->F:$6045b
+M1385->F:$6045c
+M1485->F:$6045d
+M1585->F:$6045e
+M1685->F:$6045f
+M1785->F:$60460
+M1885->F:$60461
+M1985->F:$60462
+M2085->F:$60463
+M2185->F:$60464
+M2285->F:$60465
+M2385->F:$60466
+M2485->F:$60467
+M2585->F:$60468
+M2685->F:$60469
+M2785->F:$6046a
+M2885->F:$6046b
+M2985->F:$6046c
+M3085->F:$6046d
+M3185->F:$6046e
+M3285->F:$6046f
+
+;Encoder lost bit mapping (DPRAM)
+M189->F:$605B0
+M289->F:$605B1
+M389->F:$605B2
+M489->F:$605B3
+M589->F:$605B4
+M689->F:$605B5
+M789->F:$605B6
+M889->F:$605B7
+M989->F:$605B8
+M1089->F:$605B9
+M1189->F:$605Ba
+M1289->F:$605Bb
+M1389->F:$605Bc
+M1489->F:$605Bd
+M1589->F:$605Be
+M1689->F:$605Bf
+M1789->F:$605C0
+M1889->F:$605C1
+M1989->F:$605C2
+M2089->F:$605C3
+M2189->F:$605C4
+M2289->F:$605C5
+M2389->F:$605C6
+M2489->F:$605C7
+M2589->F:$605C8
+M2689->F:$605C9
+M2789->F:$605Ca
+M2889->F:$605Cb
+M2989->F:$605Cc
+M3089->F:$605Cd
+M3189->F:$605Ce
+M3289->F:$605Cf
+
+; Enable encoder loss detection for motors if encoder loss can be detected
+EncLossDetect_mtr1=1
+EncLossDetect_mtr2=1
+EncLossDetect_mtr3=1
+EncLossDetect_mtr4=1
+EncLossDetect_mtr5=1
+EncLossDetect_mtr6=1
+EncLossDetect_mtr7=0	;not used
+EncLossDetect_mtr8=0	;LVDT
+EncLossDetect_mtr9=0	;LVDT
+EncLossDetect_mtr10=1
+EncLossDetect_mtr11=0	;QBPM
+EncLossDetect_mtr12=1
+EncLossDetect_mtr13=1
+EncLossDetect_mtr14=1
+EncLossDetect_mtr15=1
+EncLossDetect_mtr16=0	;not used
+EncLossDetect_mtr17=1
+EncLossDetect_mtr18=1
+EncLossDetect_mtr19=1
+EncLossDetect_mtr20=0	;QBPM
+EncLossDetect_mtr21=1
+EncLossDetect_mtr22=1
+EncLossDetect_mtr23=1
+EncLossDetect_mtr24=1
+EncLossDetect_mtr25=1
+EncLossDetect_mtr26=1
+EncLossDetect_mtr27=1
+EncLossDetect_mtr28=0	;QBPM
+EncLossDetect_mtr29=1
+EncLossDetect_mtr30=1
+EncLossDetect_mtr31=1
+EncLossDetect_mtr32=1

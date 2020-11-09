@@ -80,13 +80,13 @@ def get_cmdclass(build_py=None, sdist=None):
                     else:
                         f.write(line)
 
-    class BuildPy(build_py):
+    class BuildPy(build_py):  # type: ignore
         def run(self):
             build_py.run(self)
             for pkg in self.packages:
                 make_version_static(self.build_lib, pkg)
 
-    class Sdist(sdist):
+    class Sdist(sdist):  # type: ignore
         def make_release_tree(self, base_dir, files):
             sdist.make_release_tree(self, base_dir, files)
             for pkg in self.distribution.packages:

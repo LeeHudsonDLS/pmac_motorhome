@@ -1,0 +1,44 @@
+
+; Setup the current offsets
+;#include "Variables/00-50-C2-CB-A3-14.pmc"
+
+; Add the axes and control I Variables
+;#include "Variables/Axis.pmc"
+;#include "Variables/Control.pmc"
+
+; And the m-variable definitions
+#include "../../../Common/BRICK_M_variables.pmc"
+
+;#############################################################################
+; Controls section
+; Uncomment this when brick is handed over
+;#############################################################################
+
+; First we want to clear all the PLCs and CSs
+#include "../../../Common/clear_PLC_CS.pmc"
+
+; a PLC to initialise the brick
+;#include "PLCs/PLC1_handcoded.pmc"
+
+; a PLC to initialise the brick
+#include "PLCs/PLC1_BRICK_initialise.pmc"
+
+; a PLC to do encoder loss
+#include "PLCs/PLC4_encoder_loss.pmc"
+
+; a PLC to do cpu load
+#include "PLCs/PLC5_cpu_load.pmc"
+
+; a PLC kill axes
+#include "PLCs/PLC7_kill_when_idle.pmc"
+
+; Finally add some homing PLCs
+;#include "PLCs/PLC16_HOME_DCM_BRAGG_GEOBRICK.pmc"
+#include "PLCs/PLC10_DMM_HM.pmc"
+
+; Coordinate system for DMM
+#include "PLCs/PLC17_ML1_DMM.pmc"
+#include "PLCs/PLC18_DMM.pmc"
+
+; Motion program for the CS moves
+#include "PROGs/PROG10_CS_motion.pmc"

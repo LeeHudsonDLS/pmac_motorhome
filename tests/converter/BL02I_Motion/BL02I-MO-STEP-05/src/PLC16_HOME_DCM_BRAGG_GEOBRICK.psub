@@ -1,0 +1,3 @@
+; This value was calculated at survey in June 2014
+; P1606 holds the Bragg offset determined by survey
+include "PLC16_HOME_DCM_BRAGG_GEOBRICK.pmc"

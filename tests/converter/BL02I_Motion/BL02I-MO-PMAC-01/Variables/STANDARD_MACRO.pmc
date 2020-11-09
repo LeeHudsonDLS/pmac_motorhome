@@ -1,0 +1,68 @@
+ms0,i996=$fbfff
+ms0,i1996=$1f3333
+ms32,i996=$2fbfff
+ms32,i1996=$3f3333
+
+;Configure IO, all nodes active, needed for encoder loss
+ms0,i975=$ccc
+ms0,MI71=$10C0A0208800
+ms0,i19=4
+ms32,i975=$ccc
+ms32,MI71=$10C0A0208800
+ms32,i19=4 
+
+;Memory locations for encoder loss bit
+;These addresses work for micromech racks, OD racks need different ones
+ms0,i21 = $6488C8DCC0A1
+ms0,i22 = $6488C9DCC0A2
+ms0,i23 = $6488CADCC0A3
+ms0,i24 = $6488CBDCC0A5
+ms0,i25 = $6488CCDCC0A6
+ms0,i26 = $6488CDDCC0A7
+ms0,i27 = $6488CEDCC0A9
+ms0,i28 = $6488CFDCC0AA
+ms0,i29 = $6498C8DCC0AB
+ms0,i30 = $6498C9DCC0AD
+ms0,i31 = $6498CADCC0AE
+ms0,i32 = $6498CBDCC0AF
+ms0,i33 = $6498CCDCC0B1
+ms0,i34 = $6498CDDCC0B2
+ms0,i35 = $6498CEDCC0B3
+ms0,i36 = $6498CFDCC0B5
+ms32,i21 = $6488C8DCC0A1
+ms32,i22 = $6488C9DCC0A2
+ms32,i23 = $6488CADCC0A3
+ms32,i24 = $6488CBDCC0A5
+ms32,i25 = $6488CCDCC0A6
+ms32,i26 = $6488CDDCC0A7
+ms32,i27 = $6488CEDCC0A9
+ms32,i28 = $6488CFDCC0AA
+ms32,i29 = $6498C8DCC0AB
+ms32,i30 = $6498C9DCC0AD
+ms32,i31 = $6498CADCC0AE
+ms32,i32 = $6498CBDCC0AF
+ms32,i33 = $6498CCDCC0B1
+ms32,i34 = $6498CDDCC0B2
+ms32,i35 = $6498CEDCC0B3
+ms32,i36 = $6498CFDCC0B5
+
+;Configure PFM clock divider
+ms0,i903=$8f2
+ms0,i907=$8f2
+ms16,i903=$8f2
+ms16,i907=$8f2
+ms32,i903=$8f2
+ms32,i907=$8f2
+ms48,i903=$8f2
+ms48,i907=$8f2
+
+;Configure pulse widths
+ms0,i904=1
+ms0,i908=1
+ms16,i904=1
+ms16,i908=1
+ms32,i904=1
+ms32,i908=1
+ms48,i904=1
+ms48,i908=1
+

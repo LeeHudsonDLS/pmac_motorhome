@@ -112,6 +112,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
             HomingStatus = StatusTimeout
         endif
     endif
+
 endif
 
 if (HomingBackupGroup = 1 or HomingBackupGroup = 3)
@@ -301,6 +302,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
             HomingStatus = StatusTimeout
         endif
     endif
+
 endif
 
 ;---- Done ----

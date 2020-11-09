@@ -1,0 +1,100 @@
+
+; Motion Program 10 - Homing Routine for VFM Translations
+
+#define homing_started_prog10           P410
+
+#define acc_time_var_mtr31             I3120
+#define s_curve_time_var_mtr31         I3121
+#define jog_speed_var_mtr31            I3122
+#define home_speed_var_mtr31           I3123
+#define flag_mode_control_mtr31        I3124
+#define rapid_mode_speed_select_mtr31  I3190
+#define trigger_mode_mtr31             I3197
+
+#define neg_limit_bit_mtr31            M3132
+#define amplifier_enabled_mtr31        M3139
+#define in_position_bit_mtr31          M3140
+#define home_complete_mtr31            M3144
+#define commanded_position_mtr31       M3161
+#define actual_position_mtr31          M3162
+#define DacOut_mtr31                   M3168
+#define encoder_capture_position_mtr31 M3173
+#define StartDeact_mtr31               M3182
+#define ElapsedDeact_mtr31             M3183
+#define encoder_loss_reg_mtr31         M3184
+#define encoder_loss_dpram_mtr31       M3185
+#define encoder_stall_mtr31            M3186
+#define Starttime_mtr31                M3187
+#define Elapsedtime_mtr31              M3188
+#define encoder_lost_mtr31             M3189
+
+#define acc_time_var_mtr32             I3220
+#define s_curve_time_var_mtr32         I3221
+#define jog_speed_var_mtr32            I3222
+#define home_speed_var_mtr32           I3223
+#define flag_mode_control_mtr32        I3224
+#define rapid_mode_speed_select_mtr32  I3290
+#define trigger_mode_mtr32             I3297
+
+#define neg_limit_bit_mtr32            M3232
+#define amplifier_enabled_mtr32        M3239
+#define in_position_bit_mtr32          M3240
+#define home_complete_mtr32            M3244
+#define commanded_position_mtr32       M3261
+#define actual_position_mtr32          M3262
+#define DacOut_mtr32                   M3268
+#define encoder_capture_position_mtr32 M3273
+#define StartDeact_mtr32               M3282
+#define ElapsedDeact_mtr32             M3283
+#define encoder_loss_reg_mtr32         M3284
+#define encoder_loss_dpram_mtr32       M3285
+#define encoder_stall_mtr32            M3286
+#define Starttime_mtr32                M3287
+#define Elapsedtime_mtr32              M3288
+#define encoder_lost_mtr32             M3289
+
+#define MOVEMENT_RANGE_MTR31 1440000
+#define MOVEMENT_RANGE_MTR32 1440000
+
+#define LIMIT_OFFSET_MTR31 10000
+#define LIMIT_OFFSET_MTR32 10000
+
+#define HOME_OFFSET_MTR31 -99721
+#define HOME_OFFSET_MTR32 97086
+
+#define INPUT_TRIGGER 0
+#define ERROR_TRIGGER 3
+
+open prog 10
+clear
+RAPID
+homing_started_prog10=1
+ta(acc_time_var_mtr31)					          ; acc time
+ts(s_curve_time_var_mtr31)			                  ; s-curve time
+f(jog_speed_var_mtr31)						  ; feedrate (velocity)
+home_complete_mtr31=0
+home_complete_mtr32=0
+trigger_mode_mtr31=ERROR_TRIGGER
+trigger_mode_mtr32=ERROR_TRIGGER
+dwell 10
+INC
+; Ending position should be as large as the whole motor move range to
+; ensure that -limit switch is found
+X(-MOVEMENT_RANGE_MTR31)^LIMIT_OFFSET_MTR31 Y(-MOVEMENT_RANGE_MTR32)^LIMIT_OFFSET_MTR32
+dwell 0
+trigger_mode_mtr31=INPUT_TRIGGER
+trigger_mode_mtr32=INPUT_TRIGGER
+cmd"ms60,mi912=1"	                                          ; capture on marker pulse
+cmd"ms60,mi913=0"	                                          ; use home switch as a flag
+cmd"ms61,mi912=1"	                                          ; capture on marker pulse
+cmd"ms61,mi913=0"	                                          ; use home switch as a flag
+dwell 10
+X(MOVEMENT_RANGE_MTR31)^HOME_OFFSET_MTR31 Y(MOVEMENT_RANGE_MTR32)^HOME_OFFSET_MTR32
+dwell 1000
+HOMEZ 31,32
+ABS
+dwell 0
+LINEAR
+home_complete_mtr31=1
+home_complete_mtr32=1
+close

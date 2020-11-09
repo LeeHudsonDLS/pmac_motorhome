@@ -1,0 +1,12 @@
+CLOSE
+
+OPEN PLC 16 CLEAR
+
+;Axis 6 enable control
+IF(M639=1)
+	M32=1
+ELSE
+	M32=0
+END IF
+
+CLOSE

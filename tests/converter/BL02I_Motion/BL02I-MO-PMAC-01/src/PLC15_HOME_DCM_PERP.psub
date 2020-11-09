@@ -1,0 +1,3 @@
+substitute "HOME_OFFSET=0"
+substitute "KILL_PLC=7"
+include "PLC15_HOME_DCM_PERP.pmc"

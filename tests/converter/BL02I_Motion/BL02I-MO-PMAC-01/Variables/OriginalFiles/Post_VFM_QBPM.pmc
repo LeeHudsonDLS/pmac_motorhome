@@ -1,0 +1,58 @@
+
+; Motion Program 17 - Homing Routine for Post-VFM QBPM
+
+#define homing_started_prog17           P417
+
+#define acc_time_var_mtr28             I2820
+#define s_curve_time_var_mtr28         I2821
+#define jog_speed_var_mtr28            I2822
+#define home_speed_var_mtr28           I2823
+#define flag_mode_control_mtr28        I2824
+#define rapid_mode_speed_select_mtr28  I2890
+#define trigger_mode_mtr28             I2897
+
+#define neg_limit_bit_mtr28            M2832
+#define amplifier_enabled_mtr28        M2839
+#define in_position_bit_mtr28          M2840
+#define home_complete_mtr28            M2844
+#define commanded_position_mtr28       M2861
+#define actual_position_mtr28          M2862
+#define DacOut_mtr28                   M2868
+#define encoder_capture_position_mtr28 M2873
+#define StartDeact_mtr28               M2882
+#define ElapsedDeact_mtr28             M2883
+#define encoder_loss_reg_mtr28         M2884
+#define encoder_loss_dpram_mtr28       M2885
+#define encoder_stall_mtr28            M2886
+#define Starttime_mtr28                M2887
+#define Elapsedtime_mtr28              M2888
+#define encoder_lost_mtr28             M2889
+
+#define MOVEMENT_RANGE_MTR28   17100
+#define LIMIT_OFFSET_MTR28 1000
+#define HOME_OFFSET_MTR28 -400
+
+open prog 17
+clear
+RAPID
+homing_started_prog17=1
+ta(acc_time_var_mtr28)						  ; acc time
+ts(s_curve_time_var_mtr28)					  ; s-curve time
+f(jog_speed_var_mtr28)						  ; feedrate (velocity)
+home_complete_mtr28=0
+cmd"ms53,mi912=2"	                                          ; capture home on rising edge of a flag
+cmd"ms53,mi913=1"	                                          ; use +limit as a flag
+flag_mode_control_mtr28=LIMITS_OFF		                  ; disable +/- limits
+dwell 10
+INC
+; Ending position should be as large as the whole motor move range to
+; ensure that +limit switch is found
+X(MOVEMENT_RANGE_MTR28)^HOME_OFFSET_MTR28
+dwell 0
+flag_mode_control_mtr28=LIMITS_ON			          ; reenable +/-limits
+HOMEZ 28
+ABS
+dwell 0
+LINEAR
+home_complete_mtr28=1
+close

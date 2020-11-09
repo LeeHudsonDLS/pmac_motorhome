@@ -1,0 +1,6 @@
+substitute "COORD=2"
+substitute "PLC=17"
+substitute "BP=7"
+substitute "BM=8"
+
+include "CS_blade_slits.pmc"

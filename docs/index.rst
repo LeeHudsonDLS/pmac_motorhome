@@ -4,51 +4,75 @@ dls_motorhome
 This module allows the generation of homing procedures written in pmc
 code to be used by Delta Tau motion controllers.
 
-A python script that imports the dls_motorhome module will have access
-to classes and functions that will help to define groups of motion axes
-and how they should be homed.
-The package includes some typical and popular homing routines already
-defined, and allows the user to define their own custom routines, or
-customise existing routines.
+How the documentation is structured
+-----------------------------------
 
-The benefits of this package are it is quick to create typical or
-standard homing routines, and custom routine configuration is easier
-to read.
+.. rst-class:: columns
 
-Installation
-------------
+:ref:`tutorials`
+~~~~~~~~~~~~~~~~
 
-This section describes how to install the module so you can try it out.
-For Python modules this often looks like this::
+Tutorials for installation, library and commandline usage. New users start here.
 
-    pip install dls_motorhome
+.. rst-class:: columns
 
-Usage
------
+:ref:`how-to`
+~~~~~~~~~~~~~
 
-Once you have installed the module your readers would like to know how
-to get started with it. If it is a library then you might put some
-introductory code here:
+Practical step-by-step guides for the more experienced user.
 
-.. code:: python
+.. rst-class:: columns
 
-    from dls_motorhome import HelloClass
+:ref:`explanations`
+~~~~~~~~~~~~~~~~~~~
 
-    hello = HelloClass("me")
-    print(hello.format_greeting())
+Explanation of how the library works and why it works that way.
 
-Or if it is a commandline tool then you might put some example commands here::
+.. rst-class:: columns
 
-    dls-python3-template-module person --times=2
+:ref:`reference`
+~~~~~~~~~~~~~~~~
 
-The rest of the docs
---------------------
+Technical reference material, for classes, methods, APIs, commands.
 
-Everything else depends very much on your target module. The `API` section
-should contain the reference material that a user of your module needs to use
-your module. Consider adding tutorials to walk users through using your module,
-how-to guides and FAQs to address particular problems, and explanations to say
-why things should be done a particular way. More details in this article on
-`writing good documentation`_
+.. rst-class:: endcolumns
 
-.. _writing good documentation: https://documentation.divio.com/
+About the documentation
+~~~~~~~~~~~~~~~~~~~~~~~
+
+`Why is the documentation structured this way? <https://documentation.divio.com>`_
+
+.. toctree::
+    :caption: Tutorials
+    :name: tutorials
+
+    tutorials/installation
+    tutorials/example
+    tutorials/custom
+
+.. toctree::
+    :caption: How-to Guides
+    :name: how-to
+
+    how-to/modifying
+
+.. toctree::
+    :caption: Explanations
+    :name: explanations
+
+    explanations/epics
+    explanations/implemtation
+    explanations/history
+
+.. rst-class:: no-margin-after-ul
+
+.. toctree::
+    :caption: Reference
+    :name: reference
+
+    reference/external.rst
+
+    reference/internal
+    reference/contributing
+
+* :ref:`genindex`

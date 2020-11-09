@@ -1,0 +1,16 @@
+; These M-variables are overwritten whenever the PMAC motor tuning program is run.
+; It is essential to download this file after any motor has been tuned in the Optics Hutch.
+
+; These are setup specifically by the Oxford Danphysik software
+M980->F:$60578         ; Overheat bit mapping (DPRAM)
+M981->F:$60598         ; Overheated bit mapping (DPRAM)
+M982->X:$11b48,24      ; Start Deactivate mapping. 24-bit registers for storing start of datapoint period.
+M983->X:$11b68,24      ; Elapsed Deactivate mapping. 24-bit registers for calculating elapsed time.
+M984->X:$79429,13      ; Encoder loss bit mapping (channel registers)
+M985->F:$60458         ; Encoder loss bit mapping (DPRAM)
+M986->F:$60558         ; Encoder stall bit mapping (DPRAM)
+M987->X:$11b08,24      ; Start time mapping. 24-bit registers for storing start of datapoint period.
+M988->X:$11b28,24      ; Elapsed time mapping. 24-bit registers for calculating elapsed time.
+M989->F:$605B8         ; Encoder lost bit mapping (DPRAM)
+M990->F:$605D8         ; Re-activate motor bit mapping (DPRAM)
+

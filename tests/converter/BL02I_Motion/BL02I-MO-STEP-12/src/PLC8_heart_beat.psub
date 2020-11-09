@@ -1,0 +1,4 @@
+substitute "PLC=8"
+substitute "OUTPIN=2"
+
+include "PLC_heart_beat.pmc"

@@ -1,0 +1,5 @@
+substitute "COORD=2"
+substitute "PLC=17"
+substitute "BRAGG=1"
+substitute "T2=5"
+include "CS_accel_dcm.pmc"

@@ -1,0 +1,39 @@
+
+; Load standard macro station definitions
+#include "Variables/STANDARD_MACRO.pmc"
+
+; Load standard i-variable definitions
+#include "../../../Common/PMAC_M_variables.pmc"
+
+; Load motor tuning variables
+#include "Variables/Axes.pmc"
+
+; DLS PLCs
+#include "PLCs/PLC4_encoder_loss.pmc"
+#include "PLCs/PLC5_cpu_load.pmc"
+
+; Beamline Motion Programs (for Homing)
+#include "PROGs/MPROG1_HOME_PRE_DCM_SLITS_X.pmc"
+#include "PROGs/MPROG2_HOME_PRE_DCM_SLITS_Y.pmc"
+#include "PROGs/MPROG3_HOME_PRE_HFM_SLITS_X.pmc"
+#include "PROGs/MPROG4_HOME_PRE_HFM_SLITS_Y.pmc"
+#include "PROGs/MPROG5_HOME_PRE_VFM_SLITS_X.pmc"
+#include "PROGs/MPROG6_HOME_PRE_VFM_SLITS_Y.pmc"
+#include "PROGs/MPROG7_HOME_DCM_BRAGG.pmc"
+#include "PROGs/MPROG8_HOME_PRE_HFM_QBPM.pmc"
+#include "PROGs/MPROG9_HOME_PRE_VFM_QBPM.pmc"
+#include "PROGs/MPROG10_HOME_POST_VFM_QBPM.pmc"
+#include "PROGs/MPROG11_HOME_HFM_JACKS.pmc"
+#include "PROGs/MPROG12_HOME_HFM_TRANS.pmc"
+#include "PROGs/MPROG13_HOME_VFM_JACKS.pmc"
+#include "PROGs/MPROG14_HOME_VFM_TRANS.pmc"
+
+; Beamline PLCs
+#include "PLCs/PLC1_initialise.pmc"
+#include "PLCs/PLC7_kill_plc.pmc"
+#include "PLCs/PLC11_HOUSEKEEPING.pmc"
+#include "PLCs/PLC13_HOME_DCM_PITCH.pmc"
+#include "PLCs/PLC14_HOME_DCM_ROLL.pmc"
+#include "PLCs/PLC15_HOME_DCM_PERP.pmc"
+#include "PLCs/PLC16_HOME_DCM_BRAGG.pmc"
+#include "PLCs/PLC17_S1_HM.pmc"

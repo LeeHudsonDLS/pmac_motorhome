@@ -1,0 +1,169 @@
+
+; Motion Program 9 - Homing Routine for VFM Jacks
+
+#define homing_started_prog9            P409
+
+#define acc_time_var_mtr25             I2520
+#define s_curve_time_var_mtr25         I2521
+#define jog_speed_var_mtr25            I2522
+#define home_speed_var_mtr25           I2523
+#define flag_mode_control_mtr25        I2524
+#define rapid_mode_speed_select_mtr25  I2590
+#define trigger_mode_mtr25             I2597
+
+#define neg_limit_bit_mtr25            M2532
+#define amplifier_enabled_mtr25        M2539
+#define in_position_bit_mtr25          M2540
+#define home_complete_mtr25            M2544
+#define commanded_position_mtr25       M2561
+#define actual_position_mtr25          M2562
+#define DacOut_mtr25                   M2568
+#define encoder_capture_position_mtr25 M2573
+#define StartDeact_mtr25               M2582
+#define ElapsedDeact_mtr25             M2583
+#define encoder_loss_reg_mtr25         M2584
+#define encoder_loss_dpram_mtr25       M2585
+#define encoder_stall_mtr25            M2586
+#define Starttime_mtr25                M2587
+#define Elapsedtime_mtr25              M2588
+#define encoder_lost_mtr25             M2589
+
+#define acc_time_var_mtr26             I2620
+#define s_curve_time_var_mtr26         I2621
+#define jog_speed_var_mtr26            I2622
+#define home_speed_var_mtr26           I2623
+#define flag_mode_control_mtr26        I2624
+#define rapid_mode_speed_select_mtr26  I2690
+#define trigger_mode_mtr26             I2697
+
+#define neg_limit_bit_mtr26            M2632
+#define amplifier_enabled_mtr26        M2639
+#define in_position_bit_mtr26          M2640
+#define home_complete_mtr26            M2644
+#define commanded_position_mtr26       M2661
+#define actual_position_mtr26          M2662
+#define DacOut_mtr26                   M2668
+#define encoder_capture_position_mtr26 M2673
+#define StartDeact_mtr26               M2682
+#define ElapsedDeact_mtr26             M2683
+#define encoder_loss_reg_mtr26         M2684
+#define encoder_loss_dpram_mtr26       M2685
+#define encoder_stall_mtr26            M2686
+#define Starttime_mtr26                M2687
+#define Elapsedtime_mtr26              M2688
+#define encoder_lost_mtr26             M2689
+
+#define acc_time_var_mtr27             I2720
+#define s_curve_time_var_mtr27         I2721
+#define jog_speed_var_mtr27            I2722
+#define home_speed_var_mtr27           I2723
+#define flag_mode_control_mtr27        I2724
+#define rapid_mode_speed_select_mtr27  I2790
+#define trigger_mode_mtr27             I2797
+
+#define neg_limit_bit_mtr27            M2732
+#define amplifier_enabled_mtr27        M2739
+#define in_position_bit_mtr27          M2740
+#define home_complete_mtr27            M2744
+#define commanded_position_mtr27       M2761
+#define actual_position_mtr27          M2762
+#define DacOut_mtr27                   M2768
+#define encoder_capture_position_mtr27 M2773
+#define StartDeact_mtr27               M2782
+#define ElapsedDeact_mtr27             M2783
+#define encoder_loss_reg_mtr27         M2784
+#define encoder_loss_dpram_mtr27       M2785
+#define encoder_stall_mtr27            M2786
+#define Starttime_mtr27                M2787
+#define Elapsedtime_mtr27              M2788
+#define encoder_lost_mtr27             M2789
+
+#define MOVEMENT_RANGE_MTR25  950000
+#define MOVEMENT_RANGE_MTR26  950000
+#define MOVEMENT_RANGE_MTR27  950000
+
+#define LIMIT_OFFSET_MTR25 -50
+#define LIMIT_OFFSET_MTR26 -50
+#define LIMIT_OFFSET_MTR27 -50
+
+#define HOME_OFFSET_MTR25 203291
+#define HOME_OFFSET_MTR26 104789
+#define HOME_OFFSET_MTR27 193195
+
+#define VFM_ROLL_LIMIT_CORR 40000
+
+open prog 9
+clear
+RAPID
+homing_started_prog9=1
+ta(acc_time_var_mtr25)						  ; acc time
+ts(s_curve_time_var_mtr25)					  ; s-curve time
+f(jog_speed_var_mtr25)						  ; feedrate (velocity)
+home_complete_mtr25=0
+home_complete_mtr26=0
+home_complete_mtr27=0
+cmd"ms48,mi912=2"	                                          ; capture home on rising edge of a flag
+cmd"ms49,mi912=2"	                                          ; capture home on rising edge of a flag
+cmd"ms52,mi912=2"	                                          ; capture home on rising edge of a flag
+cmd"ms48,mi913=2"	                                          ; use -limit as a flag
+cmd"ms49,mi913=2"	                                          ; use -limit as a flag
+cmd"ms52,mi913=2"	                                          ; use -limit as a flag
+flag_mode_control_mtr25=LIMITS_OFF		                  ; disable +/- limits
+flag_mode_control_mtr26=LIMITS_OFF		                  ; disable +/- limits
+flag_mode_control_mtr27=LIMITS_OFF		                  ; disable +/- limits
+dwell 10
+INC
+; Ending position should be as large as the whole motor move range to
+; ensure that -limit switch is found
+X(-MOVEMENT_RANGE_MTR25)^LIMIT_OFFSET_MTR25 Y(-MOVEMENT_RANGE_MTR26)^LIMIT_OFFSET_MTR26 Z(-MOVEMENT_RANGE_MTR27)^LIMIT_OFFSET_MTR27
+dwell 0
+; Enable limits to check the roll limit presence
+flag_mode_control_mtr25=LIMITS_ON			          ; reenable +/-limits
+flag_mode_control_mtr26=LIMITS_ON			          ; reenable +/-limits
+flag_mode_control_mtr27=LIMITS_ON			          ; reenable +/-limits
+dwell 0
+
+; Check for the Roll limit and correct the position if present
+if( neg_limit_bit_mtr26 = 0 and neg_limit_bit_mtr27 = 1 )
+  INC
+  Y(-VFM_ROLL_LIMIT_CORR)
+  dwell 0
+  flag_mode_control_mtr25=LIMITS_OFF		                  ; disable +/- limits
+  flag_mode_control_mtr26=LIMITS_OFF		                  ; disable +/- limits
+  flag_mode_control_mtr27=LIMITS_OFF		                  ; disable +/- limits
+  dwell 0
+  Y(-MOVEMENT_RANGE_MTR26)^LIMIT_OFFSET_MTR26 Z(-MOVEMENT_RANGE_MTR27)^LIMIT_OFFSET_MTR27
+  dwell 0
+endif
+if( neg_limit_bit_mtr27 = 0 And neg_limit_bit_mtr26 = 1 )
+  INC
+  Z(-VFM_ROLL_LIMIT_CORR)
+  dwell 0
+  flag_mode_control_mtr25=LIMITS_OFF		                  ; disable +/- limits
+  flag_mode_control_mtr26=LIMITS_OFF		                  ; disable +/- limits
+  flag_mode_control_mtr27=LIMITS_OFF		                  ; disable +/- limits
+  dwell 0
+  Y(-MOVEMENT_RANGE_MTR26)^LIMIT_OFFSET_MTR26 Z(-MOVEMENT_RANGE_MTR27)^LIMIT_OFFSET_MTR27
+  dwell 0
+endif
+
+flag_mode_control_mtr25=LIMITS_ON			          ; reenable +/-limits
+flag_mode_control_mtr26=LIMITS_ON			          ; reenable +/-limits
+flag_mode_control_mtr27=LIMITS_ON			          ; reenable +/-limits
+cmd"ms48,mi912=1"	                                          ; capture on marker pulse
+cmd"ms49,mi912=1"	                                          ; capture on marker pulse
+cmd"ms52,mi912=1"	                                          ; capture on marker pulse
+cmd"ms48,mi913=0"	                                          ; use home switch as a flag
+cmd"ms49,mi913=0"	                                          ; use home switch as a flag
+cmd"ms52,mi913=0"	                                          ; use home switch as a flag
+dwell 10
+X(MOVEMENT_RANGE_MTR25)^HOME_OFFSET_MTR25 Y(MOVEMENT_RANGE_MTR26)^HOME_OFFSET_MTR26 Z(MOVEMENT_RANGE_MTR27)^HOME_OFFSET_MTR27
+dwell 1000
+HOMEZ 25,26,27
+ABS
+dwell 0
+LINEAR
+home_complete_mtr25=1
+home_complete_mtr26=1
+home_complete_mtr27=1
+close

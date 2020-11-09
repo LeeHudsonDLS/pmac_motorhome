@@ -1,0 +1,110 @@
+;####################################################
+; DO NOT MODIFY: File created from /dls_sw/prod/R3.14.12.3/support/mxMasterConfig/2-81/data/PLC13_HOME_DCM_PITCH.pmc
+;####################################################
+
+;*******************************************************************************
+; PLC 13 - PLC for homing DCM Pitch
+; Run from "home" on EPICS screen and then disable
+;
+; Linear encoder:  20,000 cnts/mm
+; Axis number 8, macro station number 13 (ms13)
+; Method:
+; This axis homes by capturing the index channel (encoder-Z, CHC8 input) when it goes high (1).
+; First drive to the low limit and then issue the "home" command.
+;
+; Note: On I02 and I03, I826, the home offset should always be zero!
+;       Offsets for a flat second crystal are taken out in the Bragg axis, by
+;       setting I526 appropriately (determined during surveys of the DCM).
+;       On I04, I826 is set such that after homing, the cystal is flat
+;       and at the middle of the travel range.
+;
+; To start homing: "enable plc 13"
+; To stop homing:  "P1301 = 2"
+;
+; This PLC uses the following P-variables:
+; P1300 - Homing State  (interface to autohome.template - pmacUtils)
+; P1301 - Homing Status (interface to autohome.template - pmacUtils)
+; P1302 - Homing Group  (interface to autohome.template - pmacUtils)
+; P1303 - To hold current positive limit
+; P1304 - To hold current negative limit
+; P1305 - Homing velocity (cnts/msec)
+;
+;*******************************************************************************
+
+M832->X:$000430,22,1 ; Axis 8, Negative-end-limit-set bit
+M833->X:$000430,13,1 ; Axis 8, Desired-velocity-zero bit
+M842->Y:$000440,2,1  ; Axis 8, Fatal-following-error bit
+M845->Y:$000440,10,1 ; Axis 8, Home-complete bit
+
+#define DCM_PITCH_NEGATIVE_END_LIMIT_SET     M832
+#define DCM_PITCH_DESIRED_VELOCITY_ZERO      M833
+#define DCM_PITCH_FFE                        M842
+#define DCM_PITCH_HOME_COMPLETE              M845
+
+#define DCM_PITCH_HOMING_STATE               P1300
+#define DCM_PITCH_HOMING_STATUS              P1301
+#define DCM_PITCH_HOMING_GROUP               P1302
+
+P1305 = 0.1  ; cnts/msec = 0.005 mm/s
+
+
+open plc 13
+clear
+
+; Tell the DCM Pitch to capture on index high (encoder Z-channel)
+; Set the homing velocity
+ms13,i912 = 1     ; Capture on index, CHC8 high
+I822      = P1305 ; Set jog velocity for pre-home move
+I823      = P1305 ; Set home velocity
+
+DCM_PITCH_HOME_COMPLETE = 0 ; Turn off the "home complete" bit
+
+; Pre-home move, first drive to the low limit
+DCM_PITCH_HOMING_STATUS = 1
+cmd "#8j-"
+while ( DCM_PITCH_NEGATIVE_END_LIMIT_SET = 0 AND DCM_PITCH_HOMING_STATUS = 1 )
+  ; Check for a Fatal Following Error limit
+  if( DCM_PITCH_FFE = 1 )
+    DCM_PITCH_HOMING_STATUS = 4
+  endif
+end while
+
+if( DCM_PITCH_HOMING_STATUS = 2 )
+  cmd "#8j/"
+endif
+
+if( DCM_PITCH_HOMING_STATUS = 1 )
+  ; The pre-home move finished ok, now do the "home"
+  ; Home search in progress
+  DCM_PITCH_HOMING_STATE = 4
+  cmd "#8hm"
+  ; Give "homing" time to start
+  while( DCM_PITCH_DESIRED_VELOCITY_ZERO = 1 )
+  end while
+  while ( DCM_PITCH_HOME_COMPLETE = 0 OR DCM_PITCH_DESIRED_VELOCITY_ZERO = 0 )
+    AND ( DCM_PITCH_HOMING_STATUS = 1 )
+    ; Check for a Fatal Following Error limit
+    if( DCM_PITCH_FFE = 1 )
+      DCM_PITCH_HOMING_STATUS = 4
+    endif
+  end while
+endif
+
+if( DCM_PITCH_HOMING_STATUS = 2 )
+  cmd "#8j/"
+endif
+
+if( DCM_PITCH_HOMING_STATUS = 1 )
+  ; Homing finished successfully
+  DCM_PITCH_HOMING_STATE = 7
+  ; PLC status - no error
+  DCM_PITCH_HOMING_STATUS = 0
+else
+  ; Homing finished unsuccessfully
+  DCM_PITCH_HOMING_STATE = 11
+  ; PLC status - as set in while loop above
+endif
+
+disable plc 13
+
+close

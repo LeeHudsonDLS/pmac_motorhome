@@ -1,0 +1,147 @@
+; GONIO_SAMPLE_OMEGA Brick14 axis 1 - x=1
+; Mx62 - pulls in new encoder couts
+#define Gonio_SAMPLE_OMEGA_Position           M162      
+; Ix08*32 - pulls in scalar factor
+#define Gonio_SAMPLE_OMEGA_Scalar             (I108*32)
+; P48xx - gets EPICS MRES
+#define Gonio_SAMPLE_OMEGA_MRES               P4801     
+; P49xx - gets EPICS OFFSET
+#define Gonio_SAMPLE_OMEGA_OFFSET             P4901    
+; Mx45 - gets homed flag
+#define Gonio_SAMPLE_OMEGA_HOMED              M145
+; User defined varibles P
+#define Gonio_SAMPLE_OMEGA_Real_Position      P1401
+#define Gonio_SAMPLE_OMEGA_Safe_Position      P1402
+#define Gonio_SAMPLE_OMEGA_Tolerance          P1403
+#define Gonio_SAMPLE_OMEGA_Safe               P1404
+
+; GONIO_SAMPLE_X1 Brick14 axis 3 - x=3
+; Mx62 - pulls in new encoder couts
+#define Gonio_SAMPLE_X1_Position           M362      
+; Ix08*32 - pulls in scalar factor
+#define Gonio_SAMPLE_X1_Scalar             (I308*32)
+; P48xx - gets EPICS MRES
+#define Gonio_SAMPLE_X1_MRES               P4803     
+; P49xx - gets EPICS OFFSET
+#define Gonio_SAMPLE_X1_OFFSET             P4903
+; Mx45 - gets homed flag
+#define Gonio_SAMPLE_X1_HOMED              M345
+; User defined varibles P
+#define Gonio_SAMPLE_X1_Real_Position      P1405
+#define Gonio_SAMPLE_X1_Safe_Position      P1406
+#define Gonio_SAMPLE_X1_Tolerance          P1407
+#define Gonio_SAMPLE_X1_Safe               P1408
+
+; GONIO_SAMPLE_X2 Brick14 axis 4 - x=4
+; Mx62 - pulls in new encoder couts
+#define Gonio_SAMPLE_X2_Position           M462      
+; Ix08*32 - pulls in scalar factor
+#define Gonio_SAMPLE_X2_Scalar             (I408*32)
+; P48xx - gets EPICS MRES
+#define Gonio_SAMPLE_X2_MRES               P4804     
+; P49xx - gets EPICS OFFSET
+#define Gonio_SAMPLE_X2_OFFSET             P4904    
+; Mx45 - gets homed flag
+#define Gonio_SAMPLE_X2_HOMED              M445
+; User defined varibles P
+#define Gonio_SAMPLE_X2_Real_Position      P1409
+#define Gonio_SAMPLE_X2_Safe_Position      P1410
+#define Gonio_SAMPLE_X2_Tolerance          P1411
+#define Gonio_SAMPLE_X2_Safe               P1412
+
+; GONIO_SAMPLE_Z Brick14 axis 5 - x=5
+; Mx62 - pulls in new encoder couts
+#define Gonio_SAMPLE_Z_Position           M562      
+; Ix08*32 - pulls in scalar factor
+#define Gonio_SAMPLE_Z_Scalar             (I508*32)
+; P48xx - gets EPICS MRES
+#define Gonio_SAMPLE_Z_MRES               P4805     
+; P49xx - gets EPICS OFFSET
+#define Gonio_SAMPLE_Z_OFFSET             P4905
+; Mx45 - gets homed flag
+#define Gonio_SAMPLE_Z_HOMED              M545
+; User defined varibles P
+#define Gonio_SAMPLE_Z_Real_Position      P1413
+#define Gonio_SAMPLE_Z_Safe_Position      P1414
+#define Gonio_SAMPLE_Z_Tolerance          P1415
+#define Gonio_SAMPLE_Z_Safe               P1416
+
+
+; Use GPIO OUTPUT 1 for Gonio_Sample_Safe
+#define Gonio_Sample_Safe_Out M(31 + 1)
+
+; Use GPIO OUTPUT 4 for Gonio_Sample_Z_Safe
+#define Gonio_Sample_Z_Safe_Out M(31 + 4)
+
+; Use GPIO OUTPUT 2 for GPIO_Gonio_Sample_Z_Safe
+#define GPIO_Gonio_Sample_Z_Safe_Out M(31 + 2)
+
+
+Gonio_SAMPLE_OMEGA_Safe_Position = 0
+Gonio_SAMPLE_OMEGA_Tolerance = 2
+Gonio_SAMPLE_X1_Safe_Position = 10.3366
+Gonio_SAMPLE_X1_Tolerance = 2
+
+Gonio_SAMPLE_X2_Safe_Position = 140.0365
+Gonio_SAMPLE_X2_Tolerance = 2
+Gonio_SAMPLE_Z_Safe_Position = 32.7335
+Gonio_SAMPLE_Z_Tolerance = 2
+
+
+open plc14
+clear
+
+; convert positions to EGU
+Gonio_SAMPLE_OMEGA_Real_Position = (Gonio_SAMPLE_OMEGA_MRES * Gonio_SAMPLE_OMEGA_Position / Gonio_SAMPLE_OMEGA_Scalar + Gonio_SAMPLE_OMEGA_OFFSET)
+Gonio_SAMPLE_X1_Real_Position = (Gonio_SAMPLE_X1_MRES * Gonio_SAMPLE_X1_Position / Gonio_SAMPLE_X1_Scalar + Gonio_SAMPLE_X1_OFFSET)
+Gonio_SAMPLE_X2_Real_Position = (Gonio_SAMPLE_X2_MRES * Gonio_SAMPLE_X2_Position / Gonio_SAMPLE_X2_Scalar + Gonio_SAMPLE_X2_OFFSET)
+Gonio_SAMPLE_Z_Real_Position = (Gonio_SAMPLE_Z_MRES * Gonio_SAMPLE_Z_Position / Gonio_SAMPLE_Z_Scalar + Gonio_SAMPLE_Z_OFFSET)
+
+; If SAMPLE_OMEGA is within its high and low threshold positions
+if (Gonio_SAMPLE_OMEGA_Real_Position > (Gonio_SAMPLE_OMEGA_Safe_Position - Gonio_SAMPLE_OMEGA_Tolerance)) and (Gonio_SAMPLE_OMEGA_Real_Position < (Gonio_SAMPLE_OMEGA_Safe_Position + Gonio_SAMPLE_OMEGA_Tolerance)) and (Gonio_SAMPLE_OMEGA_HOMED = 1)
+    Gonio_SAMPLE_OMEGA_Safe = 1
+else
+    Gonio_SAMPLE_OMEGA_Safe = 0
+endif
+
+; If Gonio_SAMPLE_X1 is within its high and low threshold positions
+if (Gonio_SAMPLE_X1_Real_Position > (Gonio_SAMPLE_X1_Safe_Position - Gonio_SAMPLE_X1_Tolerance)) and (Gonio_SAMPLE_X1_Real_Position < (Gonio_SAMPLE_X1_Safe_Position + Gonio_SAMPLE_X1_Tolerance)) and (Gonio_SAMPLE_X1_HOMED = 1)
+    Gonio_SAMPLE_X1_Safe = 1
+else
+    Gonio_SAMPLE_X1_Safe = 0
+endif
+
+; If Gonio_SAMPLE_X2 is within its high and low threshold positions
+if (Gonio_SAMPLE_X2_Real_Position > (Gonio_SAMPLE_X2_Safe_Position - Gonio_SAMPLE_X2_Tolerance)) and (Gonio_SAMPLE_X2_Real_Position < (Gonio_SAMPLE_X2_Safe_Position + Gonio_SAMPLE_X2_Tolerance)) and (Gonio_SAMPLE_X2_HOMED = 1)
+    Gonio_SAMPLE_X2_Safe = 1
+else
+    Gonio_SAMPLE_X2_Safe = 0
+endif
+
+; If Gonio_SAMPLE_Z is within its high and low threshold positions
+if (Gonio_SAMPLE_Z_Real_Position > (Gonio_SAMPLE_Z_Safe_Position - Gonio_SAMPLE_Z_Tolerance)) and (Gonio_SAMPLE_Z_Real_Position < (Gonio_SAMPLE_Z_Safe_Position + Gonio_SAMPLE_Z_Tolerance)) and (Gonio_SAMPLE_Z_HOMED = 1)
+    Gonio_SAMPLE_Z_Safe = 1
+else
+    Gonio_SAMPLE_Z_Safe = 0
+endif
+
+
+; If Gonio_SAMPLE_OMEAGA, Gonio_SAMPLE_X1, Gonio_SAMPLE_X2, Gonio_SAMPLE_Z are safe write to OUT1
+if (Gonio_SAMPLE_OMEGA_Safe = 1 and Gonio_SAMPLE_X1_Safe = 1 and Gonio_SAMPLE_X2_Safe = 1 and Gonio_SAMPLE_Z_Safe = 1)
+    Gonio_Sample_Safe_Out = 1
+else
+    Gonio_Sample_Safe_Out = 0
+endif
+
+; If Gonio_SAMPLE_Z safe write to OUT4 and OUT2
+if (Gonio_SAMPLE_Z_Safe = 1)
+    Gonio_Sample_Z_Safe_Out = 1
+    GPIO_Gonio_Sample_Z_Safe_Out = 1
+else
+    Gonio_Sample_Z_Safe_Out = 0
+    GPIO_Gonio_Sample_Z_Safe_Out = 0
+endif
+
+
+close
+
