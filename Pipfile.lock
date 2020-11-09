@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "8d2b54b8e5f3790860d8b6ef188cb31a067105c64271e8b69dbd72bfc732644e"
+            "sha256": "73f633073cec46d73bc8d55ffe68703a80f873980955bf76b0685b211baad7c7"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -161,6 +161,10 @@
                 "sha256:e8caf961e1b1a945db76f1b5fa9c91498d15f545ac0ababbe575cfab185d3bd8"
             ],
             "version": "==5.3"
+        },
+        "dls-motorhome": {
+            "editable": true,
+            "path": "."
         },
         "doc8": {
             "hashes": [
