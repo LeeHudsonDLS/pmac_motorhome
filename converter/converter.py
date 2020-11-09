@@ -1,9 +1,24 @@
+import logging
+import sys
 from pathlib import Path
 from typing import Sequence
 
 import click
 
 from converter.motionarea import MotionArea
+
+log = logging.getLogger(__name__)
+global_logger = logging.getLogger()
+
+# TODO provide log level command line parameter
+stdout_handler = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter(
+        "%(asctime)s %(levelname)-8s %(message)s ", datefmt="%m-%d %H:%M:%S"
+    )
+stdout_handler.setFormatter(formatter)
+
+global_logger.setLevel(logging.INFO)
+global_logger.addHandler(stdout_handler)
 
 
 @click.group()
@@ -30,9 +45,10 @@ def motion(root: str):
     Args:
         root (str): The root folder of the Motion Area to be scanned
     """
-    root_path = Path(root)
+    motion_path = Path(root)
 
-    motionarea = MotionArea(root_path)
+    motionarea = MotionArea(motion_path)
+    log.info(f"trying homing conversion for {motion_path} in {motionarea.root_path}")
 
     motionarea.make_old_motion()
     motionarea.make_new_motion()
@@ -71,3 +87,4 @@ def file(infile: Path, outfile: Path, plc_name: Sequence[str]):
     # root_path = Path(root)
 
     # motion_area = MotionArea(root_path)
+    log.error("This feature is not yet implemented")
