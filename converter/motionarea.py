@@ -99,6 +99,7 @@ class MotionArea:
         """
         os.chdir(str(cwd))
         command = f"cd {cwd}; PYTHONPATH={pypath} python {script} {params}"
+        log.debug(f"executing: {command}")
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
         process.wait()
 
@@ -217,6 +218,8 @@ class MotionArea:
             plc_file: full or relative path of the plc file to output
         """
 
+        log.debug(f"converting: {module} for {plc_file}")
+
         # make sure python scripts can import the motorhome.py shim
         sys.path.append(str(self.shim))
         # and make sure the script itself is found by pthon
@@ -241,6 +244,7 @@ class MotionArea:
             source (Path): source directory
             dest (Path): destination directory
         """
+        log.debug(f"copying {source} to {dest}")
 
         def glob_files(*patterns: str):
             for pat in patterns:

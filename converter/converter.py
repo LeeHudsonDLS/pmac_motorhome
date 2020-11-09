@@ -12,8 +12,8 @@ global_logger = logging.getLogger()
 
 stdout_handler = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter(
-        "%(asctime)s %(levelname)-8s %(message)s ", datefmt="%m-%d-%y %H:%M:%S"
-    )
+    "%(asctime)s %(levelname)-8s %(message)s ", datefmt="%m-%d-%y %H:%M:%S"
+)
 stdout_handler.setFormatter(formatter)
 global_logger.addHandler(stdout_handler)
 
@@ -30,7 +30,6 @@ def homing_convert(ctx, debug: bool, silent: bool):
     elif not silent:
         global_logger.setLevel(logging.INFO)
     # or default to warning
-
 
 
 @homing_convert.command()

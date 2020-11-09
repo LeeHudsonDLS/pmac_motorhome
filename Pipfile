@@ -12,6 +12,7 @@ flake8-isort = "*"
 pytest-mypy = "*"
 sphinx-rtd-theme = "*"
 doc8 = "*"
+dls-motorhome = {editable = true,path = "."}
 
 [packages]
 jinja2 = "*"
