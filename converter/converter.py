@@ -10,23 +10,27 @@ from converter.motionarea import MotionArea
 log = logging.getLogger(__name__)
 global_logger = logging.getLogger()
 
-# TODO provide log level command line parameter
 stdout_handler = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter(
-        "%(asctime)s %(levelname)-8s %(message)s ", datefmt="%m-%d %H:%M:%S"
+        "%(asctime)s %(levelname)-8s %(message)s ", datefmt="%m-%d-%y %H:%M:%S"
     )
 stdout_handler.setFormatter(formatter)
-
-global_logger.setLevel(logging.INFO)
 global_logger.addHandler(stdout_handler)
 
 
 @click.group()
 @click.option("--debug/--no-debug", default=False)
+@click.option("--silent/--no-silent", default=False)
 @click.version_option()
 @click.pass_context
-def homing_convert(ctx, debug: bool):
+def homing_convert(ctx, debug: bool, silent: bool):
     """Auto conversion of motorhome 1.0 scripts to motorhome 2.0"""
+    if debug:
+        global_logger.setLevel(logging.DEBUG)
+    elif not silent:
+        global_logger.setLevel(logging.INFO)
+    # or default to warning
+
 
 
 @homing_convert.command()
