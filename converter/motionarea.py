@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import subprocess
 import sys
 from importlib import import_module, reload
@@ -7,8 +8,6 @@ from pathlib import Path
 from shutil import copy, rmtree
 from types import ModuleType
 from typing import List, Optional
-
-import regex as re
 
 from .shim.plc import PLC
 

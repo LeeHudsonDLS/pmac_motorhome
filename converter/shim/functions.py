@@ -1,6 +1,5 @@
+import re
 import sys
-
-import regex as re
 
 
 # Helper function that parses the filename.
