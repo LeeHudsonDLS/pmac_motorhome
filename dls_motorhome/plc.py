@@ -20,10 +20,7 @@ class Plc:
     the_plc: Optional["Plc"] = None
 
     def __init__(
-        self,
-        plc_num: int,
-        controller: ControllerType,
-        filepath: Path,
+        self, plc_num: int, controller: ControllerType, filepath: Path,
     ) -> None:
         """
         Args:
