@@ -7,7 +7,7 @@ ROOT_DIR = Path(__file__).parent.parent
 # TODO add a test for the 'file' entrypoint when it is working
 
 
-def __test_bl02i_convert():
+def test_bl02i_convert():
     """
     Test conversion of an entire motion area
     """

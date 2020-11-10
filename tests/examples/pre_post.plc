@@ -247,7 +247,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
 		HomingState=StatePostHomeMove
 		; Execute the move commands
 		if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
-
+            
 after
 
 		endif

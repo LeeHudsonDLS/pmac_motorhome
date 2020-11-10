@@ -44,7 +44,6 @@ wait_for_done_docstring = """
 # these arguments - the dictionary values are the defaults
 wait_for_done_args = {
     "no_following_err": False,
-    "fe_check_no_fail": False,
     "with_limits": False,
     "wait_for_one_motor": False,
 }

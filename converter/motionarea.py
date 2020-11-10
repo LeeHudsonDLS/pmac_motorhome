@@ -49,6 +49,11 @@ class MotionArea:
     )
     find_auto_home_plcs = "**/*/PLC*_HM.pmc"
 
+    # tracks the 'generate_homing_plcs' module loaded by load_shim()
+    # this needs to be a class variable since the very first load module
+    # for the process requires load_module and subsequent require reload_module
+    module: Optional[ModuleType] = None
+
     def __init__(self, original_path: Path) -> None:
         self.root_path = Path("/tmp") / f"motorhome{os.getpid()}"
         self.old_motion = self.root_path / "old_motion"
@@ -57,9 +62,6 @@ class MotionArea:
         self.original_path = Path(original_path).absolute()
         if self.root_path.exists():
             rmtree(self.root_path)
-
-        # tracks the 'generate_homing_plcs' module loaded by load_shim()
-        self.module: Optional[ModuleType] = None
 
     def _remove_homing_plcs(self, root: Path) -> None:
         plcs = root.glob(self.find_auto_home_plcs)
@@ -109,7 +111,7 @@ class MotionArea:
         homing PLCs using the latest version of motorhome 1.0
         """
         self.copytree(self.original_path, self.old_motion)
-        self._remove_homing_plcs(self.new_motion)
+        self._remove_homing_plcs(self.old_motion)
 
         # either generate from one global generate_homing_plcs.py or from individual
         # generate_homing_plcs.py in each brick's subfolder
@@ -227,7 +229,13 @@ class MotionArea:
 
         sys.argv = ["exename", str(plc_file)]
         if self.module is None:
+            count = len(PLC.instances)
             self.module = import_module(str(module.stem))
+            # this is what you get for using import_module: When a second test is run
+            # in a single call to pytest it will reset the class variable self.module
+            # but the module will still need a reload -
+            if count == len(PLC.instances):
+                reload(self.module)
         else:
             reload(self.module)
 
