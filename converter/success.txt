@@ -1,0 +1,6 @@
+These DLS Beamlines auto convert successfully
+
+BL03I
+BL05J
+BL07B
+BL08J

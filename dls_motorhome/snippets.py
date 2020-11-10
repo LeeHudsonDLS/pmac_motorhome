@@ -178,6 +178,20 @@ def drive_to_home(
 
 
 @_snippet_function(wait_for_done_args)
+def drive_to_hstop(
+    state="PreHomeMove", homing_direction=False, no_following_err=True, **kwargs
+):
+    """
+    Drive all axes in the group until they hit the hard stop (following error)
+
+    Args:
+        state (str): Which homing state to report to EPICS for monitoring
+        homing_direction (bool): When True Jog in the same direction as
+            each axis' homing direction, defaults False: opposite to homing direction
+    """
+
+
+@_snippet_function(wait_for_done_args)
 def home(with_limits=True, **kwargs):
     """
     Initiate the home command on all axes in the group

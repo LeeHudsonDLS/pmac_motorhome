@@ -364,3 +364,9 @@ class Group:
         store ?? (TODO what is this doing ?)
         """
         return self._all_axes("P{not_homed}=i{inverse_flag}", " ")
+
+    def set_inpos_trigger(self, value: int):
+        """
+        Generate a command string for all group axes: set the inpos trigger ixx97
+        """
+        return self._all_axes("I{axis}97 = {0}", " ", value)

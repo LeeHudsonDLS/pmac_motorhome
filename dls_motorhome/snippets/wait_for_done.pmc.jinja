@@ -8,7 +8,7 @@
 {% else %}
         while ({{ group.in_pos() }}=0) ; At least one motor should not be In Position
 {% endif -%}
-{% if not template.args.no_following_err or template.args.fe_check_no_fail%}
+{% if not template.args.no_following_err %}
         and ({{ group.following_err() }} = 0) ; Following error check
 {% endif -%}
 {% if template.args.with_limits %}

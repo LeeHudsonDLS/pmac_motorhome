@@ -12,6 +12,7 @@ from .snippets import (
     disable_limits,
     drive_off_home,
     drive_to_home,
+    drive_to_hstop,
     drive_to_limit,
     home,
     jog_if_on_limit,
@@ -104,7 +105,7 @@ def home_hsw_hstop():
     """
 
     # drive in opposite to homing direction until home flag or following error
-    drive_to_home(no_following_err=True, fe_check_no_fail=True, homing_direction=False)
+    drive_to_hstop()
     drive_to_home(with_limits=True, homing_direction=True, state="FastSearch")
     store_position_diff()
     drive_off_home(homing_direction=False)

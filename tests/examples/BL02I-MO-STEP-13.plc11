@@ -96,6 +96,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StatePreHomeMove
         ; Execute the move commands
+        I197 = 3; in-position trigger on following error
         m172=100000000*(-i123/ABS(i123))
         cmd "#1J^*^-10000"
         ; Wait for the move to complete
@@ -104,7 +105,6 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         endw
         timer = 600000 MilliSeconds ; Now start checking the conditions
         while (m140=0) ; At least one motor should not be In Position
-        and (m142 = 0) ; Following error check
         and (timer > 0) ; Check for timeout
         and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
         endw
@@ -112,6 +112,8 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         if (timer<0 or timer=0) ; If we timed out
             HomingStatus = StatusTimeout
         endif
+        I197 = 0; in-position trigger on hardware capture
+
     endif
 
     ; Wait for user to tell us to continue if in debug
@@ -252,6 +254,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StatePreHomeMove
         ; Execute the move commands
+        I297 = 3; in-position trigger on following error
         m272=100000000*(-i223/ABS(i223))
         cmd "#2J^*^-10000"
         ; Wait for the move to complete
@@ -260,7 +263,6 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         endw
         timer = 600000 MilliSeconds ; Now start checking the conditions
         while (m240=0) ; At least one motor should not be In Position
-        and (m242 = 0) ; Following error check
         and (timer > 0) ; Check for timeout
         and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
         endw
@@ -268,6 +270,8 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         if (timer<0 or timer=0) ; If we timed out
             HomingStatus = StatusTimeout
         endif
+        I297 = 0; in-position trigger on hardware capture
+
     endif
 
     ; Wait for user to tell us to continue if in debug
@@ -408,6 +412,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StatePreHomeMove
         ; Execute the move commands
+        I397 = 3; in-position trigger on following error
         m372=100000000*(-i323/ABS(i323))
         cmd "#3J^*^10000"
         ; Wait for the move to complete
@@ -416,7 +421,6 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         endw
         timer = 600000 MilliSeconds ; Now start checking the conditions
         while (m340=0) ; At least one motor should not be In Position
-        and (m342 = 0) ; Following error check
         and (timer > 0) ; Check for timeout
         and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
         endw
@@ -424,6 +428,8 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         if (timer<0 or timer=0) ; If we timed out
             HomingStatus = StatusTimeout
         endif
+        I397 = 0; in-position trigger on hardware capture
+
     endif
 
     ; Wait for user to tell us to continue if in debug
