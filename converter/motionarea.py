@@ -97,7 +97,8 @@ class MotionArea:
             params (str): a space separated arguments list
         """
         os.chdir(str(cwd))
-        command = f"cd {cwd}; PYTHONPATH={pypath} python {script} {params}"
+        python = sys.executable
+        command = f"cd {cwd}; PYTHONPATH={pypath} {python} {script} {params}"
         log.debug(f"executing: {command}")
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
         process.wait()
