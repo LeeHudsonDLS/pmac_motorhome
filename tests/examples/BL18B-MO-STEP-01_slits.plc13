@@ -127,20 +127,20 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StatePreHomeMove
         ; Execute the move commands
-        m172=100000000*(-i123/ABS(i123)) m272=100000000*(-i223/ABS(i223))
-        cmd "#1J^*^-400 #2J^*^-400"
+        m172=100000000*(-i123/ABS(i123)) m372=100000000*(-i323/ABS(i323))
+        cmd "#1J^*^-400 #3J^*^-400"
         ; Wait for the move to complete
         timer = 20 MilliSeconds ; Small delay to start moving
         while (timer > 0)
         endw
         timer = 600000 MilliSeconds ; Now start checking the conditions
-        while (m140&m240=0) ; At least one motor should not be In Position
-        and (m142|m242 = 0) ; Following error check
+        while (m140&m340=0) ; At least one motor should not be In Position
+        and (m142|m342 = 0) ; Following error check
         and (timer > 0) ; Check for timeout
         and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
         endw
         ; Check why we left the while loop
-        if (m142|m242 != 0) ; Following error check failed
+        if (m142|m342 != 0) ; Following error check failed
             HomingStatus = StatusFFErr
         endif
         if (timer<0 or timer=0) ; If we timed out
@@ -159,24 +159,24 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StateFastSearch
         ; Execute the move commands
-        m172=100000000*(i123/ABS(i123)) m272=100000000*(i223/ABS(i223))
-        cmd "#1J^*^-400 #2J^*^-400"
+        m172=100000000*(i123/ABS(i123)) m372=100000000*(i323/ABS(i323))
+        cmd "#1J^*^-400 #3J^*^-400"
         ; Wait for the move to complete
         timer = 20 MilliSeconds ; Small delay to start moving
         while (timer > 0)
         endw
         timer = 600000 MilliSeconds ; Now start checking the conditions
-        while (m140&m240=0) ; At least one motor should not be In Position
-        and (m142|m242 = 0) ; Following error check
-        and (m130|m230 = 0) ; Limit check
+        while (m140&m340=0) ; At least one motor should not be In Position
+        and (m142|m342 = 0) ; Following error check
+        and (m130|m330 = 0) ; Limit check
         and (timer > 0) ; Check for timeout
         and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
         endw
         ; Check why we left the while loop
-        if (m142|m242 != 0) ; Following error check failed
+        if (m142|m342 != 0) ; Following error check failed
             HomingStatus = StatusFFErr
         endif
-        if (m130|m230 != 0) ; Limit check failed
+        if (m130|m330 != 0) ; Limit check failed
             HomingStatus = StatusLimit
         endif
         if (timer<0 or timer=0) ; If we timed out
@@ -187,7 +187,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     ;---- Store the difference between current pos and start pos ----
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         P1384=(P1384-M162)/(I108*32)+-400-(i126/16)
-        P1385=(P1385-M262)/(I208*32)+-400-(i226/16)
+        P1386=(P1386-M362)/(I308*32)+-400-(i326/16)
     endif
 
     ; Wait for user to tell us to continue if in debug
@@ -201,24 +201,24 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StateFastRetrace
         ; Execute the move commands
-        i7012=P1352 i7022=P1353 m172=100000000*(-i123/ABS(i123)) m272=100000000*(-i223/ABS(i223))
-        cmd "#1J^*^-400 #2J^*^-400"
+        i7012=P1352 i7032=P1354 m172=100000000*(-i123/ABS(i123)) m372=100000000*(-i323/ABS(i323))
+        cmd "#1J^*^-400 #3J^*^-400"
         ; Wait for the move to complete
         timer = 20 MilliSeconds ; Small delay to start moving
         while (timer > 0)
         endw
         timer = 600000 MilliSeconds ; Now start checking the conditions
-        while (m140&m240=0) ; At least one motor should not be In Position
-        and (m142|m242 = 0) ; Following error check
-        and (m130|m230 = 0) ; Limit check
+        while (m140&m340=0) ; At least one motor should not be In Position
+        and (m142|m342 = 0) ; Following error check
+        and (m130|m330 = 0) ; Limit check
         and (timer > 0) ; Check for timeout
         and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
         endw
         ; Check why we left the while loop
-        if (m142|m242 != 0) ; Following error check failed
+        if (m142|m342 != 0) ; Following error check failed
             HomingStatus = StatusFFErr
         endif
-        if (m130|m230 != 0) ; Limit check failed
+        if (m130|m330 != 0) ; Limit check failed
             HomingStatus = StatusLimit
         endif
         if (timer<0 or timer=0) ; If we timed out
@@ -237,24 +237,24 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StateHoming
         ; Execute the move commands
-        i7012=P1336 i7022=P1337
-        cmd "#1hm #2hm"
+        i7012=P1336 i7032=P1338
+        cmd "#1hm #3hm"
         ; Wait for the move to complete
         timer = 20 MilliSeconds ; Small delay to start moving
         while (timer > 0)
         endw
         timer = 600000 MilliSeconds ; Now start checking the conditions
-        while (m140&m240=0) ; At least one motor should not be In Position
-        and (m142|m242 = 0) ; Following error check
-        and (m130|m230 = 0) ; Limit check
+        while (m140&m340=0) ; At least one motor should not be In Position
+        and (m142|m342 = 0) ; Following error check
+        and (m130|m330 = 0) ; Limit check
         and (timer > 0) ; Check for timeout
         and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
         endw
         ; Check why we left the while loop
-        if (m142|m242 != 0) ; Following error check failed
+        if (m142|m342 != 0) ; Following error check failed
             HomingStatus = StatusFFErr
         endif
-        if (m130|m230 != 0) ; Limit check failed
+        if (m130|m330 != 0) ; Limit check failed
             HomingStatus = StatusLimit
         endif
         if (timer<0 or timer=0) ; If we timed out
@@ -264,7 +264,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
 
     ;---- Check if all motors have homed ----
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
-    and (m145&m245=0)
+    and (m145&m345=0)
         HomingStatus=StatusIncomplete
     endif
 
@@ -279,24 +279,24 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StatePostHomeMove
         ; Execute the move commands
-        m172=P1384 m272=P1385
-        cmd "#1J=* #2J=*"
+        m172=P1384 m372=P1386
+        cmd "#1J=* #3J=*"
         ; Wait for the move to complete
         timer = 20 MilliSeconds ; Small delay to start moving
         while (timer > 0)
         endw
         timer = 600000 MilliSeconds ; Now start checking the conditions
-        while (m140&m240=0) ; At least one motor should not be In Position
-        and (m142|m242 = 0) ; Following error check
-        and (m130|m230 = 0) ; Limit check
+        while (m140&m340=0) ; At least one motor should not be In Position
+        and (m142|m342 = 0) ; Following error check
+        and (m130|m330 = 0) ; Limit check
         and (timer > 0) ; Check for timeout
         and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
         endw
         ; Check why we left the while loop
-        if (m142|m242 != 0) ; Following error check failed
+        if (m142|m342 != 0) ; Following error check failed
             HomingStatus = StatusFFErr
         endif
-        if (m130|m230 != 0) ; Limit check failed
+        if (m130|m330 != 0) ; Limit check failed
             HomingStatus = StatusLimit
         endif
         if (timer<0 or timer=0) ; If we timed out
@@ -315,20 +315,52 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StatePreHomeMove
         ; Execute the move commands
-        m372=100000000*(-i323/ABS(i323)) m472=100000000*(-i423/ABS(i423))
-        cmd "#3J^*^-400 #4J^*^-400"
+        m172=100000000*(-i123/ABS(i123)) m372=100000000*(-i323/ABS(i323))
+        cmd "#1J^* #3J^*"
         ; Wait for the move to complete
         timer = 20 MilliSeconds ; Small delay to start moving
         while (timer > 0)
         endw
         timer = 600000 MilliSeconds ; Now start checking the conditions
-        while (m340&m440=0) ; At least one motor should not be In Position
-        and (m342|m442 = 0) ; Following error check
+        while (m140&m340=0) ; At least one motor should not be In Position
+        and (m142|m342 = 0) ; Following error check
         and (timer > 0) ; Check for timeout
         and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
         endw
         ; Check why we left the while loop
-        if (m342|m442 != 0) ; Following error check failed
+        if (m142|m342 != 0) ; Following error check failed
+            HomingStatus = StatusFFErr
+        endif
+        if (timer<0 or timer=0) ; If we timed out
+            HomingStatus = StatusTimeout
+        endif
+    endif
+
+    ; Wait for user to tell us to continue if in debug
+    if (HomingStatus = StatusDebugHoming)
+        HomingStatus = StatusPaused
+        while (HomingStatus = StatusPaused)
+        endw
+    endif
+
+    ;---- PreHomeMove State ----
+    if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
+        HomingState=StatePreHomeMove
+        ; Execute the move commands
+        m272=100000000*(-i223/ABS(i223)) m472=100000000*(-i423/ABS(i423))
+        cmd "#2J^*^-400 #4J^*^-400"
+        ; Wait for the move to complete
+        timer = 20 MilliSeconds ; Small delay to start moving
+        while (timer > 0)
+        endw
+        timer = 600000 MilliSeconds ; Now start checking the conditions
+        while (m240&m440=0) ; At least one motor should not be In Position
+        and (m242|m442 = 0) ; Following error check
+        and (timer > 0) ; Check for timeout
+        and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
+        endw
+        ; Check why we left the while loop
+        if (m242|m442 != 0) ; Following error check failed
             HomingStatus = StatusFFErr
         endif
         if (timer<0 or timer=0) ; If we timed out
@@ -347,24 +379,24 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StateFastSearch
         ; Execute the move commands
-        m372=100000000*(i323/ABS(i323)) m472=100000000*(i423/ABS(i423))
-        cmd "#3J^*^-400 #4J^*^-400"
+        m272=100000000*(i223/ABS(i223)) m472=100000000*(i423/ABS(i423))
+        cmd "#2J^*^-400 #4J^*^-400"
         ; Wait for the move to complete
         timer = 20 MilliSeconds ; Small delay to start moving
         while (timer > 0)
         endw
         timer = 600000 MilliSeconds ; Now start checking the conditions
-        while (m340&m440=0) ; At least one motor should not be In Position
-        and (m342|m442 = 0) ; Following error check
-        and (m330|m430 = 0) ; Limit check
+        while (m240&m440=0) ; At least one motor should not be In Position
+        and (m242|m442 = 0) ; Following error check
+        and (m230|m430 = 0) ; Limit check
         and (timer > 0) ; Check for timeout
         and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
         endw
         ; Check why we left the while loop
-        if (m342|m442 != 0) ; Following error check failed
+        if (m242|m442 != 0) ; Following error check failed
             HomingStatus = StatusFFErr
         endif
-        if (m330|m430 != 0) ; Limit check failed
+        if (m230|m430 != 0) ; Limit check failed
             HomingStatus = StatusLimit
         endif
         if (timer<0 or timer=0) ; If we timed out
@@ -374,7 +406,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
 
     ;---- Store the difference between current pos and start pos ----
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
-        P1386=(P1386-M362)/(I308*32)+-400-(i326/16)
+        P1385=(P1385-M262)/(I208*32)+-400-(i226/16)
         P1387=(P1387-M462)/(I408*32)+-400-(i426/16)
     endif
 
@@ -389,24 +421,24 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StateFastRetrace
         ; Execute the move commands
-        i7032=P1354 i7042=P1355 m372=100000000*(-i323/ABS(i323)) m472=100000000*(-i423/ABS(i423))
-        cmd "#3J^*^-400 #4J^*^-400"
+        i7022=P1353 i7042=P1355 m272=100000000*(-i223/ABS(i223)) m472=100000000*(-i423/ABS(i423))
+        cmd "#2J^*^-400 #4J^*^-400"
         ; Wait for the move to complete
         timer = 20 MilliSeconds ; Small delay to start moving
         while (timer > 0)
         endw
         timer = 600000 MilliSeconds ; Now start checking the conditions
-        while (m340&m440=0) ; At least one motor should not be In Position
-        and (m342|m442 = 0) ; Following error check
-        and (m330|m430 = 0) ; Limit check
+        while (m240&m440=0) ; At least one motor should not be In Position
+        and (m242|m442 = 0) ; Following error check
+        and (m230|m430 = 0) ; Limit check
         and (timer > 0) ; Check for timeout
         and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
         endw
         ; Check why we left the while loop
-        if (m342|m442 != 0) ; Following error check failed
+        if (m242|m442 != 0) ; Following error check failed
             HomingStatus = StatusFFErr
         endif
-        if (m330|m430 != 0) ; Limit check failed
+        if (m230|m430 != 0) ; Limit check failed
             HomingStatus = StatusLimit
         endif
         if (timer<0 or timer=0) ; If we timed out
@@ -425,24 +457,24 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StateHoming
         ; Execute the move commands
-        i7032=P1338 i7042=P1339
-        cmd "#3hm #4hm"
+        i7022=P1337 i7042=P1339
+        cmd "#2hm #4hm"
         ; Wait for the move to complete
         timer = 20 MilliSeconds ; Small delay to start moving
         while (timer > 0)
         endw
         timer = 600000 MilliSeconds ; Now start checking the conditions
-        while (m340&m440=0) ; At least one motor should not be In Position
-        and (m342|m442 = 0) ; Following error check
-        and (m330|m430 = 0) ; Limit check
+        while (m240&m440=0) ; At least one motor should not be In Position
+        and (m242|m442 = 0) ; Following error check
+        and (m230|m430 = 0) ; Limit check
         and (timer > 0) ; Check for timeout
         and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
         endw
         ; Check why we left the while loop
-        if (m342|m442 != 0) ; Following error check failed
+        if (m242|m442 != 0) ; Following error check failed
             HomingStatus = StatusFFErr
         endif
-        if (m330|m430 != 0) ; Limit check failed
+        if (m230|m430 != 0) ; Limit check failed
             HomingStatus = StatusLimit
         endif
         if (timer<0 or timer=0) ; If we timed out
@@ -452,7 +484,7 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
 
     ;---- Check if all motors have homed ----
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
-    and (m345&m445=0)
+    and (m245&m445=0)
         HomingStatus=StatusIncomplete
     endif
 
@@ -467,25 +499,57 @@ and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
     if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
         HomingState=StatePostHomeMove
         ; Execute the move commands
-        m372=P1386 m472=P1387
-        cmd "#3J=* #4J=*"
+        m272=P1385 m472=P1387
+        cmd "#2J=* #4J=*"
         ; Wait for the move to complete
         timer = 20 MilliSeconds ; Small delay to start moving
         while (timer > 0)
         endw
         timer = 600000 MilliSeconds ; Now start checking the conditions
-        while (m340&m440=0) ; At least one motor should not be In Position
-        and (m342|m442 = 0) ; Following error check
-        and (m330|m430 = 0) ; Limit check
+        while (m240&m440=0) ; At least one motor should not be In Position
+        and (m242|m442 = 0) ; Following error check
+        and (m230|m430 = 0) ; Limit check
         and (timer > 0) ; Check for timeout
         and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
         endw
         ; Check why we left the while loop
-        if (m342|m442 != 0) ; Following error check failed
+        if (m242|m442 != 0) ; Following error check failed
             HomingStatus = StatusFFErr
         endif
-        if (m330|m430 != 0) ; Limit check failed
+        if (m230|m430 != 0) ; Limit check failed
             HomingStatus = StatusLimit
+        endif
+        if (timer<0 or timer=0) ; If we timed out
+            HomingStatus = StatusTimeout
+        endif
+    endif
+
+    ; Wait for user to tell us to continue if in debug
+    if (HomingStatus = StatusDebugHoming)
+        HomingStatus = StatusPaused
+        while (HomingStatus = StatusPaused)
+        endw
+    endif
+
+    ;---- PreHomeMove State ----
+    if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
+        HomingState=StatePreHomeMove
+        ; Execute the move commands
+        m272=100000000*(-i223/ABS(i223)) m472=100000000*(-i423/ABS(i423))
+        cmd "#2J^* #4J^*"
+        ; Wait for the move to complete
+        timer = 20 MilliSeconds ; Small delay to start moving
+        while (timer > 0)
+        endw
+        timer = 600000 MilliSeconds ; Now start checking the conditions
+        while (m240&m440=0) ; At least one motor should not be In Position
+        and (m242|m442 = 0) ; Following error check
+        and (timer > 0) ; Check for timeout
+        and (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming) ; Check that we didn't abort
+        endw
+        ; Check why we left the while loop
+        if (m242|m442 != 0) ; Following error check failed
+            HomingStatus = StatusFFErr
         endif
         if (timer<0 or timer=0) ; If we timed out
             HomingStatus = StatusTimeout

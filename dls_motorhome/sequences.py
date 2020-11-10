@@ -253,8 +253,11 @@ def home_slits_hsw(posx: int, negx: int, posy: int, negy: int):
     pairs may collide with each other at the extreme of their homing direction.
 
     - move all axes to the limit away from their homing direction
-    - home the horizontal pair using home switch or mark
+    - home both positive axes using home switch or mark
+    - move the positive axes out of the way
     - home the vertical pair using home switch or mark
+    - home both negative axes using home switch or mark
+    - move the negative axes out of the way
 
     Args:
         posx (int): axis number of the positive horizontal motor
@@ -264,7 +267,9 @@ def home_slits_hsw(posx: int, negx: int, posy: int, negy: int):
     """
     drive_to_limit(homing_direction=False)
 
-    with only_axes(posx, negx):
+    with only_axes(posx, posy):
         home_hsw()
-    with only_axes(posy, negy):
+        drive_to_limit(homing_direction=False)
+    with only_axes(negx, negy):
         home_hsw()
+        drive_to_limit(homing_direction=False)
