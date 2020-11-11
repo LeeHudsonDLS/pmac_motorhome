@@ -1,3 +1,4 @@
+import logging
 from collections import OrderedDict
 from pathlib import Path
 from typing import List, Optional
@@ -6,6 +7,8 @@ from .constants import ControllerType, PostHomeMove
 from .group import Group
 from .motor import Motor
 from .plcgenerator import PlcGenerator
+
+log = logging.getLogger(__name__)
 
 
 class Plc:
@@ -40,7 +43,8 @@ class Plc:
         self.motors: "OrderedDict[int, Motor]" = OrderedDict()
         self.generator = PlcGenerator()
         if not self.filepath.parent.exists():
-            raise ValueError("bad file path")
+            log.error(f"Cant find parent of {self.filepath} from dir {Path.cwd()}")
+            raise ValueError(f"bad file path {self.filepath.parent}")
         if (
             self.plc_num < 8  # PLCs 1-8 are reserved
             or self.plc_num > 32  # highest PLC number possible

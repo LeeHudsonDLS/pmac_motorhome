@@ -149,6 +149,8 @@ class MotionArea:
             plc_files = self._parse_masters(self.new_motion)
 
             new_root_gen = self.new_motion / "generate_homing_plcs2.py"
+            # clear PLC instances in preparation for loading the next motorhome.py
+            PLC.instances = []
             for plc_file in plc_files:
                 self.load_shim(root_gen, plc_file)
             self.make_code(new_root_gen)
