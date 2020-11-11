@@ -368,13 +368,18 @@ class MotionArea:
             # go to low hard limit, don't check for limits
             extra_args = ", post_home=PostHomeMove.hard_lo_limit"
         # TODO write a regex for these to avoid clashing with raw code starting
-        # with r or z, ALSO need to handle absolute move which is just and int
+        # with r or z
         # elif type(post) == str and post.startswith("r"):
         #     # go to post[1:]
         #     pass
         # elif type(post) == str and post.startswith("z"):
         #     # go to post[1:] and hmz
         #     pass
+        elif type(post) == int:
+            # go to low hard limit, don't check for limits
+            extra_args = ", post_home=PostHomeMove.move_absolute"
+            post = str(post)
+            post_type = post
         else:
             # insert the whole of post as raw code
             post_code = post
