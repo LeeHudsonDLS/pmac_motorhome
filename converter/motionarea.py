@@ -7,8 +7,9 @@ from importlib import import_module, reload
 from pathlib import Path
 from shutil import copy, rmtree
 from types import ModuleType
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
+from .shim.group import Group
 from .shim.plc import PLC
 
 log = logging.getLogger(__name__)
@@ -177,12 +178,14 @@ class MotionArea:
                     self._execute_script(new_gen, brick_folder, Path(), str(plc_file))
 
     def check_matches(self):
+        count = 0
         mismatches = 0
         mismatch = "The following PLCs did not match the originals:\n\n"
         log.info("verifying matches ...")
 
         plcs = self.old_motion.glob(self.find_auto_home_plcs)
         for old_plc in plcs:
+            count += 1
             relative = old_plc.relative_to(self.old_motion)
             new_plc = self.new_motion / relative
 
@@ -194,14 +197,16 @@ class MotionArea:
                 mismatches += 1
                 mismatch += f"{old_plc} {new_plc}\n"
         if mismatches == 0:
-            log.info("new generated PLCs match old PLCs")
+            # use a warning here so that --silent is more useful
+            log.warning("new generated PLCs match old PLCs")
         else:
             log.warning(
-                f"{mismatches} PLC files do not match\n"
+                f"{mismatches} of {count} PLC files do not match\n"
                 f"review differences with:\n"
                 f"meld {self.old_motion} {self.new_motion}"
+                f"\n{mismatch}"
             )
-        assert mismatches == 0, mismatch
+        assert mismatches == 0, f"{mismatches} of {count} PLC files do not match\n"
 
     def load_shim(self, module: Path, plc_file: Path) -> None:
         """
@@ -262,9 +267,14 @@ class MotionArea:
         in_files = list(glob_files("*.pmc", "generate_homing_plcs.py"))
         out_files = [dest / file.relative_to(source) for file in in_files]
         for in_file, out_file in zip(in_files, out_files):
-            if not out_file.parent.exists():
-                out_file.parent.mkdir(parents=True)
-            copy(in_file, out_file)
+            try:
+                if not out_file.parent.exists():
+                    out_file.parent.mkdir(parents=True)
+                copy(in_file, out_file)
+            except Exception as e:
+                # it may be OK for some file copys to fail e.g.
+                # directories name *.pmc or broken soft links
+                log.warning(f"could not copy: {in_file}, {e}")
 
     def make_code(self, outpath: Path):
         """
@@ -282,7 +292,7 @@ class MotionArea:
         with outpath.open("w") as stream:
             stream.write(
                 "from dls_motorhome.commands import ControllerType, "
-                "comment, group, motor, plc\n"
+                "comment, group, motor, plc, PostHomeMove\n"
             )
 
             # collect all the homing sequences used for the import statement
@@ -302,13 +312,13 @@ class MotionArea:
                 for group_num in sorted(plc.groups.keys()):
                     group = plc.groups[group_num]
 
-                    extra_args = ""
+                    post_code, extra_args, post_type = self.handle_post(group)
                     if group.pre:
                         pre = re.sub("\t", "    ", group.pre)
                         stream.write(f'\n    pre{group_num} = """{pre} """\n')
                         extra_args += f", pre=pre{group_num}"
-                    if group.post:
-                        post = re.sub("\t", "    ", group.post)
+                    if post_code:
+                        post = re.sub("\t", "    ", post_code)
                         stream.write(f'\n    post{group_num} = """{post} """\n')
                         extra_args += f", post=post{group_num}"
 
@@ -323,7 +333,49 @@ class MotionArea:
                         )
                         stream.write(fs)
 
-                    stream.write(f'        comment("{group.sequence.old_name}")\n')
+                    stream.write(
+                        f'        comment("{group.sequence.old_name}", "{post_type}")\n'
+                    )
                     stream.write(f"        {group.sequence.name}()\n")
 
             stream.write("\n# End of auto converted homing definitions\n")
+
+    def handle_post(self, this_group: Group) -> Tuple[str, str, str]:
+        post = this_group.post
+        post_code = ""
+        extra_args = ""
+        post_type = str(post)
+
+        # convert old school post string to new approach
+        if post in (None, 0, "0"):
+            # no post action
+            pass
+        elif post == "i":
+            # go to initial pos
+            extra_args = ", post_home=PostHomeMove.initial_position"
+        elif post == "h":
+            # go to high soft limit
+            extra_args = ", post_home=PostHomeMove.high_limit"
+        elif post == "l":
+            # go to low soft limit
+            extra_args = ", post_home=PostHomeMove.low_limit"
+        elif post == "H":
+            # go to high hard limit, don't check for limits
+            extra_args = ", post_home=PostHomeMove.hard_hi_limit"
+        elif post == "L":
+            # go to low hard limit, don't check for limits
+            extra_args = ", post_home=PostHomeMove.hard_lo_limit"
+        # TODO write a regex for these to avoid clashing with raw code starting
+        # with r or z, ALSO need to handle absolute move which is just and int
+        # elif type(post) == str and post.startswith("r"):
+        #     # go to post[1:]
+        #     pass
+        # elif type(post) == str and post.startswith("z"):
+        #     # go to post[1:] and hmz
+        #     pass
+        else:
+            # insert the whole of post as raw code
+            post_code = post
+            post_type = "None"
+
+        return post_code, extra_args, post_type

@@ -1,0 +1,6 @@
+substitute "PLC_NO=24"
+substitute "MAIN_PLC_NO=20"
+substitute "HOMING_PLC_NO=23"
+substitute "TRANS=5"
+substitute "ROCKER=6"
+include "FILTER_MASK.pmc"

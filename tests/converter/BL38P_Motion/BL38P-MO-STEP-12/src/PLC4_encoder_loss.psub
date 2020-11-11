@@ -1,0 +1,9 @@
+substitute "ONM1=3"
+; axis 2 is set to open loop
+; substitute "ONM2=3";
+substitute "ONM3=3"
+substitute "ONM6=3"
+substitute "ONM7=3"
+substitute "ONM8=3"
+
+include "PLC4_encoder_loss.pmc"

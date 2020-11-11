@@ -1,0 +1,335 @@
+;####################################################
+; DO NOT MODIFY: File created from src/PLC24_transfocator_filter_mask.psub
+;####################################################
+
+;INSERT FILTER MASK
+;LOOPS OVER ALL 128 FILTERS AND UPDATES STATE ACCORDINGLY
+
+; Macros (and example values):
+; - PLC_NO	 	= 24  PLC Number for this PLC, e.g 24
+; - MAIN_PLC_NO 	= 20  PLC Number for the main PLC, e.g 20
+; - HOMING_PLC_NO 	= 23  PLC number for the associated homing PLC, e.g 23
+; - TRANS 		= 5  Axisnum for translation axis, e.g 5
+; - ROCKER 		= 6  Axisnum for rocker axis, e.g. 6
+
+#DEFINE PLC_NO			24
+#DEFINE MAIN_PLC_NO             20
+#DEFINE HOMING_PLC              23
+
+#DEFINE TRANSLATION            5
+#DEFINE ROCKER                 6
+#DEFINE ROCKER_IN_SWITCH       M(100*ROCKER + 21)
+#DEFINE ROCKER_1_HOME          M(100*ROCKER + 20)
+
+#DEFINE BANK_0_STATUS            P(100*MAIN_PLC_NO + 30)
+#DEFINE BANK_1_STATUS            P(100*MAIN_PLC_NO + 31)
+#DEFINE BANK_2_STATUS            P(100*MAIN_PLC_NO + 32)
+#DEFINE BANK_3_STATUS            P(100*MAIN_PLC_NO + 33)
+#DEFINE BANK_4_STATUS            P(100*MAIN_PLC_NO + 34)
+#DEFINE BANK_5_STATUS            P(100*MAIN_PLC_NO + 35)
+#DEFINE BANK_6_STATUS            P(100*MAIN_PLC_NO + 36)
+#DEFINE BANK_7_STATUS            P(100*MAIN_PLC_NO + 37)
+
+#DEFINE BANK_0_DEMAND            P(100*PLC_NO + 30)
+#DEFINE BANK_1_DEMAND            P(100*PLC_NO + 31)
+#DEFINE BANK_2_DEMAND            P(100*PLC_NO + 32)
+#DEFINE BANK_3_DEMAND            P(100*PLC_NO + 33)
+#DEFINE BANK_4_DEMAND            P(100*PLC_NO + 34)
+#DEFINE BANK_5_DEMAND            P(100*PLC_NO + 35)
+#DEFINE BANK_6_DEMAND            P(100*PLC_NO + 36)
+#DEFINE BANK_7_DEMAND            P(100*PLC_NO + 37)
+
+#DEFINE FILTER_BANK_NUMBER       P(100*PLC_NO + 38)
+#DEFINE CURRENT_BANK_DEMAND      P(100*PLC_NO + 30 + FILTER_BANK_NUMBER)
+#DEFINE CURRENT_BANK_STATUS      P(100*MAIN_PLC_NO + 30 + FILTER_BANK_NUMBER)
+#DEFINE FILTER_BIT               P(100*PLC_NO + 39)
+
+#DEFINE CURRENT_FILTER_READBACK	 P(100*MAIN_PLC_NO + 42)
+
+#DEFINE FILTER_FOUND             P(100*PLC_NO + 50)
+#DEFINE LEFT_FILTER              P(100*PLC_NO + 51)
+#DEFINE RIGHT_FILTER             P(100*PLC_NO + 52)
+#DEFINE CURRENT_LOOP_FILTER      P(100*PLC_NO + 53)
+#DEFINE LEFT_DIFFERENCE          P(100*PLC_NO + 54)
+#DEFINE RIGHT_DIFFERENCE         P(100*PLC_NO + 55)
+#DEFINE CURRENT_FILTER_BIT       P(100*PLC_NO + 56)
+#DEFINE CURRENT_BANK             P(100*PLC_NO + 57)
+#DEFINE INITIAL_BANK_LOOP        P(100*PLC_NO + 58)
+#DEFINE FIRST_LEFT_FILTER        P(100*PLC_NO + 59)
+#DEFINE FIRST_LEFT_FILTER_BIT    P(100*PLC_NO + 60)
+#DEFINE FIRST_LEFT_FILTER_BANK   P(100*PLC_NO + 61)
+#DEFINE END_LOOP                 P(100*PLC_NO + 62)
+#DEFINE MOD_CHECK                P(100*PLC_NO + 63)
+
+#DEFINE RUN                      P(100*PLC_NO + 7)
+#DEFINE ABORT                    P(100*PLC_NO + 8)
+
+#DEFINE MAIN_FIRST_FILTER        P(100*MAIN_PLC_NO + 5)
+#DEFINE MAIN_NUMBER_OF_FILTERS   P(100*MAIN_PLC_NO + 6)
+#DEFINE MAIN_RUN                 P(100*MAIN_PLC_NO + 7)
+#DEFINE MAIN_ABORT               P(100*MAIN_PLC_NO + 8)
+#DEFINE MAIN_TIMEOUT             P(100*MAIN_PLC_NO + 25)
+
+#DEFINE HOME_TRANSLATION         P(100*PLC_NO + 9)
+#DEFINE HOMING_PLC_RUNNING       P(100*HOMING_PLC + 13)
+#DEFINE HOMING_PLC_TIMEOUT       P(100*HOMING_PLC + 14)
+
+;TIME DEFINITION
+#DEFINE TIMER                    I(5111+(24&30)*50+24%2)
+#DEFINE MILLISECONDS             * 8388608/i10
+
+;FORMULAE
+#DEFINE FILTER_POS_DECIMAL       INT((EXP(INT(FILTER_BIT%16)*LN(2)))+0.1)
+
+
+#DEFINE STOP_AXIS                &COMMAND"J/"
+
+OPEN PLC PLC_NO
+CLEAR
+
+IF(RUN = 1)
+    MAIN_TIMEOUT = 0
+  ; Check if this PLC should home the translation first
+  IF (HOME_TRANSLATION = 1 AND MAIN_ABORT = 0)
+    ENABLE PLC HOMING_PLC
+    TIMER = 100 MILLISECONDS			
+    WHILE(TIMER > 0)
+    ENDWHILE
+
+    WHILE(HOMING_PLC_RUNNING = 1 AND ABORT = 0)
+    ENDWHILE
+
+    IF (ABORT = 1)
+      DISABLE PLC HOMING_PLC
+      ADDRESS#TRANSLATION
+      STOP_AXIS
+      ADDRESS#ROCKER
+      STOP_AXIS
+    ENDIF
+  ENDIF
+
+  ; Find current location details 
+  CURRENT_FILTER_BIT = (CURRENT_FILTER_READBACK % 16)
+  CURRENT_BANK = ((CURRENT_FILTER_READBACK - CURRENT_FILTER_BIT) / 16)
+
+  ; Look for the first filter change to the right of the current filter 
+  ; Store this as RIGHT_FILTER
+  ; Check if Homing PLC timed out
+  IF (HOMING_PLC_TIMEOUT = 1)
+    MAIN_TIMEOUT = 1
+  ELSE
+    ; Loop over each filter bank demand
+    FILTER_BANK_NUMBER = CURRENT_BANK
+    FILTER_FOUND = 0
+    RIGHT_FILTER = 0
+    INITIAL_BANK_LOOP = 0
+    WHILE(FILTER_BANK_NUMBER < 8 AND ABORT = 0 AND MAIN_TIMEOUT = 0 AND MAIN_ABORT = 0)
+      ; Loop over the 16 bits
+      ; Start from the current filter but for all subsequent
+      ; loops start from the first filter of the bank
+      IF (INITIAL_BANK_LOOP = 0)
+        FILTER_BIT = CURRENT_FILTER_BIT + 1
+        INITIAL_BANK_LOOP = 1
+      ELSE
+        FILTER_BIT = 0
+      ENDIF
+      WHILE(FILTER_BIT < 16 AND ABORT = 0 AND MAIN_TIMEOUT = 0 AND MAIN_ABORT = 0)
+        ; Compare the current state with the new state
+        IF ((CURRENT_BANK_DEMAND & FILTER_POS_DECIMAL) = (CURRENT_BANK_STATUS & FILTER_POS_DECIMAL))
+          CURRENT_LOOP_FILTER = ((FILTER_BANK_NUMBER * 16) + FILTER_BIT)
+          IF (FILTER_FOUND = 0)
+            RIGHT_FILTER = CURRENT_LOOP_FILTER
+            FILTER_FOUND = 1
+          ENDIF  
+        ENDIF
+        FILTER_BIT=FILTER_BIT+1
+      ENDWHILE
+      FILTER_BANK_NUMBER=FILTER_BANK_NUMBER+1
+    ENDWHILE
+  ENDIF
+
+  ; Look for the first filter change to the left of the current filter
+  ; Store this as LEFT_FILTER
+  ; Then find the start of the left block of changed filters
+  ; Store this as FIRST_LEFT_FILTER
+  ; Check if Homing PLC timed out
+  IF (HOMING_PLC_TIMEOUT = 1)
+    MAIN_TIMEOUT = 1
+  ELSE
+    ; Loop over each filter bank demand - note the loop is in the opposite direction
+    FILTER_BANK_NUMBER = CURRENT_BANK
+    FILTER_FOUND = 0
+    LEFT_FILTER = 0
+    FIRST_LEFT_FILTER = 0
+    INITIAL_BANK_LOOP = 0
+    END_LOOP = 0
+    WHILE(FILTER_BANK_NUMBER > -1 AND ABORT = 0 AND MAIN_TIMEOUT = 0 AND MAIN_ABORT = 0)
+      ; Loop over the 16 bits
+      ; Start from the current filter but for all subsequent
+      ; loops start from the last filter of the bank
+      IF (INITIAL_BANK_LOOP = 0)
+        FILTER_BIT = CURRENT_FILTER_BIT
+        INITIAL_BANK_LOOP = 1
+      ELSE
+        FILTER_BIT = 15
+      ENDIF
+      WHILE(FILTER_BIT > -1 AND ABORT = 0 AND MAIN_TIMEOUT = 0 AND MAIN_ABORT = 0)
+        ; Compare the current state with the new state
+        CURRENT_LOOP_FILTER = ((FILTER_BANK_NUMBER * 16) + FILTER_BIT)
+        MOD_CHECK = (CURRENT_LOOP_FILTER % 16)
+        IF ((CURRENT_BANK_DEMAND & FILTER_POS_DECIMAL) = (CURRENT_BANK_STATUS & FILTER_POS_DECIMAL))
+          IF (FILTER_FOUND = 0)
+            LEFT_FILTER = CURRENT_LOOP_FILTER
+            FIRST_LEFT_FILTER = CURRENT_LOOP_FILTER
+            FILTER_FOUND = 1
+          ELSE
+            IF (END_LOOP = 0)
+              FIRST_LEFT_FILTER = CURRENT_LOOP_FILTER
+            ENDIF
+          ENDIF
+        ELSE
+          IF (FILTER_FOUND = 1) 
+            ; Ignore the natural gaps between filter banks
+            ; (3 filter numbers which make up each gap)
+            IF (MOD_CHECK = 0) OR (MOD_CHECK = 15) OR (MOD_CHECK = 14)
+              END_LOOP = 0
+            ELSE
+              END_LOOP = 1
+            ENDIF
+          ENDIF
+        ENDIF
+        FILTER_BIT=FILTER_BIT-1
+      ENDWHILE
+      FILTER_BANK_NUMBER=FILTER_BANK_NUMBER-1
+    ENDWHILE
+  ENDIF
+
+  ; Find which changed filter we are closest to
+  ; Start with a nominally large differences
+  LEFT_DIFFERENCE = 1000
+  RIGHT_DIFFERENCE = 1000
+
+  ; Find the real absolute differences
+  IF (CURRENT_FILTER_READBACK > LEFT_FILTER)
+    LEFT_DIFFERENCE = (CURRENT_FILTER_READBACK - LEFT_FILTER)
+  ELSE
+    LEFT_DIFFERENCE = (LEFT_FILTER - CURRENT_FILTER_READBACK)
+  ENDIF
+
+  IF (CURRENT_FILTER_READBACK > RIGHT_FILTER)
+    RIGHT_DIFFERENCE = (CURRENT_FILTER_READBACK - RIGHT_FILTER)
+  ELSE
+    RIGHT_DIFFERENCE = (RIGHT_FILTER - CURRENT_FILTER_READBACK)
+  ENDIF
+
+  ; Find the current location details of the first left filter
+  FIRST_LEFT_FILTER_BIT = (FIRST_LEFT_FILTER % 16)
+  FIRST_LEFT_FILTER_BANK = ((FIRST_LEFT_FILTER - FIRST_LEFT_FILTER_BIT) / 16)
+
+  ; If closest to the right hand side or equidistant from both, start the toggles from the current filter
+  ; If closest to the left hand side, start the toggles from the lowest left filter
+  ; Note that filter firing is always from left to right
+  IF (RIGHT_DIFFERENCE < LEFT_DIFFERENCE) OR (RIGHT_DIFFERENCE = LEFT_DIFFERENCE)
+    ; Check if Homing PLC timed out
+    IF (HOMING_PLC_TIMEOUT = 1)
+      MAIN_TIMEOUT = 1
+    ELSE
+      ; Loop over each filter bank demand
+      FILTER_BANK_NUMBER = CURRENT_BANK
+      INITIAL_BANK_LOOP = 0
+      WHILE(FILTER_BANK_NUMBER < 8 AND ABORT = 0 AND MAIN_TIMEOUT = 0 AND MAIN_ABORT = 0)
+        ; Loop over the 16 bits
+        ; Start from the current filter but for all subsequent
+        ; loops start from the first filter of the bank
+        IF (INITIAL_BANK_LOOP = 0)
+          FILTER_BIT = CURRENT_FILTER_BIT
+          INITIAL_BANK_LOOP = 1
+        ELSE
+          FILTER_BIT = 0
+        ENDIF
+        WHILE(FILTER_BIT < 16 AND ABORT = 0 AND MAIN_TIMEOUT = 0 AND MAIN_ABORT = 0)
+          ; Compare the current state with the new state
+          IF ((CURRENT_BANK_DEMAND & FILTER_POS_DECIMAL) = (CURRENT_BANK_STATUS & FILTER_POS_DECIMAL))
+            ; Here we need to toggle to get an agreement
+            MAIN_FIRST_FILTER = (FILTER_BANK_NUMBER*16)+FILTER_BIT
+            MAIN_NUMBER_OF_FILTERS = 1
+            MAIN_RUN = 1
+            WHILE(MAIN_RUN = 1 AND ABORT = 0 AND MAIN_TIMEOUT = 0 AND MAIN_ABORT = 0)
+            ENDWHILE
+          ENDIF
+          FILTER_BIT=FILTER_BIT+1
+        ENDWHILE
+        FILTER_BANK_NUMBER=FILTER_BANK_NUMBER+1
+      ENDWHILE
+    ENDIF
+  ELSE
+    ; Check if Homing PLC timed out
+    IF (HOMING_PLC_TIMEOUT = 1)
+      MAIN_TIMEOUT = 1
+    ELSE
+      ; Loop over each filter bank demand
+      FILTER_BANK_NUMBER = FIRST_LEFT_FILTER_BANK
+      INITIAL_BANK_LOOP = 0
+      WHILE(FILTER_BANK_NUMBER < 8 AND ABORT = 0 AND MAIN_TIMEOUT = 0 AND MAIN_ABORT = 0)
+        ; Loop over the 16 bits
+        ; Start from the current filter but for all subsequent
+        ; loops start from the first filter of the bank
+        IF (INITIAL_BANK_LOOP = 0)
+          FILTER_BIT = FIRST_LEFT_FILTER_BIT
+          INITIAL_BANK_LOOP = 1
+        ELSE
+          FILTER_BIT = 0
+        ENDIF
+        WHILE(FILTER_BIT < 16 AND ABORT = 0 AND MAIN_TIMEOUT = 0 AND MAIN_ABORT = 0)
+          ; Compare the current state with the new state
+          IF ((CURRENT_BANK_DEMAND & FILTER_POS_DECIMAL) = (CURRENT_BANK_STATUS & FILTER_POS_DECIMAL))
+            ; Here we need to toggle to get an agreement
+            MAIN_FIRST_FILTER = (FILTER_BANK_NUMBER*16)+FILTER_BIT
+            MAIN_NUMBER_OF_FILTERS = 1
+            MAIN_RUN = 1
+            WHILE(MAIN_RUN = 1 AND ABORT = 0 AND MAIN_TIMEOUT = 0 AND MAIN_ABORT = 0)
+            ENDWHILE
+          ENDIF
+          FILTER_BIT=FILTER_BIT+1
+        ENDWHILE
+        FILTER_BANK_NUMBER=FILTER_BANK_NUMBER+1
+      ENDWHILE
+    ENDIF
+  ENDIF
+
+  ; Run the toggles from zero over the full set to capture all other changes
+  ; Check if Homing PLC timed out
+  IF (HOMING_PLC_TIMEOUT = 1)
+    MAIN_TIMEOUT = 1
+  ELSE
+    ; Loop over each filter bank demand
+    FILTER_BANK_NUMBER = 0
+    WHILE(FILTER_BANK_NUMBER < 8 AND ABORT = 0 AND MAIN_TIMEOUT = 0 AND MAIN_ABORT = 0)
+      ; Loop over the 16 bits
+      FILTER_BIT = 0
+      WHILE(FILTER_BIT < 16 AND ABORT = 0 AND MAIN_TIMEOUT = 0 AND MAIN_ABORT = 0)
+        ; Compare the current state with the new state
+        IF ((CURRENT_BANK_DEMAND & FILTER_POS_DECIMAL) = (CURRENT_BANK_STATUS & FILTER_POS_DECIMAL))
+          ; Here we need to toggle to get an agreement
+          MAIN_FIRST_FILTER = (FILTER_BANK_NUMBER*16)+FILTER_BIT
+          MAIN_NUMBER_OF_FILTERS = 1
+          MAIN_RUN = 1
+          WHILE(MAIN_RUN = 1 AND ABORT = 0 AND MAIN_TIMEOUT = 0 AND MAIN_ABORT = 0)
+          ENDWHILE
+        ENDIF
+        FILTER_BIT=FILTER_BIT+1
+      ENDWHILE
+      FILTER_BANK_NUMBER=FILTER_BANK_NUMBER+1
+    ENDWHILE
+    ; If this PLC has been aborted then abort the MAIN_PLC also
+    ;IF (ABORT = 1)
+    ;  MAIN_ABORT = 1
+    ;ENDIF
+  ENDIF
+  RUN = 0
+  ABORT = 0
+ENDIF
+
+CLOSE
+DISABLE PLC PLC_NO
+

@@ -1,0 +1,92 @@
+;####################################################
+; DO NOT MODIFY: File created from src/PLC25_transfocator_abort.psub
+;####################################################
+
+;ABORT ANY MOTION
+;1) DISABLES ALL TRANSFOCATOR PLCs
+;2) RE-INIT VARIABLES AND SET CORRUPT BIT TRUE
+;3) RE-ENABLE TRANSFOCATOR PLCs (MAIN AND MASK)
+
+; Macros (and example values):
+; - PLC_NO	 	= 25  PLC Number for this PLC, e.g 25
+; - MAIN_PLC_NO 	= 20  PLC Number for the main PLC, e.g 20
+; - FOUT_PLC_NO 	= 21  PLC number for the associated filter out PLC, e.g 21
+; - FIN_PLC_NO 		= 22  PLC number for the associated filter in PLC, e.g 22
+; - HOMING_PLC_NO 	= 23  PLC number for the associated homing PLC, e.g 23
+; - EPICS_PLC_NO 	= 24  PLC number for the associated EPICS PLC, e.g 24
+; - TRANS 		= 5  Axisnum for translation axis, e.g 5
+; - ROCKER 		= 6  Axisnum for rocker axis, e.g. 6
+
+#DEFINE PLC_NO	                  25
+
+#DEFINE MAIN_PLC                 20
+#DEFINE FILTER_OUT_PLC           21
+#DEFINE FILTER_IN_PLC            22
+#DEFINE HOMING_PLC               23
+#DEFINE EPICS_PLC                24
+
+#DEFINE MAIN_RUN                 P(100*MAIN_PLC + 7)
+#DEFINE MAIN_ABORT               P(100*MAIN_PLC + 8)
+#DEFINE MAIN_CORRUPT             P(100*MAIN_PLC + 41)
+#DEFINE EPICS_RUN                P(100*EPICS_PLC + 7)
+#DEFINE EPICS_ABORT              P(100*EPICS_PLC + 8)
+#DEFINE HOME_RUN                 P(100*HOMING_PLC +13)
+#DEFINE HOME_IN_NEG_DIR          P(100*HOMING_PLC + 10)
+#DEFINE HOME_IN_POS_DIR          P(100*HOMING_PLC + 11)
+#DEFINE MOVE_TO_POS_LIMIT        P(100*PLC_NO + 12)
+
+#DEFINE TRANSLATION            	 5
+#DEFINE ROCKER                   6
+#DEFINE STOP_AXIS                &COMMAND"J/"
+
+#DEFINE ROCKER_JOG_VELOCITY 	I(100*ROCKER +22)
+#DEFINE ROCKER_HOME_OFFSET	I(100*ROCKER +26)
+#DEFINE ROCKER_VELOCITY_STORE 	P(100*HOMING_PLC +16)
+#DEFINE HOME_OFFSET_STORE	P(100*HOMING_PLC +17)
+#DEFINE ROCKER_SLOW_VELOCITY    P(100*HOMING_PLC +18)
+
+OPEN PLC PLC_NO
+CLEAR
+
+  ; DISABLE ALL TRANSFOCATOR PLCs
+  DISABLE PLC FILTER_IN_PLC
+  DISABLE PLC FILTER_OUT_PLC
+  DISABLE PLC HOMING_PLC
+  DISABLE PLC MAIN_PLC
+  DISABLE PLC EPICS_PLC
+
+  ADDRESS#ROCKER
+  STOP_AXIS
+  ADDRESS#TRANSLATION
+  STOP_AXIS
+
+  ;Determine what state the system was in before the abort and decide what variables need to be restored.
+  IF(ROCKER_JOG_VELOCITY = ROCKER_SLOW_VELOCITY) 
+  	ROCKER_JOG_VELOCITY = ROCKER_VELOCITY_STORE
+  ENDIF
+  ROCKER_VELOCITY_STORE = 0
+
+  IF(ROCKER_HOME_OFFSET = 0)
+  	ROCKER_HOME_OFFSET = HOME_OFFSET_STORE
+  ENDIF
+  ROCKER_VELOCITY_STORE = 0
+
+  ; RE-INIT VARIABLES AND SET CORRUPT BIT TRUE
+  MAIN_RUN = 0
+  MAIN_ABORT = 0
+  MAIN_CORRUPT = 1
+  EPICS_RUN = 0
+  EPICS_ABORT = 0
+  HOME_RUN = 0
+  HOME_IN_NEG_DIR = 0
+  HOME_IN_POS_DIR = 0
+  MOVE_TO_POS_LIMIT = 0
+
+  ; RE-ENABLE TRANSFOCATOR PLCs (MAIN AND MASK)
+  ENABLE PLC MAIN_PLC
+  ENABLE PLC EPICS_PLC
+
+DISABLE PLC PLC_NO
+CLOSE
+
+

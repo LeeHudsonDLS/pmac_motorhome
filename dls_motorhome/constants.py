@@ -22,23 +22,23 @@ class PostHomeMove(Enum):
     """
 
     #: no action
-    none = 0
+    none = "None"
     #: move jdist counts away from the home mark and set that as home
-    move_and_hmz = 1
+    move_and_hmz = "z"
     #: move jdist counts away from the home mark
-    relative_move = 2
+    relative_move = "r"
     #: return to the original position before the homing sequence
-    initial_position = 3
+    initial_position = "i"
     #: jog to the high limit
-    high_limit = 4
+    high_limit = "h"
     #: jog to the low limit
-    low_limit = 5
+    low_limit = "l"
     #: jog to the high limit, ignorning soft limits
-    hard_hi_limit = 6
+    hard_hi_limit = "H"
     #: jog to the low limit, ignorning soft limits
-    hard_lo_limit = 7
+    hard_lo_limit = "L"
     #: jog to the absolute position in counts
-    move_absolute = 8
+    move_absolute = "a"
 
 
 class HomingState(Enum):

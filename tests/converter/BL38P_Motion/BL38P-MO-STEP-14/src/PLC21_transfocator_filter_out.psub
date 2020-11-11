@@ -1,0 +1,8 @@
+substitute "PLC_NO=21"
+substitute "MAIN_PLC_NO=20"
+substitute "ROCKER=6"
+substitute "OUT_TIME=50"
+substitute "HOME_TIME=50"
+substitute "TIMEOUT=5000"
+substitute "FILTER_OUT_POS=430"
+include "FILTER_OUT.pmc"

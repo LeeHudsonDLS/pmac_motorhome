@@ -1,0 +1,50 @@
+; First we want to clear all the PLCs and CSs
+#include "../../../Common/clear_PLC_CS.pmc"
+
+; Setup the current offsets
+#include "Variables/00-50-C2-xx-xx-xx.pmc"
+
+; Add the axes and control I Variables
+#include "Variables/Axis.pmc"
+#include "Variables/Control.pmc"
+
+; And the m-variable definitions
+#include "../../../Common/BRICK_M_variables.pmc"
+
+; a PLC to setup the internal amps
+#include "PLCs/PLC6_Initialise_and_Reset.pmc"
+
+;#############################################################################
+; Controls section
+; Uncomment this when brick is handed over
+;#############################################################################
+
+; a PLC to initialise the brick
+; generated from PLC1_BRICK_initialise.psub in src, then renamed to _custom.pmc, for absoulute encoders setup
+#include "PLCs/PLC1_BRICK_initialise_custom.pmc"
+
+; a PLC to do motion stop
+;#include "PLCs/PLC2_motion_stop.pmc"
+
+; a PLC to do encoder loss and amp status protection
+#include "PLCs/PLC4_encoder_loss.pmc"
+
+; a PLC to do cpu load
+#include "PLCs/PLC5_cpu_load.pmc"
+
+; a PLC to kill axes after a move
+#include "PLCs/PLC7_kill_when_idle.pmc"
+
+; Finally add some homing PLCs
+#include "PLCs/PLC10_FSWT_HM.pmc"
+
+; Transfocator
+#include "PLCs/PLC20_transfocator_main.pmc"
+#include "PLCs/PLC21_transfocator_filter_out.pmc"
+#include "PLCs/PLC22_transfocator_filter_in.pmc"
+#include "PLCs/PLC23_transfocator_homing.pmc"
+#include "PLCs/PLC24_transfocator_filter_mask.pmc"
+#include "PLCs/PLC25_transfocator_abort.pmc"
+
+; a motion program for the CS moves
+;#include "PROGs/PROG10_CS_motion.pmc"

@@ -89,7 +89,7 @@ class PLC:
 
         motor = Motor(axis, enc_axes, self.ctype, ms, index=motor_index)
         if group not in self.groups:
-            new_group = Group(group, checks=[], pre="", post="")
+            new_group = Group(group, checks=[], pre="", post=post)
             self.groups[group] = new_group
 
         if jdist is not None:
@@ -107,6 +107,10 @@ class PLC:
             self.groups[group].set_htype(htype)
         elif self.groups[group].htype == NO_HOMING_YET and self.htype != NO_HOMING_YET:
             self.groups[group].set_htype(self.htype)
+        # similar for post home action
+        if post is not None:
+            # TODO should check for illegal mixed of post home actions
+            self.groups[group].post = post
 
     def write(self, filename):
         self.filename = filename
