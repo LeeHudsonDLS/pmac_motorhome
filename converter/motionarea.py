@@ -200,15 +200,21 @@ class MotionArea:
                 mismatch += f"{old_plc} {new_plc}\n"
         if mismatches == 0:
             # use a warning here so that --silent is more useful
-            log.warning("new generated PLCs match old PLCs")
+            log.warning(
+                f"Success: new generated PLCs match old PLCs for {self.original_path}"
+            )
         else:
             log.warning(
-                f"{mismatches} of {count} PLC files do not match\n"
+                f"Failure: {mismatches} of {count}"
+                f"PLC files do not match for {self.original_path}\n"
                 f"review differences with:\n"
                 f"meld {self.old_motion} {self.new_motion}"
-                f"\n{mismatch}"
             )
-        assert mismatches == 0, f"{mismatches} of {count} PLC files do not match\n"
+            log.info(f"\n{mismatch}")
+        assert mismatches == 0, (
+            f"{mismatches} of {count} PLC files do not match for"
+            f"{self.original_path}\n"
+        )
 
     def load_shim(self, module: Path, plc_file: Path) -> None:
         """
