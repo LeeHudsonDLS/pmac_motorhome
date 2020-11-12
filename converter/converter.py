@@ -9,6 +9,7 @@ from converter.motionarea import MotionArea
 
 log = logging.getLogger(__name__)
 global_logger = logging.getLogger()
+global_logger.setLevel(logging.DEBUG)
 
 stdout_handler = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter(
@@ -26,10 +27,11 @@ global_logger.addHandler(stdout_handler)
 def homing_convert(ctx, debug: bool, silent: bool):
     """Auto conversion of motorhome 1.0 scripts to motorhome 2.0"""
     if debug:
-        global_logger.setLevel(logging.DEBUG)
-    elif not silent:
-        global_logger.setLevel(logging.INFO)
-    # or default to warning
+        stdout_handler.setLevel(logging.DEBUG)
+    elif silent:
+        stdout_handler.setLevel(logging.WARNING)
+    else:
+        stdout_handler.setLevel(logging.INFO)
 
 
 @homing_convert.command()
