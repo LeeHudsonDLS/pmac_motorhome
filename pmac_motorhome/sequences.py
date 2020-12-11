@@ -193,7 +193,7 @@ def home_hsw_hlim():
     Finally do post home move if any.
 
     **NOTE:** if using a reference mark, set jdist as described under
-    :py:meth:`~dls_motorhome.commands.group`
+    :py:meth:`~pmac_motorhome.commands.group`
 
     This example shows homing on an index with -ve hdir and +ve jdist.
     E.g. ixx23 = -1, msyy,i912 = 1, jdist = 1000.

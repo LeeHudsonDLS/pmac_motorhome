@@ -1,6 +1,6 @@
 Constants
 =======================
 
-.. automodule:: dls_motorhome.constants
+.. automodule:: pmac_motorhome.constants
     :members:
 

@@ -2,5 +2,5 @@
 Commands
 --------
 
-.. automodule:: dls_motorhome.commands
+.. automodule:: pmac_motorhome.commands
     :members:

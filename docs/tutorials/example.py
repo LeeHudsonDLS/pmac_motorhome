@@ -1,5 +1,5 @@
-from dls_motorhome.commands import group, motor, plc
-from dls_motorhome.sequences import home_hsw
+from pmac_motorhome.commands import group, motor, plc
+from pmac_motorhome.sequences import home_hsw
 
 with plc(
     plc_num=12, controller="brick", filepath="/tmp/PLC12_SLITS1_HM.pmc",

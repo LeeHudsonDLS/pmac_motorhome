@@ -13,7 +13,7 @@ Steps to install for development
 --------------------------------
 - checkout from source control
 
-  - clone git@gitlab.diamond.ac.uk:controls/python3/dls_motorhome.git
+  - clone git@gitlab.diamond.ac.uk:controls/python3/pmac_motorhome.git
 - cd to source root
 - pipenv install --dev
 - run tests

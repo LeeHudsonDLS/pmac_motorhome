@@ -91,7 +91,7 @@ Included snippet templates may in turn include other templates and in most
 cases will also include callback functions. The following typical example is the
 snippet which searches for the home mark.
 
-.. include:: ../../dls_motorhome/snippets/drive_to_home.pmc.jinja
+.. include:: ../../pmac_motorhome/snippets/drive_to_home.pmc.jinja
    :literal:
 
 This jinja template follows these common patterns:
@@ -179,10 +179,10 @@ Callback functions exist in the `Plc` class and `Group` class. These are
 used to output a line of code that operates on all axes in the `Plc` or
 `Group`.
 
-For example The function :py:meth:`~dls_motorhome.group.Group.home`
+For example The function :py:meth:`~pmac_motorhome.group.Group.home`
 will output code to
 home all the axes in a group. Assumimg the group has axes 1, 2, 3
-then the output of the command :py:meth:`~dls_motorhome.group.Group.home`
+then the output of the command :py:meth:`~pmac_motorhome.group.Group.home`
 will look like this::
 
     #1hm #2hm #3hm

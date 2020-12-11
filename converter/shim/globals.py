@@ -1,7 +1,7 @@
 from typing import Callable, Optional
 
-from dls_motorhome.constants import ControllerType
-from dls_motorhome.sequences import (
+from pmac_motorhome.constants import ControllerType
+from pmac_motorhome.sequences import (
     home_home,
     home_hsw,
     home_hsw_dir,

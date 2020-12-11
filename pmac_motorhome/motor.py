@@ -1,13 +1,13 @@
 from typing import Dict
 
-from dls_motorhome.constants import PostHomeMove
+from pmac_motorhome.constants import PostHomeMove
 
 
 class Motor:
     """
     Declares a motor for use in homing routines in the enclosing Group, Plc
 
-    Should always be instantiated using `dls_motorhome.commands.motor`
+    Should always be instantiated using `pmac_motorhome.commands.motor`
     """
 
     instances: Dict[int, "Motor"] = {}

@@ -3,5 +3,5 @@
 Snippet Functions
 =======================
 
-.. automodule:: dls_motorhome.snippets
+.. automodule:: pmac_motorhome.snippets
     :members:

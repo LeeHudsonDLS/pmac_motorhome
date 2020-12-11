@@ -23,7 +23,7 @@ snippet_docstring = """
     This will cause the jinja template {template} to be expanded and inserted
     into the PLC code. The template is as follows:
 
-    .. include:: ../../dls_motorhome/snippets/{template}
+    .. include:: ../../pmac_motorhome/snippets/{template}
         :literal:
 """
 
@@ -60,7 +60,7 @@ def _snippet_function(*arglists: Dict[str, Any]) -> Callable[[F], F]:
     The decorated function should have:
 
     - the same name as a jinja template file (less .pmc.jinja)
-      in the folder dls_motorhome/snippets. The function should take
+      in the folder pmac_motorhome/snippets. The function should take
     - Type hinted parameters that the template will use
     - A docstring that describes the function of the snippet
 

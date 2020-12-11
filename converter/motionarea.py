@@ -14,7 +14,7 @@ from .shim.plc import PLC
 
 log = logging.getLogger(__name__)
 
-code_import = """from dls_motorhome.sequences import {names}
+code_import = """from pmac_motorhome.sequences import {names}
 """
 
 code_plc = """
@@ -299,7 +299,7 @@ class MotionArea:
 
         with outpath.open("w") as stream:
             stream.write(
-                "from dls_motorhome.commands import ControllerType, "
+                "from pmac_motorhome.commands import ControllerType, "
                 "comment, group, motor, plc, PostHomeMove\n"
             )
 

@@ -1,7 +1,7 @@
 from filecmp import cmp
 from pathlib import Path
 
-from dls_motorhome.commands import (
+from pmac_motorhome.commands import (
     ControllerType,
     PostHomeMove,
     comment,
@@ -10,7 +10,7 @@ from dls_motorhome.commands import (
     plc,
     post_home,
 )
-from dls_motorhome.sequences import (
+from pmac_motorhome.sequences import (
     home_home,
     home_hsw,
     home_hsw_dir,
@@ -21,7 +21,7 @@ from dls_motorhome.sequences import (
     home_rlim,
     home_slits_hsw,
 )
-from dls_motorhome.snippets import (
+from pmac_motorhome.snippets import (
     check_homed,
     command,
     continue_home_maintain_axes_offset,

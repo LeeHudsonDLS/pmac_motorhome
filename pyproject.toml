@@ -4,6 +4,6 @@ exclude = '''
 (
     tests/converter/BL02I_generate_homing_plcs.py
     | converter/old_motorhome/motorhome.py
-    | dls_motorhome/tests/converter
+    | pmac_motorhome/tests/converter
 )
 '''

@@ -7,20 +7,20 @@ are built in to pmac_motorhome.
 
 A PLC definition is a python file that defines the following:
 
-- One or more :py:meth:`~dls_motorhome.commands.plc` commands which define a
+- One or more :py:meth:`~pmac_motorhome.commands.plc` commands which define a
   single PLC using PLC number, mototion `ControllerType` and a
   filename in which the output of the PLC code generation is saved.
-- Within each PLC, one or more :py:meth:`~dls_motorhome.commands.group` commands
+- Within each PLC, one or more :py:meth:`~pmac_motorhome.commands.group` commands
   that define groups of motors to be
   homed as a unit. These require a group number which must be unique within the
   PLC. Group Number 1 is reserved for 'home all groups'.
-- Within each group are one or more :py:meth:`~dls_motorhome.commands.motor`
+- Within each group are one or more :py:meth:`~pmac_motorhome.commands.motor`
   commands that declare the motors in the
   current group. These require an axis number.
 - Also within each group is a sequence of commands that will generate a sequence of
   PLC commands in the output file.
 
-:py:meth:`~dls_motorhome.commands.plc` and :py:meth:`~dls_motorhome.commands.group` use
+:py:meth:`~pmac_motorhome.commands.plc` and :py:meth:`~pmac_motorhome.commands.group` use
 python contexts to manage their scope. This simply means that you add
 `with` before calling them and then indent the related code.
 

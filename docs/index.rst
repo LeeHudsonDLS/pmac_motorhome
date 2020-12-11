@@ -1,4 +1,4 @@
-dls_motorhome
+pmac_motorhome
 ===========================
 
 This module allows the generation of homing procedures written in pmc

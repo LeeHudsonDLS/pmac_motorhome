@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from dls_motorhome.commands import group, plc
-from dls_motorhome.constants import ControllerType
+from pmac_motorhome.commands import group, plc
+from pmac_motorhome.constants import ControllerType
 
 
 def test_one_plc():

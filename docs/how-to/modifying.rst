@@ -15,13 +15,13 @@ Adding a New Homing Sequence Function
 -------------------------------------
 TODO - flesh this out
 
-- Add a new function in :py:mod:`dls_motorhome.sequences`
+- Add a new function in :py:mod:`pmac_motorhome.sequences`
 - Make calls to functions in `commands`, `snippets`
-  and possibly other :py:mod:`dls_motorhome.sequences`
+  and possibly other :py:mod:`pmac_motorhome.sequences`
 
 A nice example is home_slits_hsw
 
-.. literalinclude:: ../../dls_motorhome/sequences.py
+.. literalinclude:: ../../pmac_motorhome/sequences.py
   :pyobject: home_slits_hsw
 
 Adding a New Snippet Template
@@ -35,7 +35,7 @@ The decorator _snippet function allows you to declare a function whose name
 is the same as the Jina template file prefix. This function need only have
 arguments and a docstring. The decorator will provide the rest as follows:
 
-.. autofunction:: dls_motorhome.snippets._snippet_function
+.. autofunction:: pmac_motorhome.snippets._snippet_function
 
 Adding a New Callback Function
 ------------------------------

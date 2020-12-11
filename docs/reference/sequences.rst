@@ -3,5 +3,5 @@
 Predfined Homing Sequences
 ==========================
 
-.. automodule:: dls_motorhome.sequences
+.. automodule:: pmac_motorhome.sequences
     :members:

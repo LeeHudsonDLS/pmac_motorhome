@@ -31,7 +31,7 @@ else:
 
 
 ####################################################################
-#    dls_motorhome.motorhome.PLC#
+#    pmac_motorhome.motorhome.PLC#
 #
 #    class PLC
 #     |  Create an object that can create a homing PLC for some motors.

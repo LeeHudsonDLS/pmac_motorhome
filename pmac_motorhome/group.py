@@ -1,6 +1,6 @@
 from typing import Any, Callable, Dict, List, Optional
 
-from dls_motorhome.constants import ControllerType, PostHomeMove
+from pmac_motorhome.constants import ControllerType, PostHomeMove
 
 from .motor import Motor
 from .template import Template
@@ -10,7 +10,7 @@ class Group:
     """
     Defines a group of axes to be homed as a unit
 
-    Should always be instantiated using `dls_motorhome.commands.group`
+    Should always be instantiated using `pmac_motorhome.commands.group`
     """
 
     # this class variable holds the instance in the current context
@@ -125,7 +125,7 @@ class Group:
         Args:
             template_name (str): prefix of the jinja template's filename
                 '.pmc.jinja' is added to this name and the template file
-                should be in dls_motorhome/snippets
+                should be in pmac_motorhome/snippets
         """
         group = Group.instance()
         group.templates.append(

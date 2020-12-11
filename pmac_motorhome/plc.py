@@ -16,7 +16,7 @@ class Plc:
     This class is used in a PLC definition to declare that a PLC is to
     be generated.
 
-    Should always be instantiated using `dls_motorhome.commands.plc`
+    Should always be instantiated using `pmac_motorhome.commands.plc`
     """
 
     # this class variable holds the instance in the current context

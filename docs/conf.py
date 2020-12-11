@@ -15,19 +15,19 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(__file__, "..", "..")))
 
-import dls_motorhome  # noqa
+import pmac_motorhome  # noqa
 
 # -- General configuration ------------------------------------------------
 
 # General information about the project.
-project = "dls_motorhome"
+project = "pmac_motorhome"
 copyright = "2020, Diamond Light Source"
 author = "Arvinder Palaha"
 
 # The short X.Y version.
-version = dls_motorhome.__version__.split("+")[0]
+version = pmac_motorhome.__version__.split("+")[0]
 # The full version, including alpha/beta/rc tags.
-release = dls_motorhome.__version__
+release = pmac_motorhome.__version__
 
 if os.environ.get("READTHEDOCS") == "True":
     # Readthedocs modifies conf.py, so will appear dirty when it isn't

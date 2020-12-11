@@ -1,1 +1,1 @@
-include dls_motorhome/snippets/*.jinja
+include pmac_motorhome/snippets/*.jinja

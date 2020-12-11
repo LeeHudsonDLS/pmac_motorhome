@@ -9,20 +9,20 @@ Documentation for maintainers.
 Classes
 ========
 
-.. automodule:: dls_motorhome.plc
+.. automodule:: pmac_motorhome.plc
     :members:
 
-.. automodule:: dls_motorhome.motor
+.. automodule:: pmac_motorhome.motor
     :members:
 
-.. automodule:: dls_motorhome.group
+.. automodule:: pmac_motorhome.group
     :members:
 
-.. automodule:: dls_motorhome.onlyaxes
+.. automodule:: pmac_motorhome.onlyaxes
     :members:
 
-.. automodule:: dls_motorhome.plcgenerator
+.. automodule:: pmac_motorhome.plcgenerator
     :members:
 
-.. automodule:: dls_motorhome.template
+.. automodule:: pmac_motorhome.template
     :members:

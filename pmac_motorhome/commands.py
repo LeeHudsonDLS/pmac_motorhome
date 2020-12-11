@@ -8,7 +8,7 @@ These functions are used to define PLCs, axes and axis groupings.
 from pathlib import Path
 from typing import Union
 
-from dls_motorhome.onlyaxes import OnlyAxes
+from pmac_motorhome.onlyaxes import OnlyAxes
 
 from .constants import ControllerType, PostHomeMove
 from .group import Group
