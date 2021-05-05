@@ -1,7 +1,6 @@
-from typing import List
-
 from converter.shim.globals import NO_HOMING_YET, HomingSequence, HomingSequences
-from converter.shim.motor import Motor
+
+# from converter.shim.motor import Motor
 
 
 class Group:
@@ -12,13 +11,13 @@ class Group:
         self.checks = checks
 
         self.htype = NO_HOMING_YET
-        self.sequence: HomingSequence = HomingSequence()
-        self.motors: List[Motor] = []
+        self.sequence = HomingSequence()
+        self.motors = []
 
         self.error = 0
         self.error_msg = ""
 
-    def set_htype(self, htype: int):
+    def set_htype(self, htype):
         if self.htype == NO_HOMING_YET:
             self.htype = htype = htype
             self.sequence = HomingSequences[htype]

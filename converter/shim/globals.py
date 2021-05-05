@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+# from typing import Callable, Optional
 
 from pmac_motorhome.constants import ControllerType
 from pmac_motorhome.sequences import (
@@ -29,7 +29,8 @@ BRICK = 1
 
 
 class HomingSequence:
-    def __init__(self, function: Optional[Callable] = None, old_name: str = "NONE"):
+    # def __init__(self, function: Optional[Callable] = None, old_name: str = "NONE"):
+    def __init__(self, function=None, old_name="NONE"):
         self.function = function
         if function is None:
             self.name = "No Homing Type Specified"
@@ -37,7 +38,7 @@ class HomingSequence:
             self.name = function.__name__
         self.old_name = old_name
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return self.name
 
 
@@ -55,11 +56,12 @@ HomingSequences = {
 
 
 class BrickType:
-    def __init__(self, type: ControllerType) -> None:
+    # def __init__(self, type: ControllerType) -> None:
+    def __init__(self, type):
         self.type = type
         self.name = str(type)
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return self.name
 
 
