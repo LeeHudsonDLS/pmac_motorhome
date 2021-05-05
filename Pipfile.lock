@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1d50a4d37378523973647e02b0ffe0ee9ab23382eebc45700d15cc8502456838"
+            "sha256": "25b39145e8c29d8106f4f3a5e26ab130382771ee374033d360cd29cde014a1c2"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -154,10 +154,6 @@
                 "sha256:e8caf961e1b1a945db76f1b5fa9c91498d15f545ac0ababbe575cfab185d3bd8"
             ],
             "version": "==5.3"
-        },
-        "dls-motorhome": {
-            "editable": true,
-            "path": "."
         },
         "doc8": {
             "hashes": [
@@ -333,6 +329,10 @@
                 "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"
             ],
             "version": "==0.13.1"
+        },
+        "pmac-motorhome": {
+            "editable": true,
+            "path": "."
         },
         "py": {
             "hashes": [
