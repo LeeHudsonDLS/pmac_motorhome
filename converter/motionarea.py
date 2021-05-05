@@ -1,14 +1,17 @@
 import logging
 import os
+import pickle
 import re
 import subprocess
 import sys
 from importlib import import_module, reload
 from pathlib import Path
 from shutil import copy, rmtree
+from time import sleep
 from types import ModuleType
 from typing import List, Optional, Tuple
 
+from .pipemessage import IPC_FIFO_NAME, get_message
 from .shim.group import Group
 from .shim.plc import PLC
 
@@ -84,12 +87,17 @@ class MotionArea:
             with master.open("r") as stream:
                 master_text = stream.read()
             includes = self.home_plc_include.findall(master_text)
+            # log.debug("includes: ")
+            # log.debug(includes)
             master_dir = master.parent.relative_to(root)
             relative_includes += [master_dir / Path(path) for path in includes]
 
         return relative_includes
 
-    def _execute_script(self, script: Path, cwd: Path, pypath: Path, params: str):
+    def _execute_script(
+        self, script: Path, cwd: Path, pypath: Path, params: str,
+        python2: bool = False, modules: list = list()
+    ):
         """
         Execute a python script
 
@@ -100,11 +108,27 @@ class MotionArea:
             params (str): a space separated arguments list
         """
         os.chdir(str(cwd))
-        python = sys.executable
+        print(os.getcwd())
+
+        python = sys.executable  # defaults python 3
+        if python2:
+            # python = "/dls_sw/prod/tools/RHEL7-x86_64/defaults/bin/dls-python"
+            python = "/usr/bin/python2.7"
+        if len(modules):
+            for i in range(len(modules)):
+                python += " " + modules[i] + " "
+        print("==========================")
+        print(python, cwd, pypath, params)
+        # print(type(pypath))
         command = f"cd {cwd}; PYTHONPATH={pypath} {python} {script} {params}"
         log.debug(f"executing: {command}")
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
         process.wait()
+        if python2:
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print(process.communicate())
+        if python2:
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
     def make_old_motion(self):
         """
@@ -122,7 +146,8 @@ class MotionArea:
             plc_files = self._parse_masters(self.old_motion)
             for plc_file in plc_files:
                 self._execute_script(
-                    root_gen, self.old_motion, self.old_motorhome, str(plc_file)
+                    root_gen, self.old_motion, self.old_motorhome, str(plc_file),
+                    python2=True
                 )
         else:
             # individual per brick generators
@@ -132,7 +157,8 @@ class MotionArea:
                 plc_files = self._parse_masters(brick_folder)
                 for plc_file in plc_files:
                     self._execute_script(
-                        gen, brick_folder, self.old_motorhome, str(plc_file)
+                        gen, brick_folder, self.old_motorhome, str(plc_file),
+                        python2=True
                     )
 
     def make_new_motion(self):
@@ -151,8 +177,49 @@ class MotionArea:
             new_root_gen = self.new_motion / "generate_homing_plcs2.py"
             # clear PLC instances in preparation for loading the next motorhome.py
             PLC.instances = []
+
+            # open a FIFO pipe to collect pickled PLC instances
+            os.mkfifo(self.new_motion / IPC_FIFO_NAME)
+            fifo = os.open(self.new_motion / IPC_FIFO_NAME, os.O_RDONLY | os.O_NONBLOCK)
+
             for plc_file in plc_files:
-                self.load_shim(root_gen, plc_file)
+                # For each new plc file to be made, load_shim is called
+                # It's responsible for getting imports from pmac_motorhome.sequences,
+                #   and maybe more
+                # self.load_shim(root_gen, plc_file)
+                #   above reloads module of root_gen for each plc
+
+                # set up python path here to insert shim
+                pypath = str(':').join([
+                    str(Path()),
+                    str(self.shim),
+                    str(self.shim.parent.parent),
+                    str(plc_file.parent)
+                ])
+
+                self._execute_script(
+                    root_gen, self.new_motion, pypath, str(plc_file), python2=True,
+                    # modules=[str(self.shim / "functions.py")]
+                )
+
+                # read pickled list of plc instances from fifo pipe
+                sleep(0.25)
+                msg = get_message(fifo)
+                # PLC.instances.append(pickle.loads(msg))
+                print("================================")
+                # print(msg)
+                # print(pickle.loads(msg))
+                # print(type(pickle.loads(msg)))
+                for thing in pickle.loads(msg):
+                    PLC.instances.append(thing)
+                plclist = list(PLC.get_instances())
+                for plc in plclist:
+                    print(plc)
+                print("================================")
+
+            # close fifo pipe
+            os.close(fifo)
+
             self.make_code(new_root_gen)
 
             # use the motorhoming 2.0 definition code created above to generate PLCs
@@ -168,16 +235,49 @@ class MotionArea:
                 brick_folder = gen.parent.parent
                 plc_files = self._parse_masters(brick_folder)
 
+                # open a FIFO pipe to collect pickled PLC instances
+                os.mkfifo(brick_folder / IPC_FIFO_NAME)
+                fifo = os.open(
+                    brick_folder / IPC_FIFO_NAME, os.O_RDONLY | os.O_NONBLOCK
+                )
+
                 # clear PLC instances in preparation for loading the next motorhome.py
                 PLC.instances = []
                 new_gen = brick_folder / "generate_homing_plcs2.py"
                 for plc_file in plc_files:
-                    self.load_shim(gen, plc_file)
+                    # self.load_shim(gen, plc_file)
+
+                    # set up own shim using pypath
+                    pypath = str(':').join([
+                        str(Path()),
+                        str(self.shim),
+                        str(self.shim.parent.parent),
+                        str(plc_file.parent)
+                    ])
+
+                    # use _execute_script with python2
+                    self._execute_script(
+                        gen, brick_folder, pypath, str(plc_file), python2=True
+                    )
+
+                    # collect objects from pipe
+                    sleep(0.25)
+                    msg = get_message(fifo)
+
+                    # unpickle objects
+                    for thing in pickle.loads(msg):
+                        # append objects to PLC.instances list
+                        PLC.instances.append(thing)
                 self.make_code(new_gen)
+
+                # close fifo pipe
+                os.close(fifo)
 
                 # use the motorhoming 2.0 definition code created above to generate PLCs
                 for plc_file in plc_files:
                     self._execute_script(new_gen, brick_folder, Path(), str(plc_file))
+
+
 
     def check_matches(self):
         count = 0

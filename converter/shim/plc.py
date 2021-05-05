@@ -1,20 +1,25 @@
-from typing import List, OrderedDict
+try:
+    from typing import OrderedDict
+except Exception:
+    from collections import OrderedDict
 
+import os
+import pickle
+
+from converter.pipemessage import IPC_FIFO_NAME, create_msg
 from converter.shim.group import Group
 
-from .globals import (
+from .globals import (  # BrickType,; HomingSequence,
     NO_HOMING_YET,
     PMAC,
-    BrickType,
     BrickTypes,
-    HomingSequence,
     HomingSequences,
 )
 from .motor import Motor
 
 
 class PLC:
-    instances: List["PLC"] = []
+    instances = []
 
     def __init__(
         self,
@@ -39,13 +44,13 @@ class PLC:
 
         # instantiate some members for translating parameters into the
         # new motorhome nomenclature
-        self.sequence: HomingSequence = HomingSequences[htype]
-        self.bricktype: BrickType = BrickTypes[ctype]
+        self.sequence = HomingSequences[htype]
+        self.bricktype = BrickTypes[ctype]
 
         # members for recording what is addded to this PLC
-        self.groups: OrderedDict[int, Group] = OrderedDict()
-        self.filename: str = ""
-        self.motor_nums: List[int] = []
+        self.groups = OrderedDict()
+        self.filename = ""
+        self.motor_nums = []
 
         self.instances.append(self)
 
@@ -113,7 +118,22 @@ class PLC:
             self.groups[group].post = post
 
     def write(self, filename):
+        # USE THIS
         self.filename = filename
+        # make code
+        plcs = list(PLC.get_instances())  # can't pickle generator objects!
+        # print(plcs, filename)
+        # f = open(filename, "a")
+        # f.write("write ")
+        # pickle.dump(plcs, f)
+        # f.close()
+        print(("plc.py", os.getcwd()))
+        fifo = os.open(IPC_FIFO_NAME, os.O_WRONLY)
+        try:
+            msg = create_msg(pickle.dumps(plcs))
+            os.write(fifo, msg)
+        finally:
+            os.close(fifo)
 
     def writeFile(self, f):
         pass
