@@ -1,6 +1,6 @@
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List  # , Optional
 
-from pmac_motorhome.constants import ControllerType, PostHomeMove
+from pmac_motorhome.constants import ControllerType  # , PostHomeMove
 
 from .motor import Motor
 from .template import Template
@@ -14,19 +14,19 @@ class Group:
     """
 
     # this class variable holds the instance in the current context
-    the_group: Optional["Group"] = None
+    the_group = None
 
     def __init__(
         self,
-        group_num: int,
-        plc_num: int,
-        controller: ControllerType,
-        post_home: PostHomeMove,
-        post_distance: int,
-        comment: str = None,
-        pre: Optional[str] = "",
-        post: Optional[str] = "",
-    ) -> None:
+        group_num,
+        plc_num,
+        controller,
+        post_home,
+        post_distance,
+        comment=None,
+        pre="",
+        post="",
+    ):
         """
         Args:
             group_num (int): A unique number to represent this group within its
@@ -40,15 +40,15 @@ class Group:
             comment (str): [description]. A comment to place in the output Plc code
                 at the beginning of this group's definition
         """
-        self.motors: List[Motor] = []
-        self.all_motors: List[Motor] = []
+        self.motors = []
+        self.all_motors = []
         self.post_home = post_home
         self.post_distance = post_distance
         self.comment = comment
         self.plc_num = plc_num
         self.group_num = group_num
-        self.templates: List[Template] = []
-        self.htype: str = "unknown"
+        self.templates = []
+        self.htype = "unknown"
         self.controller = controller
         self.pre = pre
         self.post = post

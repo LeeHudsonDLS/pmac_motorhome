@@ -1,4 +1,4 @@
-from typing import Optional
+# from typing import Optional
 
 from .group import Group
 
@@ -11,9 +11,9 @@ class OnlyAxes:
     """
 
     # a class member to hold the current context instance
-    the_only_axes: Optional["OnlyAxes"] = None
+    the_only_axes = None
 
-    def __init__(self, *axes: int) -> None:
+    def __init__(self, *axes):
         """
         Args:
             group (Group): The parent group context

@@ -5,21 +5,24 @@ Predefined homing sequences. These functions can all be called directly from
 Call these functions in a group context to
 perform the sequence on all axes in the group.
 """
-from .commands import only_axes, post_home
-from .group import Group
-from .snippets import (
-    check_homed,
-    disable_limits,
-    drive_off_home,
-    drive_to_home,
-    drive_to_hstop,
-    drive_to_limit,
-    home,
-    jog_if_on_limit,
-    post_home_action,
-    restore_limits,
-    store_position_diff,
-)
+import sys
+
+if sys.version_info[0] > 2:
+    from .commands import only_axes, post_home
+    from .group import Group
+    from .snippets import (
+        check_homed,
+        disable_limits,
+        drive_off_home,
+        drive_to_home,
+        drive_to_hstop,
+        drive_to_limit,
+        home,
+        jog_if_on_limit,
+        post_home_action,
+        restore_limits,
+        store_position_diff,
+    )
 
 
 def home_rlim():
@@ -247,7 +250,7 @@ def home_nothing():
 ###############################################################################
 
 
-def home_slits_hsw(posx: int, negx: int, posy: int, negy: int):
+def home_slits_hsw(posx, negx, posy, negy):
     """
     A special seqence for two pairs of slits in which the vertical and horizontal
     pairs may collide with each other at the extreme of their homing direction.

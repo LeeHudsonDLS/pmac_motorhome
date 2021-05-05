@@ -6,7 +6,6 @@ These functions are used to define PLCs, axes and axis groupings.
 """
 
 from pathlib import Path
-from typing import Union
 
 from pmac_motorhome.onlyaxes import OnlyAxes
 
@@ -21,9 +20,7 @@ from .snippets import (
 )
 
 
-def plc(
-    plc_num: int, controller: Union[ControllerType, str], filepath: Union[Path, str]
-) -> Plc:
+def plc(plc_num, controller, filepath):
     """
     Define a new PLC. Use this to create a new Plc context using the 'with'
     keyword.
@@ -46,13 +43,13 @@ def plc(
 
 
 def group(
-    group_num: int,
-    post_home: Union[PostHomeMove, str] = PostHomeMove.none,
-    post_distance: int = 0,
-    comment: str = None,
-    pre: str = "",
-    post: str = "",
-) -> Group:
+    group_num,
+    post_home=PostHomeMove.none,
+    post_distance=0,
+    comment=None,
+    pre="",
+    post="",
+):
     """
     Define a new group of axes within a PLC that should be homed simultaneously.
     Use this to create a new context using the 'with' keyword from within a Plc
@@ -75,11 +72,11 @@ def group(
     )
 
 
-def comment(htype: str, post: str = "None") -> None:
+def comment(htype, post="None"):
     Group.add_comment(htype, post)
 
 
-def motor(axis: int, jdist: int = 0, index: int = -1) -> None:
+def motor(axis, jdist=0, index=-1):
     """
     Declare a motor for use in the current group.
 
@@ -97,7 +94,7 @@ def motor(axis: int, jdist: int = 0, index: int = -1) -> None:
     Plc.add_motor(axis, motor)
 
 
-def only_axes(*axes: int) -> OnlyAxes:
+def only_axes(*axes):
     """
     Creates a context in which actions are performed on a subset of the groups axes
 
@@ -117,7 +114,7 @@ def only_axes(*axes: int) -> OnlyAxes:
 ###############################################################################
 # post_home actions to recreate post= from the original motorhome.py
 ###############################################################################
-def post_home(**args) -> None:
+def post_home(**args):
     """
     Perform one of the predefined post homing actions on all axes in the
     current group.
