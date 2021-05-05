@@ -1,7 +1,7 @@
 try:
     from typing import OrderedDict
 except Exception:
-    from collections import OrderedDict
+    from collections import OrderedDict  # type: ignore
 
 import os
 import pickle
@@ -19,7 +19,7 @@ from .motor import Motor
 
 
 class PLC:
-    instances = []
+    instances = []  # type: list
 
     def __init__(
         self,

@@ -277,8 +277,6 @@ class MotionArea:
                 for plc_file in plc_files:
                     self._execute_script(new_gen, brick_folder, Path(), str(plc_file))
 
-
-
     def check_matches(self):
         count = 0
         mismatches = 0
