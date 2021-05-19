@@ -14,7 +14,7 @@
         timer = 20 MilliSeconds ; Small delay to start moving
         while (timer > 0)
         endw
-        timer = 600000 MilliSeconds ; Now start checking the conditions
+        timer = {{ plc.timeout }} MilliSeconds ; Now start checking the conditions
         while ({{ group.in_pos() }}=0) ; At least one motor should not be In Position
         and ({{ group.following_err() }} = 0) ; Following error check
         and ({{ group.limits() }}=0) ; Should not stop on position limit for selected motors

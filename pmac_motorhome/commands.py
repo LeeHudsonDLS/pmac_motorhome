@@ -20,7 +20,7 @@ from .snippets import (
 )
 
 
-def plc(plc_num, controller, filepath):
+def plc(plc_num, controller, filepath, timeout=600000):
     """
     Define a new PLC. Use this to create a new Plc context using the 'with'
     keyword.
@@ -39,7 +39,7 @@ def plc(plc_num, controller, filepath):
         Plc: the Plc object for use in the context
     """
 
-    return Plc(plc_num, ControllerType(controller), Path(filepath))
+    return Plc(plc_num, ControllerType(controller), Path(filepath), timeout)
 
 
 def group(

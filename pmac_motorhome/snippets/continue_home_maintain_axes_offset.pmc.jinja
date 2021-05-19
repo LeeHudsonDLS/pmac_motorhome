@@ -10,7 +10,7 @@
         {{ group.set_large_jog_distance(homing_direction=template.args.homing_direction) }}
 
         ; continue processing until all motors are homed or something goes wrong
-        timer = 600000 MilliSeconds
+        timer = {{ plc.timeout }} MilliSeconds
         while ({{group.homed()}} = 0) ; at least one is not homed
         and ({{group.following_err()}} = 0) ; there are no following errors
         and ({{group.in_pos()}} = 0) ; at least one is not in postion

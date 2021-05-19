@@ -24,6 +24,7 @@ class Plc:
 
     def __init__(
         self, plc_num: int, controller: ControllerType, filepath: Path,
+        timeout: int,
     ) -> None:
         """
         Args:
@@ -38,6 +39,7 @@ class Plc:
         self.filepath = filepath
         self.plc_num = plc_num
         self.controller: ControllerType = controller
+        self.timeout: int = timeout
 
         self.groups: List[Group] = []
         self.motors: "OrderedDict[int, Motor]" = OrderedDict()

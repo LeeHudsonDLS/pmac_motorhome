@@ -7,7 +7,6 @@ import sys
 from importlib import import_module, reload
 from pathlib import Path
 from shutil import copy, rmtree
-from time import sleep
 from types import ModuleType
 from typing import List, Optional, Tuple
 
@@ -25,6 +24,7 @@ with plc(
     plc_num={plc.plc},
     controller={plc.bricktype},
     filepath="{plc.filename}",
+    timeout={plc.timeout},
 ):"""
 
 
@@ -203,7 +203,6 @@ class MotionArea:
                 )
 
                 # read pickled list of plc instances from fifo pipe
-                sleep(0.25)
                 msg = get_message(fifo)
                 # PLC.instances.append(pickle.loads(msg))
                 print("================================")
@@ -261,7 +260,6 @@ class MotionArea:
                     )
 
                     # collect objects from pipe
-                    sleep(0.25)
                     msg = get_message(fifo)
 
                     # unpickle objects
@@ -473,15 +471,18 @@ class MotionArea:
             extra_args = ", post_home=PostHomeMove.hard_lo_limit"
         # TODO write a regex for these to avoid clashing with raw code starting
         # with r or z
-        # elif type(post) == str and post.startswith("r"):
-        #     # go to post[1:]
-        #     pass
-        # elif type(post) == str and post.startswith("z"):
-        #     # go to post[1:] and hmz
-        #     pass
+        elif type(post) == str and post.startswith("r"):
+            # go to post[1:]
+            extra_args = ", post_home=PostHomeMove.relative_move"
+            extra_args += ", post_distance={dist}".format(dist=post[1:])
+        elif type(post) == str and post.startswith("z"):
+            # go to post[1:] and hmz
+            extra_args = ", post_home=PostHomeMove.move_and_hmz"
+            extra_args += ", post_distance={dist}".format(dist=post[1:])
         elif type(post) == int:
             # go to low hard limit, don't check for limits
             extra_args = ", post_home=PostHomeMove.move_absolute"
+            extra_args += ", post_distance={dist}".format(dist=post)
             post = str(post)
             post_type = post
         else:
