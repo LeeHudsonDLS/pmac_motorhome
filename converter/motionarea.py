@@ -19,11 +19,14 @@ log = logging.getLogger(__name__)
 code_import = """from pmac_motorhome.sequences import {names}
 """
 
+# The timeout variable isn't on a newline so if it is default it can be excluded
+# without lengthening plc arguments lines. Else it can be subbed for a string
+# with a newline and indent at the beginning
 code_plc = """
 with plc(
     plc_num={plc.plc},
     controller={plc.bricktype},
-    filepath="{plc.filename}",
+    filepath="{plc.filename}",{timeout}
 ):"""
 
 
@@ -408,7 +411,10 @@ class MotionArea:
             stream.write(code_import.format(names=imps))
 
             for plc in plcs:
-                fs = code_plc.format(plc=plc)
+                timeoutstr = ""
+                if plc.timeout != 600000:
+                    timeoutstr = "\n    timeout={timeout},".format(timeout=plc.timeout)
+                fs = code_plc.format(plc=plc, timeout=timeoutstr)
                 stream.write(fs)
                 if (plc.timeout != 600000):
                     stream.write("\n    plc.timeout={t}".format(t=plc.timeout))
