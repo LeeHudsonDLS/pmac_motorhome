@@ -116,6 +116,8 @@ class PLC:
         if post is not None:
             # TODO should check for illegal mixed of post home actions
             self.groups[group].post = post
+        elif self.post is not None:
+            self.groups[group].post = self.post
 
     def write(self, filename):
         # USE THIS
