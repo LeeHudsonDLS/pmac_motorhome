@@ -363,7 +363,11 @@ class Group:
         Generate a command string for all group axes: reuse the not homed store to
         store ?? (TODO what is this doing ?)
         """
-        return self._all_axes("P{not_homed}=i{inverse_flag}", " ")
+        # meow
+        if self.controller == ControllerType.pmac:
+            return self._all_axes("MSR{macro_station},i913,P{not_homed}", " ")
+        else:
+            return self._all_axes("P{not_homed}=i{inverse_flag}", " ")
 
     def set_inpos_trigger(self, value: int):
         """
