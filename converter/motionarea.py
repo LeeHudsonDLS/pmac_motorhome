@@ -24,7 +24,6 @@ with plc(
     plc_num={plc.plc},
     controller={plc.bricktype},
     filepath="{plc.filename}",
-    timeout={plc.timeout},
 ):"""
 
 
@@ -411,6 +410,8 @@ class MotionArea:
             for plc in plcs:
                 fs = code_plc.format(plc=plc)
                 stream.write(fs)
+                if (plc.timeout != 600000):
+                    stream.write("\n    plc.timeout={t}".format(t=plc.timeout))
 
                 # the original created PLCs in PLC numeric order
                 for group_num in sorted(plc.groups.keys()):
