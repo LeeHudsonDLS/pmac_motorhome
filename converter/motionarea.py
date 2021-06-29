@@ -258,7 +258,7 @@ class MotionArea:
 
                     # use _execute_script with python2
                     self._execute_script(
-                        gen, brick_folder, pypath, str(plc_file), python2=True
+                        gen, brick_folder, pypath, str(plc_file), python2=False
                     )
 
                     # collect objects from pipe
