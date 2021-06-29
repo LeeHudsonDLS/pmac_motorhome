@@ -74,7 +74,7 @@ class MotionArea:
     def _remove_homing_plcs(self, root: Path) -> None:
         plcs = root.glob(self.find_auto_home_plcs)
         for plc in plcs:
-            plc.unlink()
+            plc.unlink()  # this removes a file
 
     def _parse_masters(self, root: Path) -> List[Path]:
         """
