@@ -54,6 +54,8 @@ class MotionArea:
         r"^#include \"(PLCs\/PLC[\d]+_[^_]+_HM\.pmc)\"", flags=re.M
     )
     find_auto_home_plcs = "**/*/PLC*_HM.pmc"
+    post_relative_move = re.compile(r"^r(-?\d+)")
+    post_relative_hmz_move = re.compile(r"^z(-?\d+)")
 
     # tracks the 'generate_homing_plcs' module loaded by load_shim()
     # this needs to be a class variable since the very first load module
@@ -479,16 +481,16 @@ class MotionArea:
             extra_args = ", post_home=PostHomeMove.hard_lo_limit"
         # TODO write a regex for these to avoid clashing with raw code starting
         # with r or z
-        elif type(post) == str and post.startswith("r"):
+        elif self.post_relative_move.match(post_type):
             # go to post[1:]
             extra_args = ", post_home=PostHomeMove.relative_move"
-            extra_args += ", post_distance={dist}".format(dist=post[1:])
-        elif type(post) == str and post.startswith("z"):
+            extra_args += ", post_distance={dist}".format(dist=post_type[1:])
+        elif self.post_relative_hmz_move.match(post_type):
             # go to post[1:] and hmz
             extra_args = ", post_home=PostHomeMove.move_and_hmz"
-            extra_args += ", post_distance={dist}".format(dist=post[1:])
+            extra_args += ", post_distance={dist}".format(dist=post_type[1:])
         elif type(post) == int:
-            # go to low hard limit, don't check for limits
+            # go to absolute position
             extra_args = ", post_home=PostHomeMove.move_absolute"
             extra_args += ", post_distance={dist}".format(dist=post)
             post = str(post)
