@@ -200,7 +200,7 @@ class MotionArea:
                 ])
 
                 self._execute_script(
-                    root_gen, self.new_motion, pypath, str(plc_file), python2=True,
+                    root_gen, self.new_motion, pypath, str(plc_file), python2=False,
                     # modules=[str(self.shim / "functions.py")]
                 )
 
