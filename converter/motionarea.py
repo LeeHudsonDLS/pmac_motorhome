@@ -213,8 +213,9 @@ class MotionArea:
                 # print(msg)
                 # print(pickle.loads(msg))
                 # print(type(pickle.loads(msg)))
-                for thing in pickle.loads(msg):
-                    PLC.instances.append(thing)
+                if msg is not None:
+                    for thing in pickle.loads(msg):
+                        PLC.instances.append(thing)
                 plclist = list(PLC.get_instances())
                 for plc in plclist:
                     print(plc)
