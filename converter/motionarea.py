@@ -299,7 +299,8 @@ class MotionArea:
         if mismatches == 0:
             # use a warning here so that --silent is more useful
             log.warning(
-                f"Success: new generated PLCs match old PLCs for {self.original_path}"
+                f"Success: 0 of {count} new generated PLCs don't match old "
+                f"PLCs for {self.original_path}"
             )
         else:
             log.warning(
