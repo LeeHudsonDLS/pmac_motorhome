@@ -24,7 +24,7 @@ class Plc:
 
     def __init__(
         self, plc_num: int, controller: ControllerType, filepath: Path,
-        timeout: int,
+        timeout: int, post,
     ) -> None:
         """
         Args:
@@ -40,6 +40,7 @@ class Plc:
         self.plc_num = plc_num
         self.controller: ControllerType = controller
         self.timeout: int = timeout
+        self.post = post
 
         self.groups: List[Group] = []
         self.motors: "OrderedDict[int, Motor]" = OrderedDict()
@@ -117,6 +118,10 @@ class Plc:
             pre,
             post,
         )
+        print("  plc.py", group.post_home, plc.post)
+        if group.post_home is None:
+            group.post_home = plc.post
+        # group.post_home = PostHomeMove.initial_position
         plc.groups.append(group)
         return group
 

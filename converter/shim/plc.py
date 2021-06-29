@@ -75,7 +75,10 @@ class PLC:
     def configure_group(self, group, checks=None, pre=None, post=None):
         self.groups[group].checks = checks
         self.groups[group].pre = pre
-        self.groups[group].post = post
+        if self.post is not None and post is None:
+            self.groups[group].post = self.post
+        elif post is not None:
+            self.groups[group].post = post
 
     def add_motor(
         self,
@@ -92,13 +95,15 @@ class PLC:
             self.motor_nums.append(axis)
         motor_index = self.motor_nums.index(axis)
 
-        motor = Motor(axis, enc_axes, self.ctype, ms, index=motor_index)
+        motor = Motor(axis, enc_axes, self.ctype, ms, index=motor_index, post=post)
         if group not in self.groups:
             new_group = Group(group, checks=[], pre="", post=post)
             self.groups[group] = new_group
 
         if jdist is not None:
             motor.jdist = jdist
+        else:
+            motor.jdist = self.jdist
 
         self.groups[group].motors.append(motor)
 
@@ -113,6 +118,7 @@ class PLC:
         elif self.groups[group].htype == NO_HOMING_YET and self.htype != NO_HOMING_YET:
             self.groups[group].set_htype(self.htype)
         # similar for post home action
+        # print("post=", post, self.post)
         if post is not None:
             # TODO should check for illegal mixed of post home actions
             self.groups[group].post = post
