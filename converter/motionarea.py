@@ -215,7 +215,7 @@ class MotionArea:
                 )
 
                 self._execute_script(
-                    root_gen, self.new_motion, pypath, str(plc_file), python2=False,
+                    root_gen, self.new_motion, pypath, str(plc_file), python2=True,
                 )
 
                 # read pickled list of plc instances from fifo pipe
