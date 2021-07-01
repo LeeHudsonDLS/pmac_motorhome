@@ -122,10 +122,8 @@ class Plc:
             pre,
             post,
         )
-        print("  plc.py", group.post_home, plc.post)
         if group.post_home is None:
             group.post_home = plc.post
-        # group.post_home = PostHomeMove.initial_position
         plc.groups.append(group)
         return group
 
