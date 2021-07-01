@@ -23,8 +23,12 @@ class Plc:
     the_plc: Optional["Plc"] = None
 
     def __init__(
-        self, plc_num: int, controller: ControllerType, filepath: Path,
-        timeout: int, post,
+        self,
+        plc_num: int,
+        controller: ControllerType,
+        filepath: Path,
+        timeout: int,
+        post,
     ) -> None:
         """
         Args:

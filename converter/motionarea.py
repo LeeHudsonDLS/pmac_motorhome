@@ -99,8 +99,13 @@ class MotionArea:
         return relative_includes
 
     def _execute_script(
-        self, script: Path, cwd: Path, pypath: Path, params: str,
-        python2: bool = False, modules: list = list()
+        self,
+        script: Path,
+        cwd: Path,
+        pypath: Path,
+        params: str,
+        python2: bool = False,
+        modules: list = list(),
     ):
         """
         Execute a python script
@@ -150,8 +155,11 @@ class MotionArea:
             plc_files = self._parse_masters(self.old_motion)
             for plc_file in plc_files:
                 self._execute_script(
-                    root_gen, self.old_motion, self.old_motorhome, str(plc_file),
-                    python2=True
+                    root_gen,
+                    self.old_motion,
+                    self.old_motorhome,
+                    str(plc_file),
+                    python2=True,
                 )
         else:
             # individual per brick generators
@@ -161,8 +169,11 @@ class MotionArea:
                 plc_files = self._parse_masters(brick_folder)
                 for plc_file in plc_files:
                     self._execute_script(
-                        gen, brick_folder, self.old_motorhome, str(plc_file),
-                        python2=True
+                        gen,
+                        brick_folder,
+                        self.old_motorhome,
+                        str(plc_file),
+                        python2=True,
                     )
 
     def make_new_motion(self):
@@ -194,16 +205,17 @@ class MotionArea:
                 #   above reloads module of root_gen for each plc
 
                 # set up python path here to insert shim
-                pypath = str(':').join([
-                    str(Path()),
-                    str(self.shim),
-                    str(self.shim.parent.parent),
-                    str(plc_file.parent)
-                ])
+                pypath = str(":").join(
+                    [
+                        str(Path()),
+                        str(self.shim),
+                        str(self.shim.parent.parent),
+                        str(plc_file.parent),
+                    ]
+                )
 
                 self._execute_script(
                     root_gen, self.new_motion, pypath, str(plc_file), python2=False,
-                    # modules=[str(self.shim / "functions.py")]
                 )
 
                 # read pickled list of plc instances from fifo pipe
@@ -252,12 +264,14 @@ class MotionArea:
                     # self.load_shim(gen, plc_file)
 
                     # set up own shim using pypath
-                    pypath = str(':').join([
-                        str(Path()),
-                        str(self.shim),
-                        str(self.shim.parent.parent),
-                        str(plc_file.parent)
-                    ])
+                    pypath = str(":").join(
+                        [
+                            str(Path()),
+                            str(self.shim),
+                            str(self.shim.parent.parent),
+                            str(plc_file.parent),
+                        ]
+                    )
 
                     # use _execute_script with python2
                     self._execute_script(
@@ -420,7 +434,7 @@ class MotionArea:
                     timeoutstr = "\n    timeout={timeout},".format(timeout=plc.timeout)
                 fs = code_plc.format(plc=plc, timeout=timeoutstr)
                 stream.write(fs)
-                if (plc.timeout != 600000):
+                if plc.timeout != 600000:
                     stream.write("\n    plc.timeout={t}".format(t=plc.timeout))
 
                 # the original created PLCs in PLC numeric order
