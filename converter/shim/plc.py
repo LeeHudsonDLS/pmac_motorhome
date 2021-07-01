@@ -74,7 +74,9 @@ class PLC:
 
     def configure_group(self, group, checks=None, pre=None, post=None):
         self.groups[group].checks = checks
-        self.groups[group].pre = pre
+        print("prehome is ", pre)
+        if pre is not None:
+            self.groups[group].pre = pre
         if self.post is not None and post is None:
             self.groups[group].post = self.post
         elif post is not None:
