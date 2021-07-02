@@ -494,8 +494,6 @@ class MotionArea:
         elif post == "L":
             # go to low hard limit, don't check for limits
             extra_args = ", post_home=PostHomeMove.hard_lo_limit"
-        # TODO write a regex for these to avoid clashing with raw code starting
-        # with r or z
         elif self.post_relative_move.match(post_type):
             # go to post[1:]
             extra_args = ", post_home=PostHomeMove.relative_move"
