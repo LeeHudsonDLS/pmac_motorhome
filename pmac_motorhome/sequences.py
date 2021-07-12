@@ -258,7 +258,6 @@ def home_slits_hsw(posx, negx, posy, negy):
     - move all axes to the limit away from their homing direction
     - home both positive axes using home switch or mark
     - move the positive axes out of the way
-    - home the vertical pair using home switch or mark
     - home both negative axes using home switch or mark
     - move the negative axes out of the way
 
