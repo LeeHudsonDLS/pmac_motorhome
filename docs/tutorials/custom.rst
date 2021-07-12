@@ -2,7 +2,6 @@
 ==========================
 Custom Homing PLC
 ==========================
-TODO - detail how the slits sequence works as an example
 
 A custom homing PLC can be created by calling snippets defined in
 :py:meth:`~pmac_motorhome.snippets` in the order required in the context
