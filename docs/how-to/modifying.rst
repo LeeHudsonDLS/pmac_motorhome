@@ -28,11 +28,11 @@ Adding a New Snippet Template
 -----------------------------
 TODO - flesh this out
 
-- write the Jina template
+- write the Jinja template
 - add a snippet command to snippets.py using _snippet_function decorator
 
 The decorator _snippet function allows you to declare a function whose name
-is the same as the Jina template file prefix. This function need only have
+is the same as the Jinja template file prefix. This function need only have
 arguments and a docstring. The decorator will provide the rest as follows:
 
 .. autofunction:: pmac_motorhome.snippets._snippet_function
