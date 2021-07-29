@@ -443,11 +443,11 @@ class MotionArea:
 
                     post_code, extra_args, post_type = self.handle_post(group)
                     if group.pre:
-                        pre = re.sub("\t", "    ", group.pre)
+                        pre = re.sub("\t", "    ", str(group.pre))
                         stream.write(f'\n    pre{group_num} = """{pre} """\n')
                         extra_args += f", pre=pre{group_num}"
                     if post_code:
-                        post = re.sub("\t", "    ", post_code)
+                        post = re.sub("\t", "    ", str(post_code))
                         stream.write(f'\n    post{group_num} = """{post} """\n')
                         extra_args += f", post=post{group_num}"
 
