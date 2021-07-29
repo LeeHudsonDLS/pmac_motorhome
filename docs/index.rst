@@ -49,6 +49,7 @@ About the documentation
     tutorials/installation
     tutorials/example
     tutorials/custom
+    tutorials/converting
 
 .. toctree::
     :caption: How-to Guides
