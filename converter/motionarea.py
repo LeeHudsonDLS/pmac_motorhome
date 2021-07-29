@@ -56,6 +56,8 @@ class MotionArea:
     find_auto_home_plcs = "**/*/PLC*_HM.pmc"
     post_relative_move = re.compile(r"^r(-?\d+)")
     post_relative_hmz_move = re.compile(r"^z(-?\d+)")
+    copy_new_gen = ""
+    copy_old_gen = ""
 
     # tracks the 'generate_homing_plcs' module loaded by load_shim()
     # this needs to be a class variable since the very first load module
@@ -183,13 +185,16 @@ class MotionArea:
         """
         self.copytree(self.original_path, self.new_motion)
         self._remove_homing_plcs(self.new_motion)
+        script_path = "configure/generate_homing_plcs.py"
 
-        root_gen = self.new_motion / "configure" / "generate_homing_plcs.py"
+        root_gen = self.new_motion / script_path
         if root_gen.exists():
             # single root generator
             plc_files = self._parse_masters(self.new_motion)
 
             new_root_gen = self.new_motion / "generate_homing_plcs2.py"
+            self.copy_new_gen = new_root_gen
+            self.copy_old_gen = self.original_path / script_path
             # clear PLC instances in preparation for loading the next motorhome.py
             PLC.instances = []
 
@@ -221,17 +226,17 @@ class MotionArea:
                 # read pickled list of plc instances from fifo pipe
                 msg = get_message(fifo)
                 # PLC.instances.append(pickle.loads(msg))
-                print("================================")
+                # print("================================")
                 # print(msg)
                 # print(pickle.loads(msg))
                 # print(type(pickle.loads(msg)))
                 if msg is not None:
                     for thing in pickle.loads(msg):
                         PLC.instances.append(thing)
-                plclist = list(PLC.get_instances())
-                for plc in plclist:
-                    print(plc)
-                print("================================")
+                # plclist = list(PLC.get_instances())
+                # for plc in plclist:
+                #     print(plc)
+                # print("================================")
 
             # close fifo pipe
             os.close(fifo)
@@ -246,10 +251,19 @@ class MotionArea:
         else:
             # individual per brick generators
             generators = self.new_motion.glob("*/configure/generate_homing_plcs.py")
+            self.copy_new_gen = list()
+            self.copy_old_gen = list()
             for gen in generators:
                 # a generator in each brick configure folder
                 brick_folder = gen.parent.parent
                 plc_files = self._parse_masters(brick_folder)
+                self.copy_new_gen.append(brick_folder / script_path)
+                self.copy_old_gen.append(
+                    self.original_path / brick_folder.parts[-1] / script_path
+                )
+                # print("===========\n===========\n===========\n===========\n")
+                # print(brick_folder.parts[-1])
+                # print(self.original_path)
 
                 # open a FIFO pipe to collect pickled PLC instances
                 os.mkfifo(brick_folder / IPC_FIFO_NAME)
@@ -327,6 +341,20 @@ class MotionArea:
                 f"meld {self.old_motion} {self.new_motion}"
             )
             log.info(f"\n{mismatch}")
+        # provide copy command
+        if isinstance(self.copy_new_gen, list):
+            # print list of copy commands for per brick scripts
+            info_string = "To copy the new generatings scripts, use the "
+            info_string += "following commands:\n\n"
+            for new_gen, old_gen in zip(self.copy_new_gen, self.copy_old_gen):
+                info_string += f"mv {new_gen} {old_gen}\n"
+            log.info(info_string)
+        else:
+            log.info(
+                f"To copy the new generating script, use the following command:\n\n"
+                f"mv {self.copy_new_gen} {self.original_path}"
+                f"/configure/generate_homing_plcs.py\n"
+            )
         assert mismatches == 0, (
             f"{mismatches} of {count} PLC files do not match for"
             f"{self.original_path}\n"
