@@ -119,7 +119,7 @@ class MotionArea:
             params (str): a space separated arguments list
         """
         os.chdir(str(cwd))
-        print(os.getcwd())
+        # print(os.getcwd())
 
         python = sys.executable  # defaults python 3
         if python2:
@@ -128,18 +128,13 @@ class MotionArea:
         if len(modules):
             for i in range(len(modules)):
                 python += " " + modules[i] + " "
-        print("==========================")
-        print(python, cwd, pypath, params)
+        # print(python, cwd, pypath, params)
         # print(type(pypath))
         command = f"cd {cwd}; PYTHONPATH={pypath} {python} {script} {params}"
         log.debug(f"executing: {command}")
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
         process.wait()
-        if python2:
-            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print(process.communicate())
-        if python2:
-            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        # print(process.communicate())
 
     def make_old_motion(self):
         """
@@ -311,7 +306,7 @@ class MotionArea:
     def check_matches(self):
         count = 0
         mismatches = 0
-        mismatch = "The following PLCs did not match the originals:\n\n"
+        mismatch = "The following PLCs did not match the originals:\n"
         log.info("verifying matches ...")
 
         plcs = self.old_motion.glob(self.find_auto_home_plcs)
@@ -338,20 +333,20 @@ class MotionArea:
                 f"Failure: {mismatches} of {count} "
                 f"PLC files do not match for {self.original_path}\n"
                 f"review differences with:\n"
-                f"meld {self.old_motion} {self.new_motion}"
+                f"meld {self.old_motion} {self.new_motion}\n"
             )
-            log.info(f"\n{mismatch}")
+            log.info(f"{mismatch}")
         # provide copy command
         if isinstance(self.copy_new_gen, list):
             # print list of copy commands for per brick scripts
-            info_string = "To copy the new generatings scripts, use the "
-            info_string += "following commands:\n\n"
+            copy_string = "To copy the new generatings scripts, use the "
+            copy_string += "following commands:\n"
             for new_gen, old_gen in zip(self.copy_new_gen, self.copy_old_gen):
-                info_string += f"mv {new_gen} {old_gen}\n"
-            log.info(info_string)
+                copy_string += f"mv {new_gen} {old_gen}\n"
+            log.warning(copy_string)
         else:
-            log.info(
-                f"To copy the new generating script, use the following command:\n\n"
+            log.warning(
+                f"To copy the new generating script, use the following command:\n"
                 f"mv {self.copy_new_gen} {self.original_path}"
                 f"/configure/generate_homing_plcs.py\n"
             )
