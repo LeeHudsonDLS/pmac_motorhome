@@ -27,8 +27,6 @@ doc8 = "*"
 [packages]
 # All other package requirements from setup.cfg
 pmac_motorhome = {editable = true,path = "."}
-jinja2 = "*"
-click = "*"
 
 [scripts]
 tests = "python -m pytest --cov-fail-under=90 --cov=pmac_motorhome --cov-report term"

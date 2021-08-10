@@ -16,7 +16,7 @@ def custom_slits_hsw(posx, negx, posy, negy):
 
 
 with plc(
-    plc_num=12, controller="brick", filepath="/tmp/PLC12_CUSTOM_SLITS_HM.pmc",
+    plc_num=12, controller="GeoBrick", filepath="/tmp/PLC12_CUSTOM_SLITS_HM.pmc",
 ):
     initial = PostHomeMove.initial_position
     with group(group_num=2, post_home=initial):
