@@ -2,8 +2,6 @@
 Converting to pmac_motorhome.py
 ===============================
 
-TODO
-
 To convert the plc generating python script (typically named
 generate_homing_plcs.py) from using the motorhome.py module to using the
 pmac_motorhome.py module, a conversion tool is available.
