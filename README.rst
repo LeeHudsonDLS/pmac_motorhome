@@ -1,56 +1,55 @@
 pmac_motorhome
 ===========================
 
-|build_status| |coverage| |pypi_version| |readthedocs|
+|code_ci| |docs_ci| |coverage| |pypi_version| |license|
 
-pmac_motorhome is a python3 tool to generate homing PLCs from a python
-script.
+pmac_motorhome is a python3 tool to generator homing PLCs from a python
+script
 
-Documentation
--------------
+============== ==============================================================
+PyPI           ``pip install pmac_motorhome``
+Source code    https://github.com/dls-controls/pmac_motorhome
+Documentation  https://dls-controls.github.io/pmac_motorhome
+============== ==============================================================
 
-Full documentation is available at http://pmac_motorhome.readthedocs.io
+This is where you should put some images or code snippets that illustrate
+some relevant examples. If it is a library then you might put some
+introductory code here:
 
-Source Code
------------
+.. code:: python
 
-Available from http://github.com/dls-controls/pmac_motorhome
+    from pmac_motorhome.hello import HelloClass
 
-Installation
-------------
+    hello = HelloClass("me")
+    print(hello.format_greeting())
 
-To start using this project::
+Or if it is a commandline tool then you might put some example commands here::
 
-    git clone https://github.com/dls-controls/pmac_motorhome
-
-Contributing
-------------
-
-See `CONTRIBUTING`_
-
-License
--------
-APACHE License. (see `LICENSE`_)
+    pmac_motorhome person --times=2
 
 
-.. |build_status| image:: https://travis-ci.com/dls-controls/pmac_motorhome.svg?branch=master
-    :target: https://travis-ci.com/dls-controls/pmac_motorhome
-    :alt: Build Status
+.. |code_ci| image:: https://github.com/dls-controls/pmac_motorhome/workflows/Code%20CI/badge.svg?branch=master
+    :target: https://github.com/dls-controls/pmac_motorhome/actions?query=workflow%3A%22Code+CI%22
+    :alt: Code CI
 
-.. |coverage| image:: https://coveralls.io/repos/github/dls-controls/pmac_motorhome/badge.svg?branch=master
-    :target: https://coveralls.io/github/dls-controls/pmac_motorhome?branch=master
+.. |docs_ci| image:: https://github.com/dls-controls/pmac_motorhome/workflows/Docs%20CI/badge.svg?branch=master
+    :target: https://github.com/dls-controls/pmac_motorhome/actions?query=workflow%3A%22Docs+CI%22
+    :alt: Docs CI
+
+.. |coverage| image:: https://codecov.io/gh/dls-controls/pmac_motorhome/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/dls-controls/pmac_motorhome
     :alt: Test Coverage
 
-.. |pypi_version| image:: https://badge.fury.io/py/pmac_motorhome.svg
-    :target: https://badge.fury.io/py/pmac_motorhome
+.. |pypi_version| image:: https://img.shields.io/pypi/v/pmac_motorhome.svg
+    :target: https://pypi.org/project/pmac_motorhome
     :alt: Latest PyPI version
 
-.. |readthedocs| image:: https://readthedocs.org/projects/pmac_motorhome/badge/?version=latest
-    :target: http://pmac_motorhome.readthedocs.io
-    :alt: Documentation
+.. |license| image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
+    :target: https://opensource.org/licenses/Apache-2.0
+    :alt: Apache License
 
-.. _CONTRIBUTING:
-    https://github.com/dls-controls/pmac_motorhome/blob/master/CONTRIBUTING.rst
+..
+    Anything below this line is used when viewing README.rst and will be replaced
+    when included in index.rst
 
-.. _LICENSE:
-    https://github.com/dls-controls/pmac_motorhome/blob/master/LICENSE
+See https://dls-controls.github.io/pmac_motorhome for more detailed documentation.

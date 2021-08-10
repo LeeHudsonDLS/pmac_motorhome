@@ -5,6 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Debug Unit Test",
+            "type": "python",
+            "request": "test",
+            "justMyCode": false,
+            "env": {
+                "PYTEST_ADDOPTS": "--no-cov"
+            }
+        }
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",

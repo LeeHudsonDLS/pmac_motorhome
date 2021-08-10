@@ -4,24 +4,37 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+# Pinning black stops us having to allow pre-releases globally
+black = "==21.7b0"
+
+# Pins to make lockfile usable on multiple Python versions and platforms
+mypy = "*"
+atomicwrites = "*"
+typing-extensions = "*"
+importlib-metadata = "*"
+
+# Test and docs dependencies
 pytest = "==6.0"
 pytest-cov = "*"
-pytest-black = "*"
-pytest-flake8 = "*"
-flake8-isort = "*"
 pytest-mypy = "*"
+pytest-flake8 = "*"
+pytest-black = "*"
+flake8-isort = "*"
+isort = ">5.0"
 sphinx-rtd-theme = "*"
 doc8 = "*"
-pmac-motorhome = {editable = true,path = "."}
 
 [packages]
+# All other package requirements from setup.cfg
+pmac_motorhome = {editable = true,path = "."}
 jinja2 = "*"
 click = "*"
 
 [scripts]
-# Put coverage here so we don't interfere with debugging in the IDE
 tests = "python -m pytest --cov-fail-under=90 --cov=pmac_motorhome --cov-report term"
-docs = "sphinx-build -E -b html docs build/html"
+docs = "sphinx-build -EWT --keep-going docs build/html"
+# Delete any files that git ignore hides from us
+gitclean = "git clean -fdX"
 
 [pipenv]
 allow_prereleases = true

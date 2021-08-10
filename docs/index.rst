@@ -1,39 +1,70 @@
-pmac_motorhome
-===========================
-
-This module allows the generation of homing procedures written in pmc
-code to be used by Delta Tau motion controllers.
+.. include:: ../README.rst
+    :end-before: when included in index.rst
 
 How the documentation is structured
 -----------------------------------
 
+Documentation is split into four categories, accessible from links in the side-bar.
+
 .. rst-class:: columns
 
-:ref:`tutorials`
-~~~~~~~~~~~~~~~~
+Tutorials
+~~~~~~~~~
 
 Tutorials for installation, library and commandline usage. New users start here.
 
+.. toctree::
+    :caption: Tutorials
+    :hidden:
+
+    tutorials/installation
+    tutorials/example
+    tutorials/custom
+    tutorials/converting
+
 .. rst-class:: columns
 
-:ref:`how-to`
+How-to Guides
 ~~~~~~~~~~~~~
 
 Practical step-by-step guides for the more experienced user.
 
+.. toctree::
+    :caption: How-to Guides
+    :hidden:
+
+    how-to/modifying
+
 .. rst-class:: columns
 
-:ref:`explanations`
-~~~~~~~~~~~~~~~~~~~
+Explanations
+~~~~~~~~~~~~
 
 Explanation of how the library works and why it works that way.
 
+.. toctree::
+    :caption: Explanations
+    :hidden:
+
+    explanations/epics
+    explanations/implementation
+    explanations/history
+
 .. rst-class:: columns
 
-:ref:`reference`
-~~~~~~~~~~~~~~~~
+Reference
+~~~~~~~~~
 
-Technical reference material, for classes, methods, APIs, commands.
+Technical reference material, for classes, methods, APIs, commands, and contributing to the project.
+
+.. toctree::
+    :caption: Reference
+    :hidden:
+
+    reference/exterbak.rst
+
+    reference/internal
+    reference/contributing
 
 .. rst-class:: endcolumns
 
@@ -41,39 +72,3 @@ About the documentation
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 `Why is the documentation structured this way? <https://documentation.divio.com>`_
-
-.. toctree::
-    :caption: Tutorials
-    :name: tutorials
-
-    tutorials/installation
-    tutorials/example
-    tutorials/custom
-    tutorials/converting
-
-.. toctree::
-    :caption: How-to Guides
-    :name: how-to
-
-    how-to/modifying
-
-.. toctree::
-    :caption: Explanations
-    :name: explanations
-
-    explanations/epics
-    explanations/implemtation
-    explanations/history
-
-.. rst-class:: no-margin-after-ul
-
-.. toctree::
-    :caption: Reference
-    :name: reference
-
-    reference/external.rst
-
-    reference/internal
-    reference/contributing
-
-* :ref:`genindex`
