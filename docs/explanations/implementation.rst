@@ -3,8 +3,8 @@
 How it Works
 ============
 
-Audience
--------------------
+Audience for this section
+-------------------------
 
 This section is useful for users two classes of audience
 

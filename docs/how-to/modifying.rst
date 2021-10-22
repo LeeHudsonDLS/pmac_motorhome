@@ -16,7 +16,7 @@ Adding a New Homing Sequence Function
 TODO - flesh this out
 
 - Add a new function in :py:mod:`pmac_motorhome.sequences`
-- Make calls to functions in `commands`, `snippets`
+- Make calls to functions in :std:ref:`Commands`, `snippets`
   and possibly other :py:mod:`pmac_motorhome.sequences`
 
 A nice example is home_slits_hsw
