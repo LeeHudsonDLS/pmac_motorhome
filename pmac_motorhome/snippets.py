@@ -47,8 +47,14 @@ wait_for_done_args = {
     "with_limits": False,
     "wait_for_one_motor": False,
 }
+"""
+A set of arguments to pass to the wait_for_done function
+"""
 
 F = TypeVar("F", bound=Callable)
+"""
+A type to represent a callable function
+"""
 
 
 def _snippet_function(*arglists: Dict[str, Any]) -> Callable[[F], F]:
@@ -75,9 +81,6 @@ def _snippet_function(*arglists: Dict[str, Any]) -> Callable[[F], F]:
     - appends the original Jinja to the docstring
     - appends a description of parameters to the wait_for_done template
       if  wait_for_done_args was passed to the decorator
-
-    Returns:
-        Callable[[F], F]: The decorated snippet function
     """
 
     def wrap(wrapped: F) -> F:

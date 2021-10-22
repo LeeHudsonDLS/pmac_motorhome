@@ -46,8 +46,8 @@ Explanation of how the library works and why it works that way.
     :caption: Explanations
     :hidden:
 
-    explanations/epics
     explanations/implementation
+    explanations/epics
     explanations/history
 
 .. rst-class:: columns
@@ -61,10 +61,8 @@ Technical reference material, for classes, methods, APIs, commands, and contribu
     :caption: Reference
     :hidden:
 
-    reference/exterbak.rst
-
+    reference/external
     reference/internal
-    reference/contributing
 
 .. rst-class:: endcolumns
 

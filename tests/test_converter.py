@@ -1,4 +1,7 @@
+import os
 from pathlib import Path
+
+import pytest
 
 from converter.motionarea import MotionArea
 
@@ -7,6 +10,10 @@ ROOT_DIR = Path(__file__).parent.parent
 # TODO add a test for the 'file' entrypoint when it is working
 
 
+@pytest.mark.skipif(
+    os.environ.get("GITHUB_ACTIONS") == "true",
+    reason="conversion tests are not relevant outside DLS",
+)
 def test_bl02i_convert():
     """
     Test conversion of an entire motion area
@@ -20,6 +27,10 @@ def test_bl02i_convert():
     motionarea.check_matches()
 
 
+@pytest.mark.skipif(
+    os.environ.get("GITHUB_ACTIONS") == "true",
+    reason="conversion tests are not relevant outside DLS",
+)
 def test_bl08j_convert():
     """
     Test conversion of an entire motion area
@@ -33,6 +44,10 @@ def test_bl08j_convert():
     motionarea.check_matches()
 
 
+@pytest.mark.skipif(
+    os.environ.get("GITHUB_ACTIONS") == "true",
+    reason="conversion tests are not relevant outside DLS",
+)
 def test_bl38p_convert():
     """
     Test conversion of an entire motion area

@@ -2,6 +2,18 @@
 Converting to pmac_motorhome.py
 ===============================
 
+Introduction
+------------
+
+This section gives details for converting from the old DLS homing PLC
+generator that came in the support module pmacUtil which provided
+additional features to the turbo pmac support in tpmac.
+
+Users of pmac support module only can ignore this section
+
+Conversion
+----------
+
 To convert the plc generating python script (typically named
 generate_homing_plcs.py) from using the motorhome.py module to using the
 pmac_motorhome.py module, a conversion tool is available.

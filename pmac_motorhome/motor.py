@@ -40,8 +40,8 @@ class Motor:
             post_home (PostHomeMove): the action to perform on this motor when
                 hohing is complete
             index (int): for internal use in conversion of old scripts sets
-            the index of this motor to a different value than the order of
-            declaration.
+                the index of this motor to a different value than the order of
+                declaration.
         """
         self.axis = axis
         self.jdist = jdist

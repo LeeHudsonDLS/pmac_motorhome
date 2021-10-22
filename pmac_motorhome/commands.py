@@ -103,7 +103,7 @@ def only_axes(*axes):
     For an example of the use of this, see :doc:`../tutorials/custom`
 
     Args:
-        axes int: List of axis numbers
+        axes (int): List of axis numbers
 
     Returns:
         OnlyAxes: an OnlyAxes object for use in the context
