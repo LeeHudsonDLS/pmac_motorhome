@@ -81,9 +81,6 @@ def _snippet_function(*arglists: Dict[str, Any]) -> Callable[[F], F]:
     - appends the original Jinja to the docstring
     - appends a description of parameters to the wait_for_done template
       if  wait_for_done_args was passed to the decorator
-
-    Returns:
-        Callable[[F], F]: The decorated snippet function
     """
 
     def wrap(wrapped: F) -> F:
