@@ -36,7 +36,7 @@ class MotionArea:
     and verifying a conversion from motorhome 1.0 to motorhome 2.0 as follows:
 
     - old_motion: A copy of the motion area with all of the homing PLCs
-    regenerated using the latest version of motorhome.py.
+    regenerated using the latest version of motorhome 1.0
     This is to provide a meaningful baseline for
     comparison to verify the successful conversion
 
@@ -119,7 +119,6 @@ class MotionArea:
             params (str): a space separated arguments list
         """
         os.chdir(str(cwd))
-        # print(os.getcwd())
 
         python = sys.executable  # defaults python 3
         if python2:
@@ -128,13 +127,10 @@ class MotionArea:
         if len(modules):
             for i in range(len(modules)):
                 python += " " + modules[i] + " "
-        # print(python, cwd, pypath, params)
-        # print(type(pypath))
         command = f"cd {cwd}; PYTHONPATH={pypath} {python} {script} {params}"
         log.debug(f"executing: {command}")
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
         process.wait()
-        # print(process.communicate())
 
     def make_old_motion(self):
         """
@@ -186,11 +182,14 @@ class MotionArea:
         if root_gen.exists():
             # single root generator
             plc_files = self._parse_masters(self.new_motion)
-
+            
             new_root_gen = self.new_motion / "generate_homing_plcs2.py"
             self.copy_new_gen = new_root_gen
             self.copy_old_gen = self.original_path / script_path
             # clear PLC instances in preparation for loading the next motorhome.py
+            # TODO: this could be a function which creates a list of PLCS. 
+            # This list would be than passed to 'make_code'
+            # -------- START generating the list of PLCs------------
             PLC.instances = []
 
             # open a FIFO pipe to collect pickled PLC instances
@@ -198,12 +197,7 @@ class MotionArea:
             fifo = os.open(self.new_motion / IPC_FIFO_NAME, os.O_RDONLY | os.O_NONBLOCK)
 
             for plc_file in plc_files:
-                # For each new plc file to be made, load_shim is called
-                # It's responsible for getting imports from pmac_motorhome.sequences,
-                #   and maybe more
-                # self.load_shim(root_gen, plc_file)
-                #   above reloads module of root_gen for each plc
-
+                
                 # set up python path here to insert shim
                 pypath = str(":").join(
                     [
@@ -213,28 +207,20 @@ class MotionArea:
                         str(plc_file.parent),
                     ]
                 )
-
+                
                 self._execute_script(
                     root_gen, self.new_motion, pypath, str(plc_file), python2=True,
                 )
-
+                
                 # read pickled list of plc instances from fifo pipe
                 msg = get_message(fifo)
-                # PLC.instances.append(pickle.loads(msg))
-                # print("================================")
-                # print(msg)
-                # print(pickle.loads(msg))
-                # print(type(pickle.loads(msg)))
                 if msg is not None:
                     for thing in pickle.loads(msg):
                         PLC.instances.append(thing)
-                # plclist = list(PLC.get_instances())
-                # for plc in plclist:
-                #     print(plc)
-                # print("================================")
 
             # close fifo pipe
             os.close(fifo)
+            # ------- FINISH GENERATING THE LIST OF PLCS -----------
 
             self.make_code(new_root_gen)
 
@@ -256,9 +242,6 @@ class MotionArea:
                 self.copy_old_gen.append(
                     self.original_path / brick_folder.parts[-1] / script_path
                 )
-                # print("===========\n===========\n===========\n===========\n")
-                # print(brick_folder.parts[-1])
-                # print(self.original_path)
 
                 # open a FIFO pipe to collect pickled PLC instances
                 os.mkfifo(brick_folder / IPC_FIFO_NAME)
@@ -270,7 +253,6 @@ class MotionArea:
                 PLC.instances = []
                 new_gen = brick_folder / "generate_homing_plcs2.py"
                 for plc_file in plc_files:
-                    # self.load_shim(gen, plc_file)
 
                     # set up own shim using pypath
                     pypath = str(":").join(
@@ -355,16 +337,17 @@ class MotionArea:
             f"{self.original_path}\n"
         )
 
+# TODO: Is this function still in use? Should be removed if not/
     def load_shim(self, module: Path, plc_file: Path) -> None:
         """
         Loads in an old style motorhome 1.0 definition file (a python script).
-        But replaces the classic motorhome.py lirary with a shim from
+        But replaces the classic motorhome.py library with a shim from
         `converter.shim.motorhome`. This results in no generation of PLC code
-        but instead instantiates an opbject graph of shim `PLC` which can be
+        but instead instantiates an object graph of shim `PLC` which can be
         inspected via PLC.instances.
 
         A single definition file may define multiple PLCs in which case this
-        funtion must be called once for each PLC, the 2nd parameter determines
+        function must be called once for each PLC, the 2nd parameter determines
         which PLC is generated.
 
         Args:
@@ -425,8 +408,8 @@ class MotionArea:
 
     def make_code(self, outpath: Path):
         """
-        Converts the list of `converter.shim.PLC` generated by importing a
-        motorhome 1.0 definition file into code for a motorhome 2.0 definition file.
+        Converts the list of `converter.shim.PLC` (generated by importing a
+        motorhome 1.0 definition file) into code for a motorhome 2.0 definition file.
 
         Args:
             outpath (Path): The filename to write generator code to
