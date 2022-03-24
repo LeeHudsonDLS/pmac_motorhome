@@ -207,10 +207,14 @@ class MotionArea:
                         str(plc_file.parent),
                     ]
                 )
-                
+                # the scrip adds a message to fifo
+                # the las command it runs is PLC.write()
+                # this is definced in the PLC shim to write class to FIFO 
+                # TODO: change the path to an absolute for make to work
+                # e.g. str(self.original_path/plc_file)
                 self._execute_script(
                     root_gen, self.new_motion, pypath, str(plc_file), python2=True,
-                )
+                ) 
                 
                 # read pickled list of plc instances from fifo pipe
                 msg = get_message(fifo)
@@ -225,10 +229,12 @@ class MotionArea:
             self.make_code(new_root_gen)
 
             # use the motorhoming 2.0 definition code created above to generate PLCs
-            for plc_file in plc_files:
-                self._execute_script(
-                    new_root_gen, self.new_motion, Path(), str(plc_file)
-                )
+            # no need for a loop - could be run only once with the same result
+            # for plc_file in plc_files:
+            plc_file = plc_files[0]
+            self._execute_script(
+                new_root_gen, self.new_motion, Path(), str(plc_file)
+            )
         else:
             # individual per brick generators
             generators = self.new_motion.glob("*/configure/generate_homing_plcs.py")
@@ -336,47 +342,6 @@ class MotionArea:
             f"{mismatches} of {count} PLC files do not match for"
             f"{self.original_path}\n"
         )
-
-# TODO: Is this function still in use? Should be removed if not/
-    def load_shim(self, module: Path, plc_file: Path) -> None:
-        """
-        Loads in an old style motorhome 1.0 definition file (a python script).
-        But replaces the classic motorhome.py library with a shim from
-        `converter.shim.motorhome`. This results in no generation of PLC code
-        but instead instantiates an object graph of shim `PLC` which can be
-        inspected via PLC.instances.
-
-        A single definition file may define multiple PLCs in which case this
-        function must be called once for each PLC, the 2nd parameter determines
-        which PLC is generated.
-
-        Args:
-            module (Path): full or relative path of the python file to load
-            plc_file: full or relative path of the plc file to output
-        """
-
-        log.debug(f"converting: {module} for {plc_file}")
-
-        # make sure python scripts can import the motorhome.py shim
-        sys.path.append(str(self.shim))
-        # and make sure the script itself is found by pthon
-        sys.path.append(str(module.parent))
-
-        sys.argv = ["exename", str(plc_file)]
-        if self.module is None:
-            count = len(PLC.instances)
-            self.module = import_module(str(module.stem))
-            # this is what you get for using import_module: When a second test is run
-            # in a single call to pytest it will reset the class variable self.module
-            # but the module will still need a reload -
-            if count == len(PLC.instances):
-                reload(self.module)
-        else:
-            reload(self.module)
-
-        # clean up the pythonpath
-        sys.path.remove(str(self.shim))
-        sys.path.remove(str(module.parent))
 
     def copytree(self, source: Path, dest: Path) -> None:
         """
