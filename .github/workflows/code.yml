@@ -14,12 +14,12 @@ jobs:
         python: ["3.7", "3.8", "3.9"]
         pipenv: ["skip-lock"]  # --${flag} will be passed to pipenv command
 
-        include:
+        #include:
           # Add an extra Python3.8 runner to publish wheels and use the lockfile
-          - os: "ubuntu-latest"
-            python: "3.7"
-            pipenv: "deploy"
-            publish: true
+         # - os: "ubuntu-latest"
+         #   python: "3.8"
+         #   pipenv: "deploy"
+         #   publish: true
 
     name: build/${{ matrix.python }}/${{ matrix.os }}/${{ matrix.pipenv }}
     runs-on: ${{ matrix.os }}
