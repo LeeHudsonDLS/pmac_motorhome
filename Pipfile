@@ -11,6 +11,6 @@ pmac_motorhome = {editable = true, extras = ["useful"], path = "."}
 
 [scripts]
 # Do flake8 here so it doesn't happen in the container in CI
-tests = "python -m pytest --flake8"
+tests = "python -m pytest --flake8 --mypy"
 docs = "sphinx-build -EWT --keep-going docs build/html"
 gitclean = "git clean -fdX"
