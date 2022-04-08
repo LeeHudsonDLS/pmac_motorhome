@@ -15,7 +15,7 @@ jobs:
         pipenv: ["skip-lock"]  # --${flag} will be passed to pipenv command
 
         include:
-          # Add an extra Python3.7 runner to publish wheels and use the lockfile
+          # Add an extra Python3.8 runner to publish wheels and use the lockfile
           - os: "ubuntu-latest"
             python: "3.8"
             pipenv: "deploy"
