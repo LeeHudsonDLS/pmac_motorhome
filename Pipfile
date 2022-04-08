@@ -8,7 +8,6 @@ pmac_motorhome = {editable = true, extras = ["dev"], path = "."}
 
 [packages]
 pmac_motorhome = {editable = true, extras = ["useful"], path = "."}
-mypy = "*"
 
 [scripts]
 # Do flake8 here so it doesn't happen in the container in CI
