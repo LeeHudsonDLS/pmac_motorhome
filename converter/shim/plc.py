@@ -19,7 +19,7 @@ from .motor import Motor
 
 
 class PLC:
-    # PLC class keeps a list of PLCs - object fatcory 
+    # PLC class keeps a list of PLCs - object fatcory
     # TODO: add a factory class - discuss with Giles
     instances = []  # type: list
 

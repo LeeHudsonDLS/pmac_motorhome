@@ -10,24 +10,24 @@ num, name, filename = parse_args()
 
 # ---- BL13J-MO-STEP-07 -----
 if name == "S1":
-	plc = PLC(num, htype=HSW, jdist=-2000, ctype=1)
-	for axis in [2]: # group 2 is :X:PLUS
-		plc.add_motor(axis, jdist=-20000, group=2)
-	for axis in [4]: # group 3 is :X:MINUS
-		plc.add_motor(axis, jdist=-2000, group=3)
-	for axis in [3]: # group 4 is :Y:PLUS
-		plc.add_motor(axis, jdist=2000, group=4)
-	for axis in [5]: # group 5 is :Y:MINUS
-		plc.add_motor(axis, jdist=-2000, group=5)
-	plc.write(filename)
+    plc = PLC(num, htype=HSW, jdist=-2000, ctype=1)
+    for axis in [2]:  # group 2 is :X:PLUS
+        plc.add_motor(axis, jdist=-20000, group=2)
+    for axis in [4]:  # group 3 is :X:MINUS
+        plc.add_motor(axis, jdist=-2000, group=3)
+    for axis in [3]:  # group 4 is :Y:PLUS
+        plc.add_motor(axis, jdist=2000, group=4)
+    for axis in [5]:  # group 5 is :Y:MINUS
+        plc.add_motor(axis, jdist=-2000, group=5)
+    plc.write(filename)
 elif name == "D8":
-	plc = PLC(num, ctype=1) # ctype=1 means GEOBRICK
-	plc.add_motor(1, htype=HSW, jdist=-1000, group=2)
-	plc.write(filename)
+    plc = PLC(num, ctype=1)  # ctype=1 means GEOBRICK
+    plc.add_motor(1, htype=HSW, jdist=-1000, group=2)
+    plc.write(filename)
 
 else:
-	sys.stderr.write("***Error: Can't make homing PLC %d for %s\n" % (num, name))
-	sys.exit(1)
+    sys.stderr.write("***Error: Can't make homing PLC %d for %s\n" % (num, name))
+    sys.exit(1)
 
 
 ####################################################################

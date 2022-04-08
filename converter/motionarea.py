@@ -186,7 +186,7 @@ class MotionArea:
             self.copy_new_gen = new_root_gen
             self.copy_old_gen = self.original_path / script_path
             # clear PLC instances in preparation for loading the next motorhome.py
-            # TODO: this could be a function which creates a list of PLCS. 
+            # TODO: this could be a function which creates a list of PLCS.
             # This list would be than passed to 'make_code'
             # -------- START generating the list of PLCs------------
             PLC.instances = []
@@ -208,7 +208,7 @@ class MotionArea:
                 )
                 # the scrip adds a message to fifo
                 # the las command it runs is PLC.write()
-                # this is definced in the PLC shim to write class to FIFO 
+                # this is definced in the PLC shim to write class to FIFO
                 self._execute_script(
                     root_gen, self.new_motion, pypath, str(plc_file), python2=True,
                 )
@@ -228,9 +228,7 @@ class MotionArea:
             # no need for a loop - could be run only once with the same result
             # for plc_file in plc_files:
             plc_file = plc_files[0]
-            self._execute_script(
-                new_root_gen, self.new_motion, Path(), str(plc_file)
-            )
+            self._execute_script(new_root_gen, self.new_motion, Path(), str(plc_file))
         else:
             # individual per brick generators
             generators = self.new_motion.glob("*/configure/generate_homing_plcs.py")
@@ -370,8 +368,8 @@ class MotionArea:
     def write_shebang(self, stream):
         # get the python path for shebang
         python_path = subprocess.check_output("which python", shell=True).strip()
-        python_path = python_path.decode('utf-8')
-        stream.write(f'#!/bin/env {python_path} \n')
+        python_path = python_path.decode("utf-8")
+        stream.write(f"#!/bin/env {python_path} \n")
 
     def make_code(self, outpath: Path):
         """
