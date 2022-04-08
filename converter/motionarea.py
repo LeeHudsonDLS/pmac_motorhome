@@ -4,7 +4,6 @@ import pickle
 import re
 import subprocess
 import sys
-from importlib import import_module, reload
 from pathlib import Path
 from shutil import copy, rmtree
 from types import ModuleType
@@ -182,7 +181,7 @@ class MotionArea:
         if root_gen.exists():
             # single root generator
             plc_files = self._parse_masters(self.new_motion)
-            
+
             new_root_gen = self.new_motion / "generate_homing_plcs2.py"
             self.copy_new_gen = new_root_gen
             self.copy_old_gen = self.original_path / script_path
@@ -197,7 +196,7 @@ class MotionArea:
             fifo = os.open(self.new_motion / IPC_FIFO_NAME, os.O_RDONLY | os.O_NONBLOCK)
 
             for plc_file in plc_files:
-                
+
                 # set up python path here to insert shim
                 pypath = str(":").join(
                     [
@@ -212,8 +211,7 @@ class MotionArea:
                 # this is definced in the PLC shim to write class to FIFO 
                 self._execute_script(
                     root_gen, self.new_motion, pypath, str(plc_file), python2=True,
-                ) 
-                
+                )
                 # read pickled list of plc instances from fifo pipe
                 msg = get_message(fifo)
                 if msg is not None:
