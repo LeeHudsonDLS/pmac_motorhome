@@ -52,7 +52,7 @@ jobs:
           SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) python -m build --sdist --wheel
 
       - name: Run Tests
-        run: pipenv run pytest
+        run: pipenv run tests
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
