@@ -51,9 +51,6 @@ class Plc:
         self.generator = PlcGenerator()
         if not self.filepath.parent.exists():
             log.error(f"Cant find parent of {self.filepath} from dir {Path.cwd()}")
-            # parent = Path.cwd().parent
-            # self.filepath = parent/self.filepath
-            # log.error(f"Modified filepath: {self.filepath}")
             raise ValueError(
                 f"bad file path {self.filepath.parent}\
                 from dir {Path.cwd()}"
