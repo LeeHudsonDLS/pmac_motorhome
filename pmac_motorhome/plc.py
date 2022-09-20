@@ -51,7 +51,10 @@ class Plc:
         self.generator = PlcGenerator()
         if not self.filepath.parent.exists():
             log.error(f"Cant find parent of {self.filepath} from dir {Path.cwd()}")
-            raise ValueError(f"bad file path {self.filepath.parent}")
+            raise ValueError(
+                f"bad file path {self.filepath.parent}\
+                from dir {Path.cwd()}"
+            )
         if (
             self.plc_num < 8  # PLCs 1-8 are reserved
             or self.plc_num > 32  # highest PLC number possible
@@ -70,8 +73,8 @@ class Plc:
     def __exit__(self, exception_type, exception_value, traceback):
         Plc.the_plc = None
         """
-         Leaving the context. Use the in scope Plc object to generate the
-         PLC output code.
+        Leaving the context. Use the in scope Plc object to generate the
+        PLC output code.
         """
         # need to do this for the case where 2 PLCs are defined in one file
         # (including in the unit tests)

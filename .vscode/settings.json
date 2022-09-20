@@ -12,7 +12,7 @@
     "python.formatting.provider": "black",
     "python.jediEnabled": false,
     "restructuredtext.confPath": "${workspaceFolder}/docs",
-    "python.pythonPath": "/scratch/xfz39520/pipenv/pmac_motorhome-TUSz-uxP/bin/python",
+    "python.pythonPath": "/scratch/rqq82173/pipenv/pmac_motorhome-tZs1Ab1R/bin/python",
     "python.linting.ignorePatterns": [
         ".vscode/*.py",
         "**/site-packages/**/*.py",

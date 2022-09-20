@@ -19,6 +19,8 @@ from .motor import Motor
 
 
 class PLC:
+    # PLC class keeps a list of PLCs - object fatcory
+    # TODO: add a factory class - discuss with Giles
     instances = []  # type: list
 
     def __init__(
@@ -55,10 +57,12 @@ class PLC:
         self.instances.append(self)
 
     @classmethod
+    # TODO: Move this to factory class
     def clear_instances(cls):
         cls.instances = []
 
     @classmethod
+    # TODO: Move this to factory class
     def get_instances(cls):
         """
         Returns a list of instances of PLCs created since the last clear_instance().
@@ -132,18 +136,9 @@ class PLC:
         self.filename = filename
         # make code
         plcs = list(PLC.get_instances())  # can't pickle generator objects!
-        # print(plcs, filename)
-        # f = open(filename, "a")
-        # f.write("write ")
-        # pickle.dump(plcs, f)
-        # f.close()
-        print(("plc.py", os.getcwd()))
         fifo = os.open(IPC_FIFO_NAME, os.O_WRONLY)
         try:
             msg = create_msg(pickle.dumps(plcs))
             os.write(fifo, msg)
         finally:
             os.close(fifo)
-
-    def writeFile(self, f):
-        pass

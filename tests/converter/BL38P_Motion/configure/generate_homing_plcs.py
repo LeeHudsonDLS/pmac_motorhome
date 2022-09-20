@@ -38,18 +38,18 @@ elif name == "FSWT":
 # Microscope stages
 # All axes home on index mark
 elif name == "MSCP":
-    plc.add_motor(1, group=2, htype=HSW, jdist=-1000, post="i") # X
-    plc.add_motor(2, group=3, htype=HSW, jdist=-10000, post="i") # Y
-    plc.add_motor(3, group=4, htype=HSW, jdist=-1000, post="i") # Z
+    plc.add_motor(1, group=2, htype=HSW, jdist=-1000, post="i")  # X
+    plc.add_motor(2, group=3, htype=HSW, jdist=-10000, post="i")  # Y
+    plc.add_motor(3, group=4, htype=HSW, jdist=-1000, post="i")  # Z
 
 # Pi microfocus sample stages
 # All axes home on a step index mark, so we must drive to lo lim before homing -> use RLIM
 elif name == "MF":
-    plc.add_motor(6, group=2, htype=RLIM, post="i") # X
-    plc.add_motor(8, group=3, htype=RLIM, post="i") # Y
-    plc.add_motor(7, group=4, htype=RLIM, post="i") # Z
+    plc.add_motor(6, group=2, htype=RLIM, post="i")  # X
+    plc.add_motor(8, group=3, htype=RLIM, post="i")  # Y
+    plc.add_motor(7, group=4, htype=RLIM, post="i")  # Z
 
-elif name == "ROT": # Coarse rotation stage
+elif name == "ROT":  # Coarse rotation stage
     plc.add_motor(4, group=2, htype=HSW, jdist=-1000, post="i")
 
 # Precision rotation stage (T8)

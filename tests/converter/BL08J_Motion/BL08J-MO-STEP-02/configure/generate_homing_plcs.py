@@ -16,9 +16,9 @@ if name == "S3J":
     plc.write(filename)
 elif name == "OSA":
     plc = PLC(num, htype=HSW, ctype=BRICK)
-    plc.add_motor(1, group=2, jdist=1000) # OSA X
-    plc.add_motor(2, group=3, jdist=1000) # OSA Y
-    plc.add_motor(3, group=4, jdist=-1000) # OSA Z
+    plc.add_motor(1, group=2, jdist=1000)  # OSA X
+    plc.add_motor(2, group=3, jdist=1000)  # OSA Y
+    plc.add_motor(3, group=4, jdist=-1000)  # OSA Z
     plc.write(filename)
 else:
     sys.stderr.write("***Error: Can't make homing PLC %d for %s\n" % (num, name))

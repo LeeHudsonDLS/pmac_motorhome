@@ -249,7 +249,8 @@ def test_post_jog_relative():
     with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file):
 
         with group(
-            group_num=4, post_home=PostHomeMove.relative_move, post_distance=1000,
+            group_num=4, post_home=PostHomeMove.relative_move,
+            post_distance=1000,
         ):
             motor(axis=3, jdist=1000)
             comment(htype="HSW", post="r1000")
@@ -265,7 +266,8 @@ def test_post_move_to_position():
     with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file):
 
         with group(
-            group_num=5, post_home=PostHomeMove.move_and_hmz, post_distance=1000,
+            group_num=5, post_home=PostHomeMove.move_and_hmz,
+            post_distance=1000,
         ):
             motor(axis=4, jdist=1000)
             comment(htype="HSW", post="z1000")
@@ -281,7 +283,8 @@ def test_post_distance():
     with plc(plc_num=12, controller=ControllerType.brick, filepath=tmp_file):
 
         with group(
-            group_num=6, post_home=PostHomeMove.move_absolute, post_distance=32767,
+            group_num=6, post_home=PostHomeMove.move_absolute,
+            post_distance=32767,
         ):
             motor(axis=5, jdist=1000)
             comment(htype="HSW", post="32767")
@@ -396,7 +399,8 @@ def test_pre_post():
     file_name = "pre_post.plc"
     tmp_file = Path("/tmp") / file_name
     with plc(plc_num=11, controller=ControllerType.brick, filepath=tmp_file):
-        with group(group_num=2, pre="\n\n        >> before  <<\n", post="\nafter\n"):
+        with group(group_num=2, pre="\n\n        >> before  <<\n",
+                   post="\nafter\n"):
             motor(axis=1)
             home_hsw()
     verify(file_name)
