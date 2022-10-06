@@ -1,6 +1,6 @@
     {% include "pb_debug_pause.pmc.jinja" %}
 
-    ;---- {{template.args.state}} State ----
+    //---- {{template.args.state}} State ----
     if (HomingStatus == StatusHoming || HomingStatus == StatusDebugHoming){
         HomingState=State{{template.args.state}}
         ; Execute the move commands

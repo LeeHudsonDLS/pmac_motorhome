@@ -1,6 +1,6 @@
-    {% include "debug_pause.pmc.jinja" %}
+    {% include "pb_debug_pause.pmc.jinja" %}
 
-    ;---- {{template.args.state}} State ----
+    //---- {{template.args.state}} State ----
     if (HomingStatus == StatusHoming || HomingStatus == StatusDebugHoming){
         HomingState=State{{template.args.state}}
         ; Execute the move commands
@@ -10,7 +10,7 @@
         {% else %}
         {{ group.set_large_jog_distance(homing_direction=template.args.homing_direction) }}
         {% endif %}
-        cmd "{{ group.jog_to_home_jdist() }}"
-        {% include "wait_for_done.pmc.jinja" %}
+        {{ group.jog_to_home_jdist() }}
+        {% include "pb_wait_for_done.pmc.jinja" %}
     }
 
