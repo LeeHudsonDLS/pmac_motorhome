@@ -368,8 +368,10 @@ class Group:
         """
         if self.controller == ControllerType.pmac:
             return self._all_axes("MSW{macro_station},i912,P{homed}", " ")
-        else:
-            return self._all_axes("i{homed_flag}=P{homed}", " ")
+        
+        if self.controller == ControllerType.pbrick:
+            return self._all_axes("{pb_homed_flag}=P{homed}", " ")
+        return self._all_axes("i{homed_flag}=P{homed}", " ")
 
     def jog_to_home_jdist(self):
         """
@@ -385,7 +387,10 @@ class Group:
         """
         Generate a command string for all group axes: home command
         """
-        return self._all_axes("#{axis}hm", " ")
+        if self.controller == ControllerType.pbrick:
+            return self._all_axes("home{axis}", " ")
+        else:
+            return self._all_axes("#{axis}hm", " ")
 
     def set_home(self) -> str:
         """
