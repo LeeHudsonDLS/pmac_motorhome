@@ -268,16 +268,26 @@ class Plc:
         """
         Generate a command string for clearing all axes limits
         """
-        r = self._all_axes("i{axis}13=0", " ")
-        r += "\n"
-        r += self._all_axes("i{axis}14=0", " ")
-        return r
+        
+        if self.controller is ControllerType.pbrick:
+            r = self._all_axes("Motor[{axis}].MaxPos=0", " ")
+            r += "\n"
+            r += self._all_axes("Motor[{axis}].MinPos=0", " ")
+            return r
+        else:
+            r = self._all_axes("i{axis}13=0", " ")
+            r += "\n"
+            r += self._all_axes("i{axis}14=0", " ")
+            return r
 
     def stop_motors(self):
         """
         Generate a command string for stopping all axes
         """
-        return self._all_axes('if (m{axis}42=0)\n    cmd "#{axis}J/"\nendif', "\n")
+        if self.controller is ControllerType.pbrick:
+            return self._all_axes('if (Motor[{axis}].FeFatal == 0){{\n    jog/{axis}\n}}', "\n")
+        else:
+            return self._all_axes('if (m{axis}42=0)\n    cmd "#{axis}J/"\nendif', "\n")
 
     def are_homed_flags_zero(self):
         """
