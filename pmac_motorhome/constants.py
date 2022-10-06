@@ -14,6 +14,8 @@ class ControllerType(Enum):
     brick = "GeoBrick"
     #: VME PMAC Controller
     pmac = "PMAC"
+    #: Power pmac controller
+    pbrick = "PowerBrick"
 
 
 class PostHomeMove(Enum):

@@ -59,6 +59,7 @@ class Motor:
             "index": self.index,
             "jdist": jdist,
             "homed_flag": f"7{self.nx}2",
+            "pb_homed_flag": f"PowerBrick[{self.gate}].Chan[{self.chan}].CaptCtrl",
             "inverse_flag": f"7{self.nx}3",
             "macro_station": self.macro_station,
         }
@@ -93,6 +94,14 @@ class Motor:
     def nx(self) -> str:
         nx = int(int((self.axis - 1) / 4) * 10 + int((self.axis - 1) % 4 + 1))
         return "{:02}".format(nx)
+
+    @property
+    def gate(self) -> str:
+        return str(int((self.axis - 1) / 4))
+
+    @property
+    def chan(self) -> str:
+        return str(int((self.axis - 1) % 4))
 
     @property
     def homed(self):

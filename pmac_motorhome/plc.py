@@ -81,7 +81,11 @@ class Plc:
         Motor.instances = {}
 
         # write out PLC
-        plc_text = self.generator.render("plc.pmc.jinja", plc=self)
+        if self.controller == ControllerType.pbrick:
+            plc_text = self.generator.render("pb_plc.pmc.jinja", plc=self)
+        else:
+            plc_text = self.generator.render("plc.pmc.jinja", plc=self)
+
         with self.filepath.open("w") as stream:
             stream.write(plc_text)
 
@@ -175,25 +179,39 @@ class Plc:
         """
         Generate a command string for saving all axes high limits
         """
-        return self._all_axes("P{hi_lim}=i{axis}13", " ")
+        if self.controller == ControllerType.pbrick:
+            return self._all_axes("P{hi_lim}=Motor[{axis}].MaxPos", " ")
+        else:
+            return self._all_axes("P{hi_lim}=i{axis}13", " ")
 
     def restore_hi_limits(self):
         """
         Generate a command string for restoring all axes high limits
         """
-        return self._all_axes("i{axis}13=P{hi_lim}", " ")
+        if self.controller == ControllerType.pbrick:
+            return self._all_axes("Motor[{axis}].MaxPos=P{hi_lim}", " ")
+        else:
+            return self._all_axes("i{axis}13=P{hi_lim}", " ")
+
 
     def save_lo_limits(self):
         """
         Generate a command string for saving all axes low limits
         """
-        return self._all_axes("P{lo_lim}=i{axis}14", " ")
+        if self.controller == ControllerType.pbrick:
+            return self._all_axes("P{lo_lim}=Motor[{axis}].MinPos", " ")
+        else:
+            return self._all_axes("P{lo_lim}=i{axis}14", " ")
 
     def restore_lo_limits(self):
         """
         Generate a command string for restoring all axes low limits
         """
-        return self._all_axes("i{axis}14=P{lo_lim}", " ")
+        if self.controller == ControllerType.pbrick:
+            return self._all_axes("Motor[{axis}].MinPos=P{lo_lim}", " ")
+        else:
+            return self._all_axes("i{axis}14=P{lo_lim}", " ")
+
 
     def save_homed(self):
         """
@@ -201,13 +219,17 @@ class Plc:
         """
         if self.controller is ControllerType.pmac:
             return self._all_axes("MSR{macro_station},i912,P{homed}", " ")
-        else:
-            return self._all_axes("P{homed}=i{homed_flag}", " ")
+        if self.controller is ControllerType.pbrick:
+            return self._all_axes("P{homed}={pb_homed_flag}", " ")
+        return self._all_axes("P{homed}=i{homed_flag}", " ")
 
     def save_not_homed(self):
         """
         Generate a command string for saving the inverse of all axes homed state
         """
+        if self.controller is ControllerType.pbrick:
+            return self._all_axes("P{not_homed}=P{homed}^12", " ")
+        
         return self._all_axes("P{not_homed}=P{homed}^$C", " ")
 
     def restore_homed(self):
@@ -216,8 +238,10 @@ class Plc:
         """
         if self.controller is ControllerType.pmac:
             return self._all_axes("MSW{macro_station},i912,P{homed}", " ")
-        else:
-            return self._all_axes("i{homed_flag}=P{homed}", " ")
+        if self.controller is ControllerType.pbrick:
+            return self._all_axes("{pb_homed_flag}=P{homed}", " ")
+
+        return self._all_axes("i{homed_flag}=P{homed}", " ")
 
     def save_limit_flags(self):
         """
@@ -235,7 +259,10 @@ class Plc:
         """
         Generate a command string for saving all axes positions
         """
-        return self._all_axes("P{pos}=M{axis}62", " ")
+        if self.controller is ControllerType.pbrick:
+            return self._all_axes("P{pos}=Motor[{axis}].Pos - Motor[{axis}].HomePos", " ")
+        else:
+            return self._all_axes("P{pos}=M{axis}62", " ")
 
     def clear_limits(self):
         """
