@@ -81,11 +81,9 @@ endif
 {# Loop through the Groups in the Plc #}
 {% for group in plc.groups %}
 {% if group.group_num == 1 %}
-if (PLC{{plc.plc_num}}_HomingBackupGroup = 1)
+if (PLC{{plc.plc_num}}_HomingBackupGroup == 1)
 {% else %}
-if (PLC{{plc.plc_num}}_HomingBackupGroup = 1 or PLC{{plc.plc_num}}_HomingBackupGroup = {{ group.group_num }})
-{% endif %}
-and (PLC{{plc.plc_num}}_HomingStatus = PLC{{plc.plc_num}}_StatusHoming or PLC{{plc.plc_num}}_HomingStatus = PLC{{plc.plc_num}}_StatusDebugHoming)
+if ((PLC{{plc.plc_num}}_HomingBackupGroup == 1 || PLC{{plc.plc_num}}_HomingBackupGroup == {{ group.group_num }}){% endif %} && (PLC{{plc.plc_num}}_HomingStatus == PLC{{plc.plc_num}}_StatusHoming || PLC{{plc.plc_num}}_HomingStatus == PLC{{plc.plc_num}}_StatusDebugHoming)){
     PLC{{plc.plc_num}}_HomingGroup={{ group.group_num }}
 
     //Clear home flags

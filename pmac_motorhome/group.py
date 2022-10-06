@@ -128,6 +128,8 @@ class Group:
                 should be in pmac_motorhome/snippets
         """
         group = Group.instance()
+        if group.controller == ControllerType.pbrick:
+            template_name = f'pb_{template_name}'
         group.templates.append(
             Template(jinja_file=template_name, args=args, function=None)
         )
@@ -235,16 +237,27 @@ class Group:
         """
         Generate a command string for all group axes: jog a set distance
         """
-        return self._all_axes("#{axis}J^*", " ")
+        if self.controller is ControllerType.pbrick:
+            return self._all_axes("jog{axis}^*", " ")
+        else:
+            return self._all_axes("#{axis}J^*", " ")
 
     def set_large_jog_distance(self, homing_direction: bool = True) -> str:
         """
         Generate a command string for all group axes: set large jog distance
         """
-        sign = "" if homing_direction else "-"
-        return self._all_axes(
-            "m{axis}72=100000000*({0}i{axis}23/ABS(i{axis}23))", " ", sign
-        )
+
+        
+        if self.controller is ControllerType.pbrick:
+            sign = "" if homing_direction else "-"
+            return self._all_axes(
+                "Motor[{axis}].ProgJogPos=100000000*({0}Motor[{axis}].HomeVel/ABS(Motor[{axis}].HomeVel))", " ", sign
+            )
+        else:
+            sign = "" if homing_direction else "-"
+            return self._all_axes(
+                "m{axis}72=100000000*({0}i{axis}23/ABS(i{axis}23))", " ", sign
+            )
 
     def jog(self, homing_direction: bool = True) -> str:
         """
@@ -253,11 +266,16 @@ class Group:
         sign = "+" if homing_direction else "-"
         return self._all_axes("#{axis}J{0}", " ", sign)
 
-    def in_pos(self, operator="&") -> str:
+    def in_pos(self, operator="&",value=0) -> str:
         """
         Generate a command string for all group axes: check in postiion
         """
-        return self._all_axes("m{axis}40", operator)
+
+        if self.controller is ControllerType.pbrick:
+            pre = "Motor[{axis}].InPos == "
+            return self._all_axes(f"{pre}{value} ", "&& ")
+        else:
+            return self._all_axes("m{axis}40", operator)
 
     def limits(self) -> str:
         """
@@ -265,11 +283,16 @@ class Group:
         """
         return self._all_axes("m{axis}30", "|")
 
-    def following_err(self) -> str:
+    def following_err(self,value=0) -> str:
         """
         Generate a command string for all group axes: check following error
         """
-        return self._all_axes("m{axis}42", "|")
+        if self.controller is ControllerType.pbrick:
+            pre = "Motor[{axis}].FeFatal == "
+            return self._all_axes(f"{pre}{value} ", "|| ")
+        else:
+            return self._all_axes("m{axis}42", "|")
+
 
     def homed(self) -> str:
         """
@@ -281,7 +304,11 @@ class Group:
         """
         Generate a command string for all group axes: clear home flag
         """
-        return self._all_axes("m{axis}45=0", " ")
+
+        if self.controller is ControllerType.pbrick:
+            return self._all_axes("// Can't clear home on PBRICK", " ")
+        else:
+            return self._all_axes("m{axis}45=0", " ")
 
     def store_position_diff(self):
         """

@@ -1,0 +1,22 @@
+        // Wait for the move to complete
+        CALL DelayTimer.msec(5)
+        Sys.CdTimer[{{plc.plc_num}}]={{ plc.timeout}}
+{% if template.args.wait_for_one_motor %}
+        while ({{ group.in_pos(operator='|') }}) // Wait until at least one motor is In Position
+{% else %}
+        while (({{ group.in_pos(value=0) }}){% endif -%}{% if not template.args.no_following_err %} && ({{ group.following_err() }}){% endif -%}{% if template.args.with_limits %} && ({{ group.limits() }} = 0) {% endif %}&& (Sys.CdTimer[{{plc.plc_num}}] > 0) && (HomingStatus == StatusHoming || HomingStatus == StatusDebugHoming) ){
+        }
+        // Check why we left the while loop
+{% if not template.args.no_following_err %}
+        if ({{ group.following_err(value=1) }}) // Following error check failed
+            HomingStatus = StatusFFErr
+        endif
+{% endif %}
+{% if template.args.with_limits %}
+        if ({{ group.limits() }} != 0) // Limit check failed
+            HomingStatus = StatusLimit
+        endif
+{% endif %}
+        if (Sys.CdTimer[{{plc.plc_num}}]<0 || Sys.CdTimer[{{plc.plc_num}}]==0) // If we timed out
+            HomingStatus = StatusTimeout
+        endif
