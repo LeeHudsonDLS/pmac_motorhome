@@ -1,13 +1,13 @@
     {% if group.post and group.post != "" %}
-    {% include "debug_pause.pmc.jinja" %}
+    {% include "pb_debug_pause.pmc.jinja" %}
 
-    ;---- PostHomeMove State ----
-	if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
-		HomingState=StatePostHomeMove
-		; Execute the move commands
-		if (HomingStatus = StatusHoming or HomingStatus = StatusDebugHoming)
+    //---- PostHomeMove State ----
+	if (PLC{{plc.plc_num}}_HomingStatus == PLC{{plc.plc_num}}_StatusHoming || PLC{{plc.plc_num}}_HomingStatus == PLC{{plc.plc_num}}_StatusDebugHoming){
+		PLC{{plc.plc_num}}_HomingState=PLC{{plc.plc_num}}_StatePostHomeMove
+		// Execute the move commands
+		if (PLC{{plc.plc_num}}_HomingStatus == PLC{{plc.plc_num}}_StatusHoming || PLC{{plc.plc_num}}_HomingStatus == PLC{{plc.plc_num}}_StatusDebugHoming){
             {{ group.post }}
-		endif
-	endif
+		}
+	}
 
     {% endif %}

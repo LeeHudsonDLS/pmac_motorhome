@@ -6,9 +6,9 @@
        e.g. for an axis that is home on release of limit this would drive
        onto the limit  #}
     //---- {{template.args.state}} State ----
-    if (HomingStatus == StatusHoming || HomingStatus == StatusDebugHoming){
-        HomingState=State{{template.args.state}}
-        ; Execute the move commands
+    if (PLC{{plc.plc_num}}_HomingStatus == PLC{{plc.plc_num}}_StatusHoming || PLC{{plc.plc_num}}_HomingStatus == PLC{{plc.plc_num}}_StatusDebugHoming){
+        PLC{{plc.plc_num}}_HomingState=PLC{{plc.plc_num}}_State{{template.args.state}}
+        // Execute the move commands
         {{ group.negate_home_flags() }} {{ group.set_large_jog_distance(homing_direction=template.args.homing_direction) }}
         {{ group.jog_to_home_jdist() }}
         {% include "pb_wait_for_done.pmc.jinja" %}

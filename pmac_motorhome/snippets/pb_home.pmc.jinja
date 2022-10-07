@@ -1,8 +1,8 @@
     {% include "pb_debug_pause.pmc.jinja" %}
 
     //---- Homing State ----
-    if (HomingStatus == StatusHoming || HomingStatus == StatusDebugHoming){
-        HomingState=StateHoming
+    if (PLC{{plc.plc_num}}_HomingStatus == PLC{{plc.plc_num}}_StatusHoming || PLC{{plc.plc_num}}_HomingStatus == PLC{{plc.plc_num}}_StatusDebugHoming){
+        PLC{{plc.plc_num}}_HomingState=PLC{{plc.plc_num}}_StateHoming
         // Execute the move commands
         {{ group.restore_home_flags() }}
         {{ group.home() }}
