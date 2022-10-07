@@ -48,7 +48,7 @@ class Plc:
 
         self.groups: List[Group] = []
         self.motors: "OrderedDict[int, Motor]" = OrderedDict()
-        self.generator = PlcGenerator()
+        self.generator = PlcGenerator(self.controller)
         if not self.filepath.parent.exists():
             log.error(f"Cant find parent of {self.filepath} from dir {Path.cwd()}")
             raise ValueError(
@@ -81,10 +81,7 @@ class Plc:
         Motor.instances = {}
 
         # write out PLC
-        if self.controller == ControllerType.pbrick:
-            plc_text = self.generator.render("pb_plc.pmc.jinja", plc=self)
-        else:
-            plc_text = self.generator.render("plc.pmc.jinja", plc=self)
+        plc_text = self.generator.render("plc.pmc.jinja", plc=self)
 
         with self.filepath.open("w") as stream:
             stream.write(plc_text)

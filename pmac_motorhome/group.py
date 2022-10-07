@@ -128,8 +128,6 @@ class Group:
                 should be in pmac_motorhome/snippets
         """
         group = Group.instance()
-        if group.controller == ControllerType.pbrick:
-            template_name = f'pb_{template_name}'
         group.templates.append(
             Template(jinja_file=template_name, args=args, function=None)
         )

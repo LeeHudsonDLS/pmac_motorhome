@@ -1,4 +1,4 @@
-    {% include "pb_debug_pause.pmc.jinja" %}
+    {% include "debug_pause.pmc.jinja" %}
 
     {# Invert the homing flags and the jog until the inverse of the home flag
        triggers.
@@ -11,6 +11,6 @@
         // Execute the move commands
         {{ group.negate_home_flags() }} {{ group.set_large_jog_distance(homing_direction=template.args.homing_direction) }}
         {{ group.jog_to_home_jdist() }}
-        {% include "pb_wait_for_done.pmc.jinja" %}
+        {% include "wait_for_done.pmc.jinja" %}
     }
 

@@ -1,5 +1,5 @@
     {% if group.post and group.post != "" %}
-    {% include "pb_debug_pause.pmc.jinja" %}
+    {% include "debug_pause.pmc.jinja" %}
 
     //---- PostHomeMove State ----
 	if (PLC{{plc.plc_num}}_HomingStatus == PLC{{plc.plc_num}}_StatusHoming || PLC{{plc.plc_num}}_HomingStatus == PLC{{plc.plc_num}}_StatusDebugHoming){
